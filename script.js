@@ -33,7 +33,7 @@ const poemaSync = [
 ];
 
 // ===== ELEMENTOS DOM =====
-const startBtn = document.getElementById('start-btn');
+const envelopeBtn = document.getElementById('envelope-btn');
 const startScreen = document.getElementById('start-screen');
 const audioPoema = document.getElementById('audio-poema');
 const magicText = document.getElementById('magic-text');
@@ -123,20 +123,26 @@ function checkLyrics() {
 }
 
 // ===== INICIO =====
-startBtn.addEventListener('click', () => {
-    startScreen.classList.remove('active');
+envelopeBtn.addEventListener('click', () => {
+    // 1. Inicia la animacion de la carta abriendose
+    envelopeBtn.classList.add('open');
     
-    if(audioPoema && audioPoema.src) {
-        audioPoema.play().catch(e => console.log("No hay audio subido aún, usando modo texto automático"));
-    }
-    
-    isPlaying = true;
-    lastTime = Date.now();
-    virtualTime = 0;
-    checkLyrics();
-    
-    // Lanzar primeros faroles en masa
-    for(let i=0; i<8; i++) {
-        setTimeout(spawnRealisticLantern, i * 400);
-    }
+    // 2. Esperar a que la animacion termine (aprox 2.5 seg) para empezar todo
+    setTimeout(() => {
+        startScreen.classList.remove('active');
+        
+        if(audioPoema && audioPoema.src) {
+            audioPoema.play().catch(e => console.log("No hay audio subido aún, usando modo texto automático"));
+        }
+        
+        isPlaying = true;
+        lastTime = Date.now();
+        virtualTime = 0;
+        checkLyrics();
+        
+        // Lanzar primeros faroles en masa
+        for(let i=0; i<8; i++) {
+            setTimeout(spawnRealisticLantern, i * 400);
+        }
+    }, 2800);
 });
