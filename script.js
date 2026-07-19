@@ -40,14 +40,17 @@ const audioPoema = document.getElementById('audio-poema');
 const magicText = document.getElementById('magic-text');
 const lanternsContainer = document.getElementById('lanterns-container');
 
-const bg1 = document.getElementById('bg-1'); // Río
-const bg2 = document.getElementById('bg-2'); // Bosque Encantado
-const bg3 = document.getElementById('bg-3'); // Amanecer
+const bg1 = document.getElementById('bg-1'); 
+const bg2 = document.getElementById('bg-2'); 
+const bg3 = document.getElementById('bg-3'); 
+const flashOverlay = document.getElementById('flash-overlay');
+const finaleText = document.getElementById('finale-text');
 
 let isPlaying = false;
 let currentLineIndex = -1;
 let virtualTime = 0;
 let lastTime = 0;
+let finaleTriggered = false;
 
 // ===== MOTOR DE FAROLES HIPERREALISTAS =====
 function spawnRealisticLantern() {
@@ -133,23 +136,62 @@ function checkLyrics() {
         }, 1200); 
     }
     
-    // Ocultar al final de todo
-    if (activeLine === poemaSync.length - 1 && currentTime > poemaSync[activeLine].time + 6) {
-        magicText.classList.remove('show');
-        magicText.classList.add('fade-out');
+    // Ocultar al final de todo y lanzar el Gran Final
+    if (activeLine === poemaSync.length - 1 && currentTime > poemaSync[activeLine].time + 5) {
+        if (magicText.classList.contains('show')) {
+            magicText.classList.remove('show');
+            magicText.classList.add('fade-out');
+        }
+        setTimeout(triggerFinale, 1500);
     }
     
     requestAnimationFrame(checkLyrics);
 }
 
+// ===== GRAN FINAL CINEMATICO =====
+function triggerFinale() {
+    if (finaleTriggered) return;
+    finaleTriggered = true;
+    
+    // Brillo intenso celestial en el amanecer
+    bg3.style.filter = 'brightness(1.5) contrast(1.2)';
+    
+    // Explosión masiva de faroles dorados
+    for(let i=0; i<50; i++) {
+        setTimeout(() => {
+            const lantern = document.createElement('div');
+            lantern.classList.add('realistic-lantern');
+            const size = Math.random() * 60 + 20;
+            const leftPos = Math.random() * 100; 
+            const duration = Math.random() * 6 + 3; // Muy rápido
+            
+            lantern.style.width = size + 'px';
+            lantern.style.height = (size * 1.5) + 'px'; 
+            lantern.style.left = leftPos + '%';
+            lantern.style.bottom = '-100px'; 
+            lantern.style.animationDuration = duration + 's';
+            
+            lanternsContainer.appendChild(lantern);
+            setTimeout(() => { if(lantern.parentNode) lantern.parentNode.removeChild(lantern); }, duration * 1000);
+        }, Math.random() * 2500);
+    }
+    
+    // El texto maestro
+    setTimeout(() => {
+        finaleText.classList.add('show');
+    }, 1500);
+}
+
 // ===== INTERACCION: DESATAR EL LAZO =====
 envelopeBtn.addEventListener('click', () => {
-    // 1. Animación Mágica de disolución
+    // 1. Animación Mágica de disolución y destello cegador
     envelopeBtn.classList.add('open');
+    setTimeout(() => { flashOverlay.classList.add('active'); }, 250);
     
     // 2. Empieza la experiencia inmersiva
     setTimeout(() => {
         startScreen.classList.remove('active');
+        flashOverlay.classList.remove('active');
         
         if(audioPoema && audioPoema.src) {
             audioPoema.play().catch(e => console.log("Modo virtual sin audio"));
