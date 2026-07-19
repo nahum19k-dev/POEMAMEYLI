@@ -1,4 +1,4 @@
-// ===== CONFIGURACION DEL POEMA Y TIEMPOS =====
+// ===== POEMA Y TIEMPOS =====
 const poemaSync = [
     { time: 2.0,  text: "Hay personas que llegan como llega la marea," },
     { time: 5.5,  text: "sin avisar, sin ruido, sin pedir permiso," },
@@ -31,20 +31,23 @@ const poemaSync = [
     { time: 107.5, text: "me gustaría ser esa persona que te hace sonreír." }
 ];
 
-// ===== ELEMENTOS DOM =====
-const envelopeBtn = document.getElementById('envelope-btn');
-const foldedParchment = document.getElementById('folded-parchment');
+// ===== ELEMENTOS =====
+const envelopeClick = document.getElementById('envelope-click');
+const envelopeFlap = document.getElementById('envelope-flap');
+const waxSeal = document.getElementById('wax-seal');
+const card = document.getElementById('card');
+const cardName = document.getElementById('card-name');
 const fairyDustContainer = document.getElementById('fairy-dust-container');
-const liveWritingText = document.querySelector('.live-writing-text');
+const ribbonText = document.querySelector('.ribbon-text');
 const startScreen = document.getElementById('start-screen');
 const audioPoema = document.getElementById('audio-poema');
 const magicText = document.getElementById('magic-text');
 const lanternsContainer = document.getElementById('lanterns-container');
 
-const bg1 = document.getElementById('bg-1'); 
-const bg2 = document.getElementById('bg-2'); 
-const bg3 = document.getElementById('bg-3'); 
-const bg4 = document.getElementById('bg-4'); 
+const bg1 = document.getElementById('bg-1');
+const bg2 = document.getElementById('bg-2');
+const bg3 = document.getElementById('bg-3');
+const bg4 = document.getElementById('bg-4');
 const handwrittenFinale = document.getElementById('handwritten-finale');
 
 let isPlaying = false;
@@ -52,181 +55,186 @@ let currentLineIndex = -1;
 let virtualTime = 0;
 let lastTime = 0;
 let finaleTriggered = false;
+let envelopeOpened = false;
 
-// ===== POLVO DE HADAS (Efecto Sorpresa) =====
+// ===== POLVO DE HADAS =====
 function burstFairyDust() {
     for (let i = 0; i < 40; i++) {
         const dust = document.createElement('div');
         dust.classList.add('fairy-dust');
-        
-        // Randomizar dirección de explosión
-        const tx = (Math.random() - 0.5) * 800 + 'px';
-        const ty = (Math.random() - 0.5) * 800 + 'px';
+
+        const tx = (Math.random() - 0.5) * 700 + 'px';
+        const ty = (Math.random() - 0.5) * 700 + 'px';
         dust.style.setProperty('--tx', tx);
         dust.style.setProperty('--ty', ty);
-        
-        const duration = Math.random() * 1.5 + 0.5;
+
+        const size = Math.random() * 6 + 3;
+        dust.style.width = size + 'px';
+        dust.style.height = size + 'px';
+
+        const duration = Math.random() * 1.5 + 0.8;
         dust.style.animation = `fairyExplode ${duration}s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
-        
+
         fairyDustContainer.appendChild(dust);
-        
+
         setTimeout(() => {
-            if(dust.parentNode) dust.parentNode.removeChild(dust);
+            if (dust.parentNode) dust.parentNode.removeChild(dust);
         }, duration * 1000);
     }
 }
 
-// ===== MOTOR DE FAROLES HIPERREALISTAS =====
-function spawnRealisticLantern() {
+// ===== FAROLES =====
+function spawnLantern() {
     if (!isPlaying || finaleTriggered) return;
 
     const lantern = document.createElement('div');
     lantern.classList.add('realistic-lantern');
-    
+
     const size = Math.random() * 60 + 40;
-    const leftPos = Math.random() * 90; 
-    const duration = Math.random() * 15 + 20; 
-    const delay = Math.random() * 2;
-    
     lantern.style.width = size + 'px';
-    lantern.style.height = (size * 1.5) + 'px'; 
-    lantern.style.left = leftPos + '%';
-    lantern.style.bottom = '-150px'; 
-    
+    lantern.style.height = (size * 1.5) + 'px';
+    lantern.style.left = Math.random() * 90 + '%';
+    lantern.style.bottom = '-150px';
+
+    const duration = Math.random() * 15 + 20;
+    const delay = Math.random() * 2;
     lantern.style.animationDuration = duration + 's';
     lantern.style.animationDelay = delay + 's';
-    
+
     lanternsContainer.appendChild(lantern);
-    
+
     setTimeout(() => {
-        if(lantern.parentNode) {
-            lantern.parentNode.removeChild(lantern);
-        }
+        if (lantern.parentNode) lantern.parentNode.removeChild(lantern);
     }, (duration + delay) * 1000);
 
-    setTimeout(spawnRealisticLantern, Math.random() * 1500 + 500);
+    setTimeout(spawnLantern, Math.random() * 1500 + 500);
 }
 
-// ===== MANEJADOR DE FONDOS MAGICO =====
+// ===== FONDOS =====
 function updateBackgrounds(index) {
-    if (index === 8) { 
+    if (index === 8) {
         bg1.classList.remove('active');
         bg2.classList.add('active');
-    } else if (index === 16) { 
+    } else if (index === 16) {
         bg2.classList.remove('active');
         bg3.classList.add('active');
     }
 }
 
-// ===== SINCRONIZADOR DE LETRAS =====
+// ===== SINCRONIZADOR =====
 function checkLyrics() {
     if (!isPlaying) return;
-    
+
     let currentTime = 0;
-    
     if (audioPoema && audioPoema.duration > 0 && !audioPoema.paused) {
         currentTime = audioPoema.currentTime;
     } else {
-        let now = Date.now();
+        const now = Date.now();
         virtualTime += (now - lastTime) / 1000;
         lastTime = now;
         currentTime = virtualTime;
     }
-    
+
     let activeLine = -1;
     for (let i = 0; i < poemaSync.length; i++) {
-        if (currentTime >= poemaSync[i].time) {
-            activeLine = i;
-        }
+        if (currentTime >= poemaSync[i].time) activeLine = i;
     }
-    
+
     if (activeLine !== currentLineIndex && activeLine !== -1) {
         currentLineIndex = activeLine;
-        
+
         if (magicText.classList.contains('show')) {
             magicText.classList.remove('show');
             magicText.classList.add('fade-out');
         }
-        
+
         updateBackgrounds(currentLineIndex);
-        
+
         setTimeout(() => {
             magicText.textContent = poemaSync[currentLineIndex].text;
             magicText.classList.remove('fade-out');
             magicText.classList.add('show');
-        }, 1200); 
+        }, 1200);
     }
-    
-    // El Gran Final Poético
+
     if (activeLine === poemaSync.length - 1 && currentTime > poemaSync[activeLine].time + 5) {
         if (magicText.classList.contains('show')) {
             magicText.classList.remove('show');
             magicText.classList.add('fade-out');
         }
-        setTimeout(triggerPoeticFinale, 1500);
+        setTimeout(triggerFinale, 1500);
     }
-    
+
     requestAnimationFrame(checkLyrics);
 }
 
-// ===== GRAN FINAL POETICO (CINE CLASICO) =====
-function triggerPoeticFinale() {
+// ===== FINAL POÉTICO =====
+function triggerFinale() {
     if (finaleTriggered) return;
     finaleTriggered = true;
-    
+
     bg3.classList.remove('active');
-    bg4.classList.add('active'); 
-    
-    const lanterns = document.querySelectorAll('.realistic-lantern');
-    lanterns.forEach(l => l.style.opacity = '0');
-    
+    bg4.classList.add('active');
+
+    document.querySelectorAll('.realistic-lantern').forEach(l => l.style.opacity = '0');
+
     setTimeout(() => {
         handwrittenFinale.classList.add('show');
-    }, 3000); 
+    }, 3000);
 }
 
-// ===== LA GRAN SECUENCIA DE APERTURA (5 EFECTOS) =====
-envelopeBtn.addEventListener('click', () => {
-    // 1. El Clic: El sobre cae, el sello de cera estalla en fuego (Clase .drop en CSS)
-    envelopeBtn.classList.add('drop');
-    
-    // 2. Magia: Estallido de polvo de hadas saliendo del sobre
-    setTimeout(burstFairyDust, 200);
-    
-    // 3. Papel 3D: Sale del sobre y se desdobla
-    setTimeout(() => {
-        foldedParchment.classList.add('slide-out');
-    }, 500);
+// ===== LA GRAN SECUENCIA DE APERTURA =====
+envelopeClick.addEventListener('click', () => {
+    if (envelopeOpened) return;
+    envelopeOpened = true;
 
-    setTimeout(() => {
-        foldedParchment.classList.add('unfold');
-    }, 1500);
+    // PASO 1: El sello se quema
+    waxSeal.classList.add('burn');
+    ribbonText.classList.add('hide');
 
-    // 4. Escritura en tiempo real (Tinta de oro)
+    // PASO 1b: La solapa se abre hacia arriba (después de que el sello se derrita)
     setTimeout(() => {
-        liveWritingText.classList.add('write');
-    }, 3000); // Se escribe después de estar desdoblado
-    
-    // 5. El zoom in final hacia el poema
+        envelopeFlap.classList.add('open');
+    }, 400);
+
+    // PASO 2: Explosión de polvo de hadas
+    setTimeout(burstFairyDust, 700);
+
+    // PASO 3: La tarjeta sale del sobre hacia arriba
     setTimeout(() => {
-        foldedParchment.classList.add('zoom-in');
-    }, 6000); // 3 seg para desdoblar + 2.5s para escribir
-    
+        card.classList.add('slide-out');
+    }, 1200);
+
+    // PASO 3b: El sobre cae
+    setTimeout(() => {
+        envelopeClick.classList.add('drop');
+    }, 1800);
+
+    // PASO 4: Escritura mágica del nombre
+    setTimeout(() => {
+        cardName.classList.add('write');
+    }, 3200);
+
+    // PASO 5: La tarjeta hace zoom y se disuelve hacia el río
+    setTimeout(() => {
+        card.classList.add('zoom-in');
+    }, 6000);
+
     // Entrando al Río Oscuro
     setTimeout(() => {
         startScreen.classList.remove('active');
-        
-        if(audioPoema && audioPoema.src) {
-            audioPoema.play().catch(e => console.log("Modo virtual sin audio"));
+
+        if (audioPoema && audioPoema.src) {
+            audioPoema.play().catch(() => console.log("Modo virtual sin audio"));
         }
-        
+
         isPlaying = true;
         lastTime = Date.now();
         virtualTime = 0;
         checkLyrics();
-        
-        for(let i=0; i<8; i++) {
-            setTimeout(spawnRealisticLantern, i * 400);
+
+        for (let i = 0; i < 8; i++) {
+            setTimeout(spawnLantern, i * 400);
         }
     }, 7800);
 });

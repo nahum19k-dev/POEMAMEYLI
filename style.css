@@ -13,7 +13,9 @@ body, html {
     color: white;
 }
 
-/* --- Fondos Dinámicos Fotorealistas --- */
+/* ========================================
+   FONDOS DINÁMICOS FOTOREALISTAS
+   ======================================== */
 .real-background {
     position: absolute;
     top: 0; left: 0;
@@ -23,7 +25,7 @@ body, html {
     background-repeat: no-repeat;
     z-index: 1;
     opacity: 0;
-    transition: opacity 4s ease-in-out, filter 4s ease-in-out; 
+    transition: opacity 4s ease-in-out, filter 4s ease-in-out;
     transform: scale(1.0);
 }
 
@@ -39,7 +41,7 @@ body, html {
 
 #water-overlay {
     position: absolute;
-    bottom: 0; left: 0;
+    top: 0; left: 0;
     width: 100%; height: 100%;
     background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
     z-index: 2;
@@ -47,11 +49,9 @@ body, html {
     transition: opacity 4s;
 }
 
-#bg-4.active ~ #water-overlay {
-    opacity: 0;
-}
-
-/* --- Faroles Fotorealistas --- */
+/* ========================================
+   FAROLES
+   ======================================== */
 #lanterns-container {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -64,12 +64,11 @@ body, html {
     position: absolute;
     background: radial-gradient(circle at 50% 70%, #ffefb3, #ff9d00 50%, #8a2be2 120%);
     border-radius: 40% 40% 30% 30% / 50% 50% 20% 20%;
-    box-shadow: 
+    box-shadow:
         0 0 20px 5px rgba(255, 160, 0, 0.7),
         0 0 50px 20px rgba(255, 100, 0, 0.4),
         inset 0 -5px 15px rgba(0,0,0,0.5);
     animation: floatUp linear forwards;
-    will-change: transform, top, opacity;
 }
 
 .realistic-lantern::after {
@@ -96,7 +95,9 @@ body, html {
     100% { transform: translateY(-120vh) scale(0.3) rotate(15deg); opacity: 0; }
 }
 
-/* --- Interfaz de Usuario --- */
+/* ========================================
+   UI LAYER
+   ======================================== */
 #ui-layer {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -108,13 +109,13 @@ body, html {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,1) 100%);
-    backdrop-filter: blur(15px);
-    transition: opacity 2s ease 0s; 
+    background: radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%);
+    backdrop-filter: blur(12px);
+    transition: opacity 2s ease;
     pointer-events: auto;
+    opacity: 1;
 }
 
 #start-screen:not(.active) {
@@ -122,341 +123,296 @@ body, html {
     pointer-events: none;
 }
 
-/* --- Animación de la Carta 100% CSS Programada --- */
-.letter-scene {
+/* ========================================
+   LA ESCENA DE LA CARTA
+   ======================================== */
+.envelope-scene {
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    perspective: 1600px;
 }
 
-.css-envelope-wrapper {
+/* ---- EL SOBRE (DELANTE) ---- */
+.envelope {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 380px;
+    height: 240px;
     cursor: pointer;
     z-index: 10;
-    transition: transform 1s ease-in-out, opacity 1s ease-in-out 0.5s;
     animation: floatEnvelope 4s infinite ease-in-out;
-}
-
-.css-envelope-wrapper:hover {
-    transform: scale(1.03);
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
 }
 
 @keyframes floatEnvelope {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-12px); }
 }
 
-/* Estructura del Sobre Programado */
-.css-envelope {
-    position: relative;
-    width: 380px;
-    height: 240px;
-    background: #d4c5b0;
+.envelope:hover {
+    transform: scale(1.02);
+}
+
+/* Cuerpo principal del sobre */
+.envelope-body {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(160deg, #e8d9c5, #d4c4ad 40%, #c9b89e);
     border-radius: 4px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-    transform-style: preserve-3d;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.7),
+        inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
-.css-envelope-back {
+/* Líneas decorativas de doblez (forma de V) */
+.envelope-fold-lines {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: repeating-linear-gradient(45deg, #d4c5b0, #d4c5b0 5px, #d1c1a9 5px, #d1c1a9 10px);
-    border-radius: 4px;
-    z-index: 1;
+    pointer-events: none;
+}
+.envelope-fold-lines::before,
+.envelope-fold-lines::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 50%; height: 100%;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.envelope-fold-lines::before {
+    left: 0;
+    border-right: 1px solid rgba(0,0,0,0.04);
+    transform: skewY(25deg);
+    transform-origin: top left;
+}
+.envelope-fold-lines::after {
+    right: 0;
+    border-left: 1px solid rgba(0,0,0,0.04);
+    transform: skewY(-25deg);
+    transform-origin: top right;
 }
 
-/* Detalles Postales (Estampilla y Sello) */
-.css-stamp {
+/* Solapa superior del sobre (triángulo que se abre en 3D) */
+.envelope-flap {
     position: absolute;
-    top: 20px; right: 25px;
-    width: 35px; height: 45px;
-    background: #eaddcc;
-    border: 2px dashed #b8a68f;
-    z-index: 2;
-    display: flex; justify-content: center; align-items: center;
-}
-.css-stamp::after {
-    content: '18';
-    font-family: 'Cinzel', serif;
-    color: #9c8971;
-    font-size: 1.2rem;
-    opacity: 0.8;
-}
-.css-postmark {
-    position: absolute;
-    top: 15px; right: 45px;
-    width: 65px; height: 65px;
-    border: 1px solid rgba(0,0,0,0.15);
-    border-radius: 50%;
-    z-index: 2;
-    display: flex; justify-content: center; align-items: center;
-    color: rgba(0,0,0,0.15);
-    font-size: 0.8rem;
-    font-family: 'Cinzel', serif;
-    transform: rotate(-15deg);
-}
-.css-postmark::before {
-    content: 'PARIS';
-}
-
-.css-envelope-front {
-    position: absolute;
-    top: 0; left: 0; width: 0; height: 0;
+    top: 0; left: 0;
+    width: 0; height: 0;
     border-style: solid;
-    border-width: 0 190px 240px 190px;
-    border-color: transparent #dac3a8 #d1b899 #dac3a8;
-    z-index: 3;
-    border-radius: 0 0 4px 4px;
-    filter: drop-shadow(0 -5px 10px rgba(0,0,0,0.15));
+    border-width: 130px 190px 0 190px;
+    border-color: #ddd0be transparent transparent transparent;
+    z-index: 11;
+    transform-origin: top center;
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
 }
 
-.css-envelope-flap {
+/* ---- SELLO DE CERA (PROTAGONISTA) ---- */
+.wax-seal {
     position: absolute;
-    top: 0; left: 0; width: 0; height: 0;
-    border-style: solid;
-    border-width: 135px 190px 0 190px;
-    border-color: #ebdaca transparent transparent transparent;
-    z-index: 4;
-    transform-origin: top;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
-}
-
-/* 1. Sello de Cera hiperrealista (LATIDO) */
-.css-wax-seal {
-    position: absolute;
-    top: 105px;
-    left: 165px; 
-    width: 50px; height: 50px;
-    background: radial-gradient(circle at 30% 30%, #c40000, #8b0000 60%, #4d0000);
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 58px; height: 58px;
+    background: radial-gradient(circle at 35% 35%, #d42a2a, #9b0000 55%, #520000);
     border-radius: 50%;
-    z-index: 5;
-    box-shadow: 
-        0 4px 10px rgba(0,0,0,0.7), 
-        inset 0 2px 4px rgba(255,255,255,0.4),
-        inset 0 -2px 4px rgba(0,0,0,0.5);
+    z-index: 12;
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.7),
+        inset 0 2px 4px rgba(255,180,180,0.4),
+        inset 0 -3px 5px rgba(0,0,0,0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.4s ease, opacity 0.4s ease, box-shadow 0.4s ease, background 0.4s;
-    animation: heartBeat 1.5s infinite alternate; /* Efecto latido 1 */
+    animation: heartBeat 1.4s infinite alternate;
+    transition: all 0.5s ease;
+}
+
+/* Borde irregular del sello (más realista) */
+.wax-seal::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    background: radial-gradient(circle at 35% 35%, #d42a2a, #9b0000 55%, #520000);
+    border-radius: 50%;
+    z-index: -1;
+    clip-path: polygon(50% 0%, 61% 4%, 70% 2%, 78% 8%, 85% 15%, 92% 22%, 98% 33%, 100% 44%, 98% 56%, 96% 67%, 92% 76%, 85% 84%, 78% 90%, 68% 96%, 58% 100%, 48% 98%, 38% 96%, 28% 92%, 18% 85%, 10% 76%, 5% 65%, 2% 54%, 0% 44%, 2% 33%, 6% 22%, 12% 14%, 20% 7%, 30% 3%, 40% 0%);
+}
+
+.seal-heart {
+    font-size: 1.5rem;
+    color: rgba(255,180,180,0.85);
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
 }
 
 @keyframes heartBeat {
-    0% { transform: scale(1); box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
-    100% { transform: scale(1.08); box-shadow: 0 4px 15px rgba(255,0,0,0.5), 0 0 20px rgba(255, 0, 0, 0.3); }
+    0% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    }
+    100% {
+        transform: translateX(-50%) scale(1.08);
+        box-shadow: 0 4px 20px rgba(200,0,0,0.5), 0 0 30px rgba(255,0,0,0.2);
+    }
 }
 
-/* Hover hace brillar el sello en oro (Preparando la magia) */
-.css-envelope-wrapper:hover .css-wax-seal {
+/* Hover: brillo dorado mágico */
+.envelope:hover .wax-seal {
     animation: none;
-    transform: scale(1.1);
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.5);
-    background: radial-gradient(circle at 30% 30%, #ff5555, #c40000 60%, #8b0000);
+    transform: translateX(-50%) scale(1.15);
+    box-shadow: 0 0 35px rgba(255, 215, 0, 0.8), inset 0 0 12px rgba(255, 215, 0, 0.3);
 }
 
-.seal-inner {
-    font-size: 1.5rem;
-    color: #ffcccc;
-    text-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
-    opacity: 0.8;
+/* ---- ANIMACIONES DE APERTURA ---- */
+
+/* Sello se quema y desaparece */
+.wax-seal.burn {
+    animation: none !important;
+    transform: translateX(-50%) scale(2.5) !important;
+    background: radial-gradient(circle at center, #ffcc00, #ff4400 40%, transparent 75%) !important;
+    box-shadow: 0 0 60px #ff4400, 0 0 120px #ffcc00 !important;
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.5s ease 0.15s, background 0.3s, box-shadow 0.3s;
 }
 
+/* Solapa se abre hacia arriba */
+.envelope-flap.open {
+    transform: rotateX(180deg);
+}
+
+/* El sobre entero cae y desaparece */
+.envelope.drop {
+    animation: none;
+    transform: translateY(180px) rotate(-8deg);
+    opacity: 0;
+}
+
+/* ---- LA TARJETA INTERIOR (DETRÁS DEL SOBRE) ---- */
+.card {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 290px;
+    height: 180px;
+    background: #fcfaf6;
+    border: 2px solid #d4af37;
+    border-radius: 3px;
+    box-shadow:
+        inset 0 0 0 5px #fcfaf6,
+        inset 0 0 0 6px rgba(212,175,55,0.4),
+        0 8px 25px rgba(0,0,0,0.4);
+    z-index: 5; /* DETRÁS del sobre (z:10) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-inner-border {
+    width: 88%;
+    height: 82%;
+    border: 1px dashed rgba(212, 175, 55, 0.35);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Esquinitas decorativas doradas */
+.card-inner-border::before,
+.card-inner-border::after {
+    content: '❧';
+    position: absolute;
+    font-size: 1.2rem;
+    color: rgba(212, 175, 55, 0.4);
+}
+.card-inner-border::before { top: 2px; left: 6px; }
+.card-inner-border::after { bottom: 2px; right: 6px; transform: rotate(180deg); }
+
+/* El nombre (oculto al inicio, se "escribe" después) */
+.card-name {
+    font-family: 'Great Vibes', cursive;
+    font-size: 5rem;
+    color: #d4af37;
+    text-shadow: 1px 1px 3px rgba(212, 175, 55, 0.3);
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 0;
+    border-right: 2px solid transparent;
+}
+
+/* Animación de escritura mágica */
+.card-name.write {
+    animation: writeGold 2s ease-in-out forwards;
+}
+
+@keyframes writeGold {
+    0% { max-width: 0; border-right-color: rgba(212,175,55,0.8); }
+    85% { border-right-color: rgba(212,175,55,0.8); }
+    100% { max-width: 350px; border-right-color: transparent; }
+}
+
+/* Tarjeta sale del sobre (desliza hacia arriba) */
+.card.slide-out {
+    transform: translateX(-50%) translateY(-280px);
+    z-index: 20;
+}
+
+/* Tarjeta hace zoom y se disuelve */
+.card.zoom-in {
+    transform: translateX(-50%) translateY(-280px) scale(8);
+    opacity: 0;
+    transition: transform 2s ease-in, opacity 1.5s ease-in 0.5s;
+}
+
+/* ---- POLVO DE HADAS ---- */
+#fairy-dust-container {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 0; height: 0;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.fairy-dust {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: #ffd700;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #fff, 0 0 15px #ffd700;
+}
+
+@keyframes fairyExplode {
+    0% { transform: scale(1) translate(0,0); opacity: 1; }
+    100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+}
+
+/* ---- TEXTO DEBAJO DEL SOBRE ---- */
 .ribbon-text {
     font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #ffefb3;
-    margin-top: 30px;
+    margin-top: 35px;
     letter-spacing: 2px;
-    text-shadow: 0 0 15px rgba(255, 239, 179, 0.9);
+    text-shadow: 0 0 15px rgba(255, 239, 179, 0.8);
     animation: pulseText 2s infinite ease-in-out;
-    transition: opacity 0.3s;
+    transition: opacity 0.5s;
 }
 
 @keyframes pulseText {
     0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; text-shadow: 0 0 25px rgba(255, 239, 179, 1); }
+    50% { opacity: 1; }
 }
 
-/* --- 4. La Carta Plegada en 3D --- */
-.folded-parchment {
-    position: absolute;
-    top: 25px; 
-    left: 75px; 
-    width: 230px; 
-    height: 180px;
-    z-index: 2; /* Atrás de las solapas */
-    display: flex;
-    flex-direction: column;
-    transform-style: preserve-3d;
-    transform: translateY(0) scale(1);
-    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s;
-}
-
-/* Cada doblez de la carta */
-.fold {
-    width: 100%;
-    height: 33.33%; /* Tres partes exactas */
-    background: #fcfbf8;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.fold-top {
-    transform-origin: bottom;
-    transform: rotateX(-170deg); /* Doblado hacia adelante */
-    border: 1px solid #d4af37;
-    border-bottom: none;
-    border-radius: 2px 2px 0 0;
-    box-shadow: inset 0 0 0 4px #fcfbf8, inset 0 0 0 5px #d4af37;
-    background: linear-gradient(to bottom, #fcfbf8, #f0eadd);
-}
-
-.fold-center {
-    border-left: 1px solid #d4af37;
-    border-right: 1px solid #d4af37;
-    box-shadow: inset 4px 0 0 0 #fcfbf8, inset -4px 0 0 0 #fcfbf8, inset 5px 0 0 0 #d4af37, inset -5px 0 0 0 #d4af37;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.fold-bottom {
-    transform-origin: top;
-    transform: rotateX(170deg); /* Doblado hacia arriba */
-    border: 1px solid #d4af37;
-    border-top: none;
-    border-radius: 0 0 2px 2px;
-    box-shadow: inset 0 0 0 4px #fcfbf8, inset 0 0 0 5px #d4af37;
-    background: linear-gradient(to top, #fcfbf8, #f0eadd);
-}
-
-.card-border-inner {
-    width: 90%; height: 100%; /* Ocupa el centro pero los bordes punteados se conectan si queremos */
-    border-left: 1px dashed rgba(212, 175, 55, 0.5);
-    border-right: 1px dashed rgba(212, 175, 55, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.fold-top::before, .fold-bottom::before {
-    content: '';
-    position: absolute;
-    width: 90%; height: 90%;
-    left: 5%;
-    border-left: 1px dashed rgba(212, 175, 55, 0.5);
-    border-right: 1px dashed rgba(212, 175, 55, 0.5);
-}
-.fold-top::before { top: 10%; border-top: 1px dashed rgba(212, 175, 55, 0.5); }
-.fold-bottom::before { bottom: 10%; border-bottom: 1px dashed rgba(212, 175, 55, 0.5); }
-
-
-/* Animaciones al hacer Clic */
-.css-envelope-wrapper.drop {
-    transform: translateY(150px) rotate(-5deg);
-    opacity: 0;
-    pointer-events: none;
-}
-.css-envelope-wrapper.drop .ribbon-text {
+.ribbon-text.hide {
     opacity: 0;
 }
 
-/* 2. El Clic (Fuego y Apertura) */
-.css-envelope-wrapper.drop .css-wax-seal {
-    animation: none;
-    transform: scale(3); /* Estalla */
-    background: radial-gradient(circle at center, #ffaa00, #ff0000 40%, transparent 80%); /* Fuego */
-    box-shadow: 0 0 50px #ff0000, 0 0 100px #ffaa00;
-    opacity: 0;
-    transition: transform 0.6s cubic-bezier(0.1, 0.8, 0.2, 1), background 0.2s, opacity 0.5s ease 0.1s;
-}
-
-.css-envelope-wrapper.drop .css-envelope-flap {
-    transform: rotateX(180deg);
-    z-index: 1; 
-}
-
-/* Movimiento de salida del sobre */
-.folded-parchment.slide-out {
-    transform: translateY(-200px) scale(1);
-    z-index: 20; 
-}
-
-/* Despliegue 3D del papel */
-.folded-parchment.unfold .fold-top {
-    transform: rotateX(0deg);
-}
-.folded-parchment.unfold .fold-bottom {
-    transform: rotateX(0deg);
-}
-
-/* Zoom hacia la cámara final */
-.folded-parchment.zoom-in {
-    transform: translateY(-200px) scale(10);
-    transition: transform 2s ease-in;
-    opacity: 0; /* Se funde en el escenario */
-}
-
-/* --- 3. Polvo de Hadas --- */
-#fairy-dust-container {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 1px; height: 1px;
-    z-index: 15;
-    pointer-events: none;
-}
-.fairy-dust {
-    position: absolute;
-    width: 8px; height: 8px;
-    background: #ffdf80;
-    border-radius: 50%;
-    box-shadow: 0 0 10px #fff, 0 0 20px #ffaa00;
-    opacity: 1;
-    transform-origin: center;
-    /* La animación se inyecta en JS */
-}
-@keyframes fairyExplode {
-    0% { transform: scale(1) translate(0,0); opacity: 1; }
-    100% { transform: scale(0.1) translate(var(--tx), var(--ty)); opacity: 0; }
-}
-
-
-/* --- 5. Escritura Mágica en Tiempo Real --- */
-.live-writing-container {
-    position: relative;
-}
-
-.live-writing-text {
-    font-family: 'Great Vibes', cursive;
-    font-size: 6rem;
-    color: #d4af37; /* Tinta de oro puro */
-    text-shadow: 1px 1px 5px rgba(212, 175, 55, 0.5);
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 0; /* Oculto al inicio */
-    display: inline-block;
-    padding-right: 5px; /* Para letras cursivas */
-}
-
-/* Se activa por JS */
-.live-writing-text.write {
-    animation: liveWrite 2.5s ease-in-out forwards;
-}
-
-@keyframes liveWrite {
-    from { max-width: 0; border-right: 2px solid rgba(212,175,55,0.8); }
-    to { max-width: 300px; border-right: 2px solid transparent; }
-}
-
-
-/* --- Texto Mágico de Oro (Poema) --- */
+/* ========================================
+   TEXTO MÁGICO DEL POEMA
+   ======================================== */
 #experience-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -468,19 +424,18 @@ body, html {
 .magic-text {
     font-family: 'Great Vibes', cursive;
     font-size: 4rem;
-    color: #ffeb99; 
+    color: #ffeb99;
     text-align: center;
     width: 80%;
     max-width: 1000px;
     line-height: 1.4;
-    text-shadow: 
+    text-shadow:
         0 2px 5px rgba(0,0,0,1),
         0 0 25px rgba(255, 215, 0, 0.8),
         0 0 45px rgba(255, 255, 255, 0.4);
     opacity: 0;
     transform: scale(0.9);
     transition: opacity 1.5s ease-out, transform 2s ease-out;
-    font-weight: 400;
 }
 
 .magic-text.show {
@@ -495,7 +450,9 @@ body, html {
     filter: blur(8px);
 }
 
-/* --- Final Manuscrito Poético (Pluma Invisible) --- */
+/* ========================================
+   FINAL POÉTICO MANUSCRITO
+   ======================================== */
 #handwritten-finale {
     position: absolute;
     top: 50%; left: 50%;
@@ -509,12 +466,11 @@ body, html {
 .handwritten-text {
     font-family: 'Great Vibes', cursive;
     font-size: 6rem;
-    color: #2c1e16; 
+    color: #2c1e16;
     white-space: nowrap;
     overflow: hidden;
     max-width: 0;
     padding: 10px 0;
-    border-right: 2px solid transparent;
 }
 
 #handwritten-finale.show {
@@ -530,13 +486,19 @@ body, html {
     to { max-width: 1000px; }
 }
 
+/* ========================================
+   RESPONSIVE
+   ======================================== */
 @media (max-width: 768px) {
-    .css-envelope { width: 300px; height: 190px; }
-    .css-envelope-front { border-width: 0 150px 190px 150px; }
-    .css-envelope-flap { border-width: 110px 150px 0 150px; }
-    .css-wax-seal { top: 85px; left: 125px; }
-    .folded-parchment { width: 180px; height: 140px; left: 60px; top: 15px; }
-    .live-writing-text { font-size: 4.5rem; }
+    .envelope { width: 300px; height: 190px; }
+    .envelope-flap { border-width: 105px 150px 0 150px; }
+    .wax-seal { top: 78px; width: 50px; height: 50px; }
+    .seal-heart { font-size: 1.2rem; }
+    .card { width: 230px; height: 145px; top: 30px; }
+    .card-name { font-size: 3.8rem; }
+    .card.slide-out { transform: translateX(-50%) translateY(-220px); }
+    .card.zoom-in { transform: translateX(-50%) translateY(-220px) scale(8); }
     .magic-text { font-size: 2.2rem; width: 90%; }
     .handwritten-text { font-size: 3.5rem; }
+    .ribbon-text { font-size: 0.85rem; }
 }
