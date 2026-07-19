@@ -10,7 +10,6 @@ const poemaSync = [
     { time: 26.0, text: "con esa voz que el silencio vuelve un regalo," },
     { time: 30.0, text: "y esa forma de ser que no puedo evitar." },
     
-    // Aquí el fondo cambia al Bosque Encantado
     { time: 36.0, text: "No sé cómo explicar lo que genera tu presencia," },
     { time: 40.5, text: "esa calma extraña de sentir que ya te conocía," },
     { time: 45.0, text: "como si el tiempo antes de ti fuera una ausencia," },
@@ -21,7 +20,6 @@ const poemaSync = [
     { time: 64.0, text: "y nos pone frente a frente a los que se dirigen," },
     { time: 68.5, text: "hacia algo que todavía no tiene nombre pero ya se sabe." },
     
-    // Aquí el fondo cambia al Amanecer Romántico
     { time: 75.0, text: "Y mientras llega el día en que volvamos a vernos," },
     { time: 79.5, text: "cuento las horas con una impaciencia que no miento," },
     { time: 84.0, text: "porque anhelar tus ojos es de los sentimientos" },
@@ -35,6 +33,7 @@ const poemaSync = [
 
 // ===== ELEMENTOS DOM =====
 const envelopeBtn = document.getElementById('envelope-btn');
+const slidingParchment = document.getElementById('sliding-parchment');
 const startScreen = document.getElementById('start-screen');
 const audioPoema = document.getElementById('audio-poema');
 const magicText = document.getElementById('magic-text');
@@ -43,8 +42,8 @@ const lanternsContainer = document.getElementById('lanterns-container');
 const bg1 = document.getElementById('bg-1'); 
 const bg2 = document.getElementById('bg-2'); 
 const bg3 = document.getElementById('bg-3'); 
-const flashOverlay = document.getElementById('flash-overlay');
-const finaleText = document.getElementById('finale-text');
+const bg4 = document.getElementById('bg-4'); 
+const handwrittenFinale = document.getElementById('handwritten-finale');
 
 let isPlaying = false;
 let currentLineIndex = -1;
@@ -54,7 +53,7 @@ let finaleTriggered = false;
 
 // ===== MOTOR DE FAROLES HIPERREALISTAS =====
 function spawnRealisticLantern() {
-    if (!isPlaying) return;
+    if (!isPlaying || finaleTriggered) return;
 
     const lantern = document.createElement('div');
     lantern.classList.add('realistic-lantern');
@@ -85,16 +84,16 @@ function spawnRealisticLantern() {
 
 // ===== MANEJADOR DE FONDOS MAGICO =====
 function updateBackgrounds(index) {
-    if (index === 8) { // Transición al Bosque Encantado
+    if (index === 8) { 
         bg1.classList.remove('active');
         bg2.classList.add('active');
-    } else if (index === 16) { // Transición al Amanecer Épico
+    } else if (index === 16) { 
         bg2.classList.remove('active');
         bg3.classList.add('active');
     }
 }
 
-// ===== SINCRONIZADOR Y EFECTOS MAGICOS DE LETRAS =====
+// ===== SINCRONIZADOR DE LETRAS =====
 function checkLyrics() {
     if (!isPlaying) return;
     
@@ -119,16 +118,13 @@ function checkLyrics() {
     if (activeLine !== currentLineIndex && activeLine !== -1) {
         currentLineIndex = activeLine;
         
-        // 1. Desvanecer mágicamente la frase anterior
         if (magicText.classList.contains('show')) {
             magicText.classList.remove('show');
             magicText.classList.add('fade-out');
         }
         
-        // 2. Revisar si toca cambio de fondo
         updateBackgrounds(currentLineIndex);
         
-        // 3. Mostrar la nueva frase tras el desvanecimiento
         setTimeout(() => {
             magicText.textContent = poemaSync[currentLineIndex].text;
             magicText.classList.remove('fade-out');
@@ -136,62 +132,55 @@ function checkLyrics() {
         }, 1200); 
     }
     
-    // Ocultar al final de todo y lanzar el Gran Final
+    // El Gran Final Poético
     if (activeLine === poemaSync.length - 1 && currentTime > poemaSync[activeLine].time + 5) {
         if (magicText.classList.contains('show')) {
             magicText.classList.remove('show');
             magicText.classList.add('fade-out');
         }
-        setTimeout(triggerFinale, 1500);
+        setTimeout(triggerPoeticFinale, 1500);
     }
     
     requestAnimationFrame(checkLyrics);
 }
 
-// ===== GRAN FINAL CINEMATICO =====
-function triggerFinale() {
+// ===== GRAN FINAL POETICO (CINE CLASICO) =====
+function triggerPoeticFinale() {
     if (finaleTriggered) return;
     finaleTriggered = true;
     
-    // Brillo intenso celestial en el amanecer
-    bg3.style.filter = 'brightness(1.5) contrast(1.2)';
+    // 1. Transición al pergamino antiguo
+    bg3.classList.remove('active');
+    bg4.classList.add('active'); // Fondo de pergamino
     
-    // Explosión masiva de faroles dorados
-    for(let i=0; i<50; i++) {
-        setTimeout(() => {
-            const lantern = document.createElement('div');
-            lantern.classList.add('realistic-lantern');
-            const size = Math.random() * 60 + 20;
-            const leftPos = Math.random() * 100; 
-            const duration = Math.random() * 6 + 3; // Muy rápido
-            
-            lantern.style.width = size + 'px';
-            lantern.style.height = (size * 1.5) + 'px'; 
-            lantern.style.left = leftPos + '%';
-            lantern.style.bottom = '-100px'; 
-            lantern.style.animationDuration = duration + 's';
-            
-            lanternsContainer.appendChild(lantern);
-            setTimeout(() => { if(lantern.parentNode) lantern.parentNode.removeChild(lantern); }, duration * 1000);
-        }, Math.random() * 2500);
-    }
+    // 2. Desaparecer los faroles poco a poco (ya que es papel)
+    const lanterns = document.querySelectorAll('.realistic-lantern');
+    lanterns.forEach(l => l.style.opacity = '0');
     
-    // El texto maestro
+    // 3. Escribir la firma a mano con pluma invisible
     setTimeout(() => {
-        finaleText.classList.add('show');
-    }, 1500);
+        handwrittenFinale.classList.add('show');
+    }, 3000); // Espera 3 segundos a que el pergamino aparezca bien
 }
 
-// ===== INTERACCION: DESATAR EL LAZO =====
+// ===== INTERACCION: SACAR LA CARTA =====
 envelopeBtn.addEventListener('click', () => {
-    // 1. Animación Mágica de disolución y destello cegador
-    envelopeBtn.classList.add('open');
-    setTimeout(() => { flashOverlay.classList.add('active'); }, 250);
+    // 1. El sobre cae
+    envelopeBtn.classList.add('drop');
     
-    // 2. Empieza la experiencia inmersiva
+    // 2. El papel interior sale hacia arriba
+    setTimeout(() => {
+        slidingParchment.classList.add('slide-out');
+    }, 400);
+
+    // 3. El papel hace zoom in hacia la cámara
+    setTimeout(() => {
+        slidingParchment.classList.add('zoom-in');
+    }, 1500);
+    
+    // 4. Se desvanece todo y empieza la magia en el río
     setTimeout(() => {
         startScreen.classList.remove('active');
-        flashOverlay.classList.remove('active');
         
         if(audioPoema && audioPoema.src) {
             audioPoema.play().catch(e => console.log("Modo virtual sin audio"));
@@ -202,9 +191,8 @@ envelopeBtn.addEventListener('click', () => {
         virtualTime = 0;
         checkLyrics();
         
-        // Lanzar faroles
         for(let i=0; i<8; i++) {
             setTimeout(spawnRealisticLantern, i * 400);
         }
-    }, 1500);
+    }, 3200);
 });

@@ -18,12 +18,15 @@
     <div id="bg-1" class="real-background active" style="background-image: url('assets/background.png');"></div>
     <div id="bg-2" class="real-background" style="background-image: url('assets/bg-forest.png');"></div>
     <div id="bg-3" class="real-background" style="background-image: url('assets/bg-sunrise.png');"></div>
+    <!-- Escena Final Poética (Pergamino) -->
+    <div id="bg-4" class="real-background" style="background-image: url('assets/bg-parchment.png');"></div>
     
     <div id="water-overlay"></div> <!-- Para simular profundidad y oscuridad mágica -->
 
-    <!-- Efectos Cinemáticos Finales y Transiciones -->
-    <div id="flash-overlay"></div>
-    <div id="finale-text">MEYLI</div>
+    <!-- Final Poético Manuscrito -->
+    <div id="handwritten-finale">
+        <div class="handwritten-text">Para siempre, tuyo.</div>
+    </div>
 
     <!-- Contenedor para los faroles y partículas mágicas -->
     <div id="lanterns-container"></div>
@@ -33,9 +36,16 @@
         
         <!-- Pantalla de inicio (La Carta Fotorealista) -->
         <div id="start-screen" class="active">
-            <div class="real-envelope-wrapper" id="envelope-btn">
-                <div class="real-envelope-image"></div>
-                <p class="ribbon-text">Toca para desatar el lazo ✨</p>
+            <div class="letter-scene">
+                <!-- El papel que sale del sobre -->
+                <div id="sliding-parchment" class="sliding-parchment">
+                    <h2 class="parchment-name">Meyli</h2>
+                </div>
+                <!-- El Sobre Frontal -->
+                <div class="real-envelope-wrapper" id="envelope-btn">
+                    <div class="real-envelope-image"></div>
+                    <p class="ribbon-text" id="ribbon-txt">Toca para abrir la carta ✨</p>
+                </div>
             </div>
         </div>
 

@@ -23,14 +23,13 @@ body, html {
     background-repeat: no-repeat;
     z-index: 1;
     opacity: 0;
-    transition: opacity 4s ease-in-out, filter 4s ease-in-out; /* Súper suave tipo cine */
+    transition: opacity 4s ease-in-out, filter 4s ease-in-out; 
 }
 
 .real-background.active {
     opacity: 1;
 }
 
-/* Capa sutil de oscuridad mágica para que las letras doradas resalten más */
 #water-overlay {
     position: absolute;
     bottom: 0; left: 0;
@@ -38,6 +37,12 @@ body, html {
     background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
     z-index: 2;
     pointer-events: none;
+    transition: opacity 4s;
+}
+
+/* Ocultar el agua en el final poético */
+#bg-4.active ~ #water-overlay {
+    opacity: 0;
 }
 
 /* --- Faroles Fotorealistas --- */
@@ -79,16 +84,10 @@ body, html {
 }
 
 @keyframes floatUp {
-    0% {
-        transform: translateY(100px) scale(0.5) rotate(0deg);
-        opacity: 0;
-    }
+    0% { transform: translateY(100px) scale(0.5) rotate(0deg); opacity: 0; }
     10% { opacity: 1; }
     90% { opacity: 1; }
-    100% {
-        transform: translateY(-120vh) scale(0.3) rotate(15deg);
-        opacity: 0;
-    }
+    100% { transform: translateY(-120vh) scale(0.3) rotate(15deg); opacity: 0; }
 }
 
 /* --- Interfaz de Usuario --- */
@@ -108,7 +107,7 @@ body, html {
     align-items: center;
     background: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,1) 100%);
     backdrop-filter: blur(15px);
-    transition: opacity 2s ease;
+    transition: opacity 2s ease 1.5s; /* Se retrasa para dejar ver la animación del pergamino */
     pointer-events: auto;
 }
 
@@ -117,13 +116,21 @@ body, html {
     pointer-events: none;
 }
 
-/* --- La Nueva Carta con Lazo --- */
+/* --- Animación de Abrir Carta y Sacar Pergamino --- */
+.letter-scene {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .real-envelope-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s ease;
+    z-index: 10; /* Sobre delante */
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out 0.5s;
 }
 
 .real-envelope-wrapper:hover {
@@ -154,6 +161,7 @@ body, html {
     letter-spacing: 2px;
     text-shadow: 0 0 15px rgba(255, 239, 179, 0.9);
     animation: pulseText 2s infinite ease-in-out;
+    transition: opacity 0.3s;
 }
 
 @keyframes pulseText {
@@ -161,50 +169,52 @@ body, html {
     50% { opacity: 1; text-shadow: 0 0 25px rgba(255, 239, 179, 1); }
 }
 
-/* Animación Mágica al Desatar el Lazo (Destello) */
-.real-envelope-wrapper.open {
-    transform: scale(1.5) translateY(-50px) rotate(-10deg);
-    opacity: 0;
-    filter: blur(20px) brightness(3);
-}
-
-/* --- Destello Blanco Mágico (Flash) --- */
-#flash-overlay {
+/* El Papel interior */
+.sliding-parchment {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: #fff;
-    z-index: 100;
+    top: 50px; 
+    width: 250px; 
+    height: 180px;
+    background: #f4e8d3;
+    border-radius: 5px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+    z-index: 5; /* Atrás del sobre */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 2s ease-out;
+    transform: translateY(0) scale(1);
+    transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s;
+    background-image: url('assets/bg-parchment.png'); /* Textura de papel real */
+    background-size: cover;
+    background-position: center;
 }
 
-#flash-overlay.active {
-    opacity: 1;
-    transition: opacity 0.5s ease-in;
-}
-
-/* --- Texto del Gran Final --- */
-#finale-text {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.5);
+.parchment-name {
     font-family: 'Great Vibes', cursive;
-    font-size: 10rem;
-    color: #fff;
-    text-shadow: 
-        0 0 30px #ffdf80,
-        0 0 60px #ff9d00,
-        0 0 100px #fff;
-    z-index: 8;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 3s ease-in, transform 4s cubic-bezier(0.1, 0.8, 0.2, 1);
+    font-size: 4.5rem;
+    color: #4a2e1b;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-#finale-text.show {
+/* Animaciones al hacer Clic */
+.real-envelope-wrapper.drop {
+    transform: translateY(200px) rotate(-10deg);
+    opacity: 0;
+}
+.real-envelope-wrapper.drop .ribbon-text {
+    opacity: 0;
+}
+
+.sliding-parchment.slide-out {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-200px) scale(1); /* Sube primero */
+}
+
+.sliding-parchment.zoom-in {
+    opacity: 1;
+    transform: translateY(-200px) scale(12); /* Luego te absorbe */
+    transition: transform 1.5s ease-in;
 }
 
 /* --- Texto Mágico de Oro --- */
@@ -219,7 +229,7 @@ body, html {
 .magic-text {
     font-family: 'Great Vibes', cursive;
     font-size: 4rem;
-    color: #ffeb99; /* Oro claro */
+    color: #ffeb99; 
     text-align: center;
     width: 80%;
     max-width: 1000px;
@@ -239,7 +249,6 @@ body, html {
     transform: scale(1);
 }
 
-/* El humo/desvanecimiento al terminar la frase */
 .magic-text.fade-out {
     opacity: 0;
     transform: scale(1.1) translateY(-20px);
@@ -247,8 +256,45 @@ body, html {
     filter: blur(8px);
 }
 
+/* --- Final Manuscrito Poético (Pluma Invisible) --- */
+#handwritten-finale {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease-in;
+}
+
+.handwritten-text {
+    font-family: 'Great Vibes', cursive;
+    font-size: 6rem;
+    color: #2c1e16; /* Tinta oscura romántica */
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 0;
+    padding: 10px 0;
+    border-right: 2px solid transparent;
+}
+
+#handwritten-finale.show {
+    opacity: 1;
+}
+
+#handwritten-finale.show .handwritten-text {
+    animation: typing 3.5s ease-in-out forwards;
+}
+
+@keyframes typing {
+    from { max-width: 0; }
+    to { max-width: 1000px; }
+}
+
 @media (max-width: 768px) {
     .real-envelope-image { width: 300px; height: 240px; }
     .magic-text { font-size: 2.2rem; width: 90%; }
-    #finale-text { font-size: 5rem; }
+    .handwritten-text { font-size: 3.5rem; }
+    .sliding-parchment { width: 200px; height: 140px; }
+    .parchment-name { font-size: 3rem; }
 }
