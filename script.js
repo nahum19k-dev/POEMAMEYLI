@@ -92,7 +92,10 @@ envelopeClick.addEventListener('click', () => {
     // 2. Polvo de hadas y sube la carta (Bolsillo)
     setTimeout(burstFairyDust, 1500);
     setTimeout(() => { card.style.opacity = '1'; }, 2000);
-    setTimeout(() => { card.classList.add('slide-out'); }, 2500);
+    setTimeout(() => { 
+        card.classList.add('slide-out'); 
+        document.querySelector('.envelope-wrapper').classList.add('shift-down');
+    }, 2500);
 
     // 3. El sobre cae
     setTimeout(() => { envelopeClick.classList.add('drop'); }, 3500);
@@ -207,6 +210,7 @@ function triggerReconstructionPhase() {
         card.classList.remove('burning', 'submerge', 'slide-out');
         cardName.classList.remove('smoke');
         poemContainer.classList.remove('smoke');
+        document.querySelector('.envelope-wrapper').classList.remove('shift-down');
         
         // Reconstruir
         card.classList.add('reconstruct');
@@ -221,6 +225,7 @@ function triggerReconstructionPhase() {
             
             // Mostrar botón Cerrar
             setTimeout(() => {
+                document.querySelector('.envelope-wrapper').classList.add('shift-down');
                 btnCloseCard.classList.remove('hidden');
                 btnCloseCard.style.animation = 'fadeIn 2s forwards';
             }, 3000);
