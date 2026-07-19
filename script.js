@@ -1,29 +1,10 @@
-// ===== POEMA =====
-const poemaSync = [
-    { time: 2.0,  text: "Hay personas que llegan como llega la marea," },
-    { time: 5.5,  text: "sin avisar, sin ruido, sin pedir permiso," },
-    { time: 9.0,  text: "y cuando quieres darte cuenta ya te rodean," },
-    { time: 13.0, text: "y el mundo sin ellas ya no tiene el mismo piso." },
-    { time: 18.0, text: "Tú llegaste así, Meyli, sin hacer escándalo," },
-    { time: 22.0, text: "con esa mirada que no sabe disimular," },
-    { time: 26.0, text: "con esa voz que el silencio vuelve un regalo," },
-    { time: 30.0, text: "y esa forma de ser que no puedo evitar." },
-    { time: 36.0, text: "No sé cómo explicar lo que genera tu presencia," },
-    { time: 40.5, text: "esa calma extraña de sentir que ya te conocía," },
-    { time: 45.0, text: "como si el tiempo antes de ti fuera una ausencia," },
-    { time: 49.5, text: "y tú fueras la razón por la que el alma sonreía." },
-    { time: 55.0, text: "Dicen que hay personas que no se encuentran, se eligen," },
-    { time: 59.5, text: "yo creo que a veces el destino simplemente sabe," },
-    { time: 64.0, text: "y nos pone frente a frente a los que se dirigen," },
-    { time: 68.5, text: "hacia algo que todavía no tiene nombre pero ya se sabe." },
-    { time: 75.0, text: "Y mientras llega el día en que volvamos a vernos," },
-    { time: 79.5, text: "cuento las horas con una impaciencia que no miento," },
-    { time: 84.0, text: "porque anhelar tus ojos es de los sentimientos" },
-    { time: 88.5, text: "más honestos que he tenido en mucho tiempo." },
-    { time: 94.0, text: "No tengo más palabras, solo tengo esta certeza:" },
-    { time: 98.5, text: "que hay algo en ti que no quiero dejar de descubrir," },
-    { time: 103.0, text: "y si el universo me da el tiempo y la destreza," },
-    { time: 107.5, text: "me gustaría ser esa persona que te hace sonreír." }
+// ===== ACRÓSTICO =====
+const acrosticSync = [
+    { time: 2.0, text: "Más de una vez me pregunté qué era esa calma,<br>esa sensación extraña de sentir que ya te conocía,<br>como si algo en el universo le dijera a mi alma<br>que ibas a llegar, y que la espera valdría." },
+    { time: 24.0, text: "Eres de esas personas difíciles de ignorar,<br>de las que sin querer se meten en el pecho,<br>y cuando intentas dejar de pensar<br>ya tienen en tu mente un sitio hecho." },
+    { time: 48.0, text: "Yo podría pasarme la noche entera escuchándote,<br>tu voz es la melodía más hermosa,<br>tu hermana diría que es odiosa,<br>pero yo me quedo con que eres una diosa." },
+    { time: 72.0, text: "Llevo contando los días desde que no te veo,<br>y volverte a verte es mi mayor anhelo,<br>espero que tú sientas lo mismo que yo creo,<br>porque sin ti el tiempo vuela sin consuelo." },
+    { time: 96.0, text: "Imagino el día en que volvamos a vernos,<br>y no tengo palabras, solo tengo certeza,<br>hay algo en ti que no termino de descubrir,<br>y si el universo concede esa belleza,<br>quiero ser esa persona que te hace sonreír." }
 ];
 
 // ===== ELEMENTOS =====
@@ -40,6 +21,7 @@ const startScreen = document.getElementById('start-screen');
 const envelopeScene = document.querySelector('.envelope-scene');
 const audioPoema = document.getElementById('audio-poema');
 const lanternsContainer = document.getElementById('lanterns-container');
+const magicText = document.getElementById('magic-text');
 const bg1 = document.getElementById('bg-1');
 const bg2 = document.getElementById('bg-2');
 const bg3 = document.getElementById('bg-3');
@@ -48,6 +30,7 @@ const handwrittenFinale = document.getElementById('handwritten-finale');
 
 let finaleTriggered = false;
 let opened = false;
+let audioStarted = false;
 
 // ===== POLVO DE HADAS (Apertura) =====
 function burstFairyDust() {
@@ -55,23 +38,38 @@ function burstFairyDust() {
         setTimeout(() => {
             const dust = document.createElement('div');
             dust.classList.add('fairy-dust');
-
             const tx = (Math.random() - 0.5) * 600 + 'px';
             const ty = (Math.random() - 0.5) * 600 + 'px';
             dust.style.setProperty('--tx', tx);
             dust.style.setProperty('--ty', ty);
-
             const size = Math.random() * 7 + 3;
             dust.style.width = size + 'px';
             dust.style.height = size + 'px';
-
             const duration = Math.random() * 2 + 1;
             dust.style.animation = `fairyExplode ${duration}s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
-
             fairyDustContainer.appendChild(dust);
             setTimeout(() => { if (dust.parentNode) dust.remove(); }, duration * 1000);
         }, i * 40);
     }
+}
+
+// ===== FAROLES DEL BOSQUE =====
+function spawnLantern() {
+    if (finaleTriggered) return;
+    const lantern = document.createElement('div');
+    lantern.classList.add('realistic-lantern');
+    const size = Math.random() * 60 + 40;
+    lantern.style.width = size + 'px';
+    lantern.style.height = (size * 1.5) + 'px';
+    lantern.style.left = Math.random() * 90 + '%';
+    lantern.style.bottom = '-150px';
+    const duration = Math.random() * 15 + 20;
+    const delay = Math.random() * 2;
+    lantern.style.animationDuration = duration + 's';
+    lantern.style.animationDelay = delay + 's';
+    lanternsContainer.appendChild(lantern);
+    setTimeout(() => { if (lantern.parentNode) lantern.remove(); }, (duration + delay) * 1000);
+    setTimeout(spawnLantern, Math.random() * 1500 + 500);
 }
 
 // ===== EVENTO PRINCIPAL (CLICK) =====
@@ -79,57 +77,105 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // 0. Desbloquear audio silenciosamente
+    // Desbloquear audio silenciosamente
     audioPoema.volume = 0;
     audioPoema.play().then(() => {
         audioPoema.pause();
         audioPoema.volume = 1;
         audioPoema.currentTime = 0;
-    }).catch(e => console.log('Autoplay requiere interacción más fuerte:', e));
+    }).catch(e => console.log('Autoplay requiere interacción:', e));
 
-    // 1. Quema el sello
+    // 1. Quema el sello y abre solapa
     waxSeal.classList.add('burn');
     ribbonText.classList.add('hide');
-
-    // 2. Solapa se abre
     setTimeout(() => { envelopeFlap.classList.add('open'); }, 800);
 
-    // 3. Polvo de hadas
+    // 2. Polvo de hadas y sube la carta (Bolsillo)
     setTimeout(burstFairyDust, 1500);
-
-    // 4. Sube la carta
-    setTimeout(() => { card.classList.add('visible'); }, 2000);
+    setTimeout(() => { card.style.opacity = '1'; }, 2000);
     setTimeout(() => { card.classList.add('slide-out'); }, 2500);
 
-    // 5. El sobre cae
+    // 3. El sobre cae
     setTimeout(() => { envelopeClick.classList.add('drop'); }, 3500);
 
-    // 6. Escribe MEYLI
+    // 4. Escribe MEYLI
     setTimeout(() => { cardName.classList.add('write'); }, 4500);
 
-    // 7. Empieza el Poema en la carta
-    setTimeout(startPoemOnCard, 8000);
+    // 5. Destello rápido del poema en la carta
+    setTimeout(flashAcrosticOnCard, 6000);
 });
 
-// ===== SECUENCIA DEL POEMA EN LA CARTA =====
-function startPoemOnCard() {
-    let audioStarted = false;
-    
-    // Intentar reproducir (ya debería estar desbloqueado)
+// ===== DESTELLO DEL ACRÓSTICO EN LA CARTA =====
+function flashAcrosticOnCard() {
+    // Ponemos todo el poema de golpe, muy rápido
+    acrosticSync.forEach((para, index) => {
+        setTimeout(() => {
+            const p = document.createElement('p');
+            p.className = 'poem-line';
+            p.innerHTML = para.text;
+            poemContainer.appendChild(p);
+            requestAnimationFrame(() => {
+                p.classList.add('show');
+                poemContainer.scrollTo({ top: poemContainer.scrollHeight, behavior: 'smooth' });
+            });
+        }, index * 400); // 400ms por párrafo, súper rápido
+    });
+
+    // 6. Tan pronto termina de imprimirse rápido, ¡EXPLOTA!
+    setTimeout(explodeCard, 2800); 
+}
+
+// ===== LA EXPLOSIÓN Y EL PORTAL =====
+function explodeCard() {
+    // 1. Quemar carta brevemente
+    card.classList.add('burning');
+    cardName.classList.add('smoke');
+    document.querySelectorAll('.poem-line').forEach(p => p.classList.add('smoke'));
+
+    // 2. Explosión inmersiva (nos sumergimos)
+    setTimeout(() => {
+        createExplosionParticles(false); // Expansión masiva
+        
+        card.classList.add('submerge'); // La carta viene hacia la cámara y se desvanece
+        
+        setTimeout(() => {
+            envelopeScene.style.display = 'none'; // Desaparece la escena inicial
+        }, 1000);
+        
+        lanternsContainer.classList.remove('hidden'); // Revela el bosque
+        
+        // Empiezan los faroles
+        for (let i = 0; i < 8; i++) {
+            setTimeout(spawnLantern, i * 400);
+        }
+        
+        // 3. Empieza el viaje y el audio en el bosque
+        setTimeout(startForestPoem, 2000); 
+    }, 1500);
+}
+
+// ===== EL VIAJE EN EL BOSQUE (LECTURA DEL POEMA) =====
+function startForestPoem() {
+    // Cambiar fondos lentamente
+    bg1.style.opacity = '1';
+    setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 30000);
+    setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 60000);
+    setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 90000);
+
+    // Reproducir audio
     audioPoema.play().then(() => {
         audioStarted = true;
     }).catch((e) => {
-        console.log('Audio bloqueado, usando temporizador de respaldo', e);
+        console.log('Audio bloqueado, usando temporizador', e);
     });
-    
-    let currentLine = 0;
+
+    let currentPara = 0;
     let fallbackTime = 0;
     let lastTick = Date.now();
     
     const interval = setInterval(() => {
         let currentTime = 0;
         
-        // Si el audio suena, sincronizar con él. Si no, usar tiempo simulado.
         if (audioStarted) {
             currentTime = audioPoema.currentTime;
         } else {
@@ -138,67 +184,41 @@ function startPoemOnCard() {
             lastTick = now;
             currentTime = fallbackTime;
         }
-        
-        // Escribir líneas en la carta
-        if (currentLine < poemaSync.length && currentTime >= poemaSync[currentLine].time) {
-            const p = document.createElement('p');
-            p.className = 'poem-line';
-            p.textContent = poemaSync[currentLine].text;
-            poemContainer.appendChild(p);
-            
-            requestAnimationFrame(() => {
-                p.classList.add('show');
-                // Auto-scroll
-                poemContainer.scrollTo({ top: poemContainer.scrollHeight, behavior: 'smooth' });
-            });
-            
-            currentLine++;
+
+        // Mostrar párrafos en el centro de la pantalla (magicText)
+        if (currentPara < acrosticSync.length && currentTime >= acrosticSync[currentPara].time) {
+            showText(acrosticSync[currentPara].text);
+            currentPara++;
         }
 
-        // Final del poema (detonar explosión después de la última línea)
-        if (currentTime >= 110 && !finaleTriggered) { // 110s es cuando termina de hablar
+        // Final del poema (115s aprox)
+        if (currentTime >= 115 && !finaleTriggered) { 
             finaleTriggered = true;
             clearInterval(interval);
-            explodeCard();
+            magicText.style.opacity = '0';
+            triggerReconstructionPhase();
         }
     }, 100);
 }
 
-// ===== LA EXPLOSIÓN =====
-function explodeCard() {
-    // 1. Quemar carta
-    card.classList.add('burning');
-    cardName.classList.add('smoke');
-    document.querySelectorAll('.poem-line').forEach(p => p.classList.add('smoke'));
-
-    // 2. Partículas y transición al bosque
+function showText(htmlText) {
+    magicText.style.opacity = '0';
+    magicText.style.transform = 'translate(-50%, 20px)';
+    
     setTimeout(() => {
-        createExplosionParticles(false); // Expansión
-        
-        envelopeScene.style.transition = 'opacity 1s';
-        envelopeScene.style.opacity = '0'; // Desaparece sobre y carta
-        
-        lanternsContainer.classList.remove('hidden'); // Muestra bosque/luna
-        startBackgroundSequence();
-
-        // 3. Empieza reconstrucción después de 12 segundos de visión
-        setTimeout(triggerReconstructionPhase, 12000); 
-    }, 2500);
-}
-
-// ===== LA VISIÓN (FONDOS) =====
-function startBackgroundSequence() {
-    bg1.style.opacity = '1';
-    // Cicla rápido por los fondos majestuosos
-    setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
-    setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
+        magicText.innerHTML = htmlText; // Usamos innerHTML por los <br>
+        magicText.style.opacity = '1';
+        magicText.style.transform = 'translate(-50%, -50%)';
+    }, 1200);
 }
 
 // ===== FASE DE RECONSTRUCCIÓN =====
 function triggerReconstructionPhase() {
     // 1. Pergamino final flotando en el bosque
-    handwrittenFinale.classList.remove('hidden');
-    handwrittenFinale.style.animation = 'fadeIn 3s forwards';
+    setTimeout(() => {
+        handwrittenFinale.classList.remove('hidden');
+        handwrittenFinale.style.animation = 'fadeIn 3s forwards';
+    }, 1000);
 
     // 2. Reconstrucción inversa
     setTimeout(() => {
@@ -209,29 +229,36 @@ function triggerReconstructionPhase() {
         createExplosionParticles(true); // Partículas succión
 
         setTimeout(() => {
-            envelopeScene.style.opacity = '1';
+            envelopeScene.style.display = 'flex';
+            envelopeScene.style.opacity = '0';
             
             // Limpiar daños de la explosión
-            card.classList.remove('burning');
+            card.classList.remove('burning', 'submerge', 'slide-out');
             cardName.classList.remove('smoke');
             poemContainer.innerHTML = ''; 
             
             // Reconstruir
             card.classList.add('reconstruct');
             document.querySelector('.envelope').classList.add('reconstruct');
-
-            // Guardar
+            
+            // Aparece de nuevo
             setTimeout(() => {
-                card.classList.remove('slide-out');
-                card.classList.add('slide-in');
+                envelopeScene.style.opacity = '1';
                 
+                // Guardar
                 setTimeout(() => {
-                    envelopeFlap.classList.remove('open');
-                }, 2000);
-            }, 4500);
+                    // La carta cae devuelta al bolsillo
+                    card.style.transform = 'translate(-50%, 110%)'; 
+                    card.style.opacity = '0'; // Se esconde en el bolsillo
+                    
+                    setTimeout(() => {
+                        envelopeFlap.classList.remove('open');
+                    }, 2000);
+                }, 4000);
+            }, 100);
             
         }, 1500);
-    }, 5000); // 5 segundos leyendo el final
+    }, 6000); // 6 segundos leyendo "Para siempre, tuyo"
 }
 
 // ===== SISTEMA DE PARTÍCULAS (Explosión) =====
@@ -244,13 +271,13 @@ function createExplosionParticles(reverse) {
         const p = document.createElement('div');
         p.className = 'explosion-particle';
         
-        const size = Math.random() * 6 + 2;
+        const size = Math.random() * 8 + 3;
         p.style.width = `${size}px`;
         p.style.height = `${size}px`;
         p.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
 
         const angle = Math.random() * Math.PI * 2;
-        const distance = Math.random() * window.innerWidth;
+        const distance = Math.random() * window.innerWidth * 1.5;
         const tx = Math.cos(angle) * distance;
         const ty = Math.sin(angle) * distance;
 
@@ -268,10 +295,10 @@ function createExplosionParticles(reverse) {
                 fill: 'forwards'
             });
         } else {
-            // Expansión
+            // Expansión masiva hacia la cámara
             p.animate([
                 { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(10)`, opacity: 0 }
             ], {
                 duration: 1500 + Math.random() * 2000,
                 easing: 'cubic-bezier(0.2, 1, 0.3, 1)',
