@@ -32,11 +32,13 @@ const envelopeFlap = document.getElementById('envelope-flap');
 const waxSeal = document.getElementById('wax-seal');
 const card = document.getElementById('card');
 const cardName = document.getElementById('card-name');
+const poemContainer = document.getElementById('poem-container');
 const fairyDustContainer = document.getElementById('fairy-dust-container');
+const explosionContainer = document.getElementById('explosion-container');
 const ribbonText = document.getElementById('ribbon-txt');
 const startScreen = document.getElementById('start-screen');
+const envelopeScene = document.querySelector('.envelope-scene');
 const audioPoema = document.getElementById('audio-poema');
-const magicText = document.getElementById('magic-text');
 const lanternsContainer = document.getElementById('lanterns-container');
 const bg1 = document.getElementById('bg-1');
 const bg2 = document.getElementById('bg-2');
@@ -44,14 +46,10 @@ const bg3 = document.getElementById('bg-3');
 const bg4 = document.getElementById('bg-4');
 const handwrittenFinale = document.getElementById('handwritten-finale');
 
-let isPlaying = false;
-let currentLineIndex = -1;
-let virtualTime = 0;
-let lastTime = 0;
 let finaleTriggered = false;
 let opened = false;
 
-// ===== POLVO DE HADAS =====
+// ===== POLVO DE HADAS (Apertura) =====
 function burstFairyDust() {
     for (let i = 0; i < 45; i++) {
         setTimeout(() => {
@@ -72,143 +70,186 @@ function burstFairyDust() {
 
             fairyDustContainer.appendChild(dust);
             setTimeout(() => { if (dust.parentNode) dust.remove(); }, duration * 1000);
-        }, i * 40); // Salen escalonadamente (no todas juntas)
+        }, i * 40);
     }
 }
 
-// ===== FAROLES =====
-function spawnLantern() {
-    if (!isPlaying || finaleTriggered) return;
-
-    const lantern = document.createElement('div');
-    lantern.classList.add('realistic-lantern');
-    const size = Math.random() * 60 + 40;
-    lantern.style.width = size + 'px';
-    lantern.style.height = (size * 1.5) + 'px';
-    lantern.style.left = Math.random() * 90 + '%';
-    lantern.style.bottom = '-150px';
-    const duration = Math.random() * 15 + 20;
-    const delay = Math.random() * 2;
-    lantern.style.animationDuration = duration + 's';
-    lantern.style.animationDelay = delay + 's';
-    lanternsContainer.appendChild(lantern);
-    setTimeout(() => { if (lantern.parentNode) lantern.remove(); }, (duration + delay) * 1000);
-    setTimeout(spawnLantern, Math.random() * 1500 + 500);
-}
-
-// ===== FONDOS =====
-function updateBackgrounds(index) {
-    if (index === 8) { bg1.classList.remove('active'); bg2.classList.add('active'); }
-    else if (index === 16) { bg2.classList.remove('active'); bg3.classList.add('active'); }
-}
-
-// ===== SINCRONIZADOR =====
-function checkLyrics() {
-    if (!isPlaying) return;
-    let currentTime = 0;
-    if (audioPoema && audioPoema.duration > 0 && !audioPoema.paused) {
-        currentTime = audioPoema.currentTime;
-    } else {
-        const now = Date.now();
-        virtualTime += (now - lastTime) / 1000;
-        lastTime = now;
-        currentTime = virtualTime;
-    }
-
-    let activeLine = -1;
-    for (let i = 0; i < poemaSync.length; i++) {
-        if (currentTime >= poemaSync[i].time) activeLine = i;
-    }
-
-    if (activeLine !== currentLineIndex && activeLine !== -1) {
-        currentLineIndex = activeLine;
-        if (magicText.classList.contains('show')) {
-            magicText.classList.remove('show');
-            magicText.classList.add('fade-out');
-        }
-        updateBackgrounds(currentLineIndex);
-        setTimeout(() => {
-            magicText.textContent = poemaSync[currentLineIndex].text;
-            magicText.classList.remove('fade-out');
-            magicText.classList.add('show');
-        }, 1200);
-    }
-
-    if (activeLine === poemaSync.length - 1 && currentTime > poemaSync[activeLine].time + 5) {
-        if (magicText.classList.contains('show')) {
-            magicText.classList.remove('show');
-            magicText.classList.add('fade-out');
-        }
-        setTimeout(triggerFinale, 1500);
-    }
-    requestAnimationFrame(checkLyrics);
-}
-
-// ===== FINAL =====
-function triggerFinale() {
-    if (finaleTriggered) return;
-    finaleTriggered = true;
-    bg3.classList.remove('active');
-    bg4.classList.add('active');
-    document.querySelectorAll('.realistic-lantern').forEach(l => l.style.opacity = '0');
-    setTimeout(() => { handwrittenFinale.classList.add('show'); }, 3000);
-}
-
-// ===== LA SECUENCIA MAESTRA DE APERTURA =====
-function startExperience() {
-    startScreen.classList.remove('active');
-    if (audioPoema && audioPoema.src) {
-        audioPoema.play().catch(() => {});
-    }
-    isPlaying = true;
-    lastTime = Date.now();
-    virtualTime = 0;
-    checkLyrics();
-    for (let i = 0; i < 8; i++) {
-        setTimeout(spawnLantern, i * 400);
-    }
-}
-
+// ===== EVENTO PRINCIPAL (CLICK) =====
 envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // ── PASO 1: El sello se quema lentamente (1.2s) ──
+    // 1. Quema el sello
     waxSeal.classList.add('burn');
     ribbonText.classList.add('hide');
 
-    // ── PASO 1b: La solapa se abre después del sello (1.5s de transición) ──
-    setTimeout(() => {
-        envelopeFlap.classList.add('open');
-    }, 800);
+    // 2. Solapa se abre
+    setTimeout(() => { envelopeFlap.classList.add('open'); }, 800);
 
-    // ── PASO 2: Polvo de hadas sale escalonadamente ──
+    // 3. Polvo de hadas
     setTimeout(burstFairyDust, 1500);
 
-    // ── PASO 3: Tarjeta se hace visible y sube lentamente (3s de transición) ──
-    setTimeout(() => {
-        card.classList.add('visible');
-    }, 2000);
+    // 4. Sube la carta
+    setTimeout(() => { card.classList.add('visible'); }, 2000);
+    setTimeout(() => { card.classList.add('slide-out'); }, 2500);
 
-    setTimeout(() => {
-        card.classList.add('slide-out');
-    }, 2500);
+    // 5. El sobre cae
+    setTimeout(() => { envelopeClick.classList.add('drop'); }, 3500);
 
-    // ── PASO 3b: El sobre cae suavemente (2s de transición) ──
-    setTimeout(() => {
-        envelopeClick.classList.add('drop');
-    }, 3500);
+    // 6. Escribe MEYLI
+    setTimeout(() => { cardName.classList.add('write'); }, 4500);
 
-    // ── PASO 4: Escritura fluida del nombre ──
-    setTimeout(() => {
-        cardName.classList.add('write');
-    }, 4500);
-
-    // ── PASO 5: Después de admirar el nombre, la tarjeta se sumerge ──
-    setTimeout(() => {
-        card.classList.add('submerge');
-
-        // ── Entramos al Río Oscuro ──
-        setTimeout(startExperience, 2500);
-    }, 9000);
+    // 7. Empieza el Poema en la carta
+    setTimeout(startPoemOnCard, 8000);
 });
+
+// ===== SECUENCIA DEL POEMA EN LA CARTA =====
+function startPoemOnCard() {
+    audioPoema.play().catch(() => {});
+    
+    let currentLine = 0;
+    
+    const interval = setInterval(() => {
+        let currentTime = audioPoema.currentTime;
+        
+        // Escribir líneas en la carta
+        if (currentLine < poemaSync.length && currentTime >= poemaSync[currentLine].time) {
+            const p = document.createElement('p');
+            p.className = 'poem-line';
+            p.textContent = poemaSync[currentLine].text;
+            poemContainer.appendChild(p);
+            
+            requestAnimationFrame(() => {
+                p.classList.add('show');
+                // Auto-scroll
+                poemContainer.scrollTo({ top: poemContainer.scrollHeight, behavior: 'smooth' });
+            });
+            
+            currentLine++;
+        }
+
+        // Final del poema (detonar explosión después de la última línea)
+        if (currentTime >= 110 && !finaleTriggered) { // 110s es cuando termina de hablar
+            finaleTriggered = true;
+            clearInterval(interval);
+            explodeCard();
+        }
+    }, 100);
+}
+
+// ===== LA EXPLOSIÓN =====
+function explodeCard() {
+    // 1. Quemar carta
+    card.classList.add('burning');
+    cardName.classList.add('smoke');
+    document.querySelectorAll('.poem-line').forEach(p => p.classList.add('smoke'));
+
+    // 2. Partículas y transición al bosque
+    setTimeout(() => {
+        createExplosionParticles(false); // Expansión
+        
+        envelopeScene.style.transition = 'opacity 1s';
+        envelopeScene.style.opacity = '0'; // Desaparece sobre y carta
+        
+        lanternsContainer.classList.remove('hidden'); // Muestra bosque/luna
+        startBackgroundSequence();
+
+        // 3. Empieza reconstrucción después de 12 segundos de visión
+        setTimeout(triggerReconstructionPhase, 12000); 
+    }, 2500);
+}
+
+// ===== LA VISIÓN (FONDOS) =====
+function startBackgroundSequence() {
+    bg1.style.opacity = '1';
+    // Cicla rápido por los fondos majestuosos
+    setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
+    setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
+}
+
+// ===== FASE DE RECONSTRUCCIÓN =====
+function triggerReconstructionPhase() {
+    // 1. Pergamino final flotando en el bosque
+    handwrittenFinale.classList.remove('hidden');
+    handwrittenFinale.style.animation = 'fadeIn 3s forwards';
+
+    // 2. Reconstrucción inversa
+    setTimeout(() => {
+        handwrittenFinale.style.animation = 'fadeOut 2s forwards';
+        lanternsContainer.style.transition = 'opacity 2s';
+        lanternsContainer.style.opacity = '0'; // Adiós bosque
+
+        createExplosionParticles(true); // Partículas succión
+
+        setTimeout(() => {
+            envelopeScene.style.opacity = '1';
+            
+            // Limpiar daños de la explosión
+            card.classList.remove('burning');
+            cardName.classList.remove('smoke');
+            poemContainer.innerHTML = ''; 
+            
+            // Reconstruir
+            card.classList.add('reconstruct');
+            document.querySelector('.envelope').classList.add('reconstruct');
+
+            // Guardar
+            setTimeout(() => {
+                card.classList.remove('slide-out');
+                card.classList.add('slide-in');
+                
+                setTimeout(() => {
+                    envelopeFlap.classList.remove('open');
+                }, 2000);
+            }, 4500);
+            
+        }, 1500);
+    }, 5000); // 5 segundos leyendo el final
+}
+
+// ===== SISTEMA DE PARTÍCULAS (Explosión) =====
+function createExplosionParticles(reverse) {
+    explosionContainer.innerHTML = '';
+    const numParticles = 200;
+    const colors = ['#ffcc00', '#ff6600', '#ff3300', '#ffffff', '#ffd700'];
+
+    for (let i = 0; i < numParticles; i++) {
+        const p = document.createElement('div');
+        p.className = 'explosion-particle';
+        
+        const size = Math.random() * 6 + 2;
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * window.innerWidth;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+
+        explosionContainer.appendChild(p);
+
+        if (reverse) {
+            // Succión
+            p.animate([
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${Math.random()})`, opacity: 0 },
+                { opacity: 1, offset: 0.2 },
+                { transform: 'translate(-50%, -50%) scale(1)', opacity: 0 }
+            ], {
+                duration: 2000 + Math.random() * 1500,
+                easing: 'cubic-bezier(0.2, 0, 0.8, 1)',
+                fill: 'forwards'
+            });
+        } else {
+            // Expansión
+            p.animate([
+                { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+            ], {
+                duration: 1500 + Math.random() * 2000,
+                easing: 'cubic-bezier(0.2, 1, 0.3, 1)',
+                fill: 'forwards'
+            });
+        }
+    }
+}
