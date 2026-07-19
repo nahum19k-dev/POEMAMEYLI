@@ -41,6 +41,8 @@ const lanternsContainer = document.getElementById('lanterns-container');
 
 let isPlaying = false;
 let currentLineIndex = -1;
+let virtualTime = 0;
+let lastTime = 0;
 
 // ===== MOTOR DE FAROLES HIPERREALISTAS =====
 function spawnRealisticLantern() {
@@ -76,11 +78,23 @@ function spawnRealisticLantern() {
     setTimeout(spawnRealisticLantern, Math.random() * 1500 + 500);
 }
 
-// Sincronizador de Audio
+// Sincronizador de Audio o Tiempo Virtual
 function checkLyrics() {
-    if (!isPlaying || !audioPoema) return;
+    if (!isPlaying) return;
     
-    let currentTime = audioPoema.currentTime;
+    let currentTime = 0;
+    
+    // Si el audio existe y no ha fallado, usamos su tiempo. 
+    // Si no, usamos un temporizador virtual para que el poema salga de todas formas.
+    if (audioPoema && audioPoema.duration > 0 && !audioPoema.paused) {
+        currentTime = audioPoema.currentTime;
+    } else {
+        let now = Date.now();
+        virtualTime += (now - lastTime) / 1000;
+        lastTime = now;
+        currentTime = virtualTime;
+    }
+    
     let activeLine = -1;
     
     for (let i = 0; i < poemaSync.length; i++) {
@@ -112,11 +126,13 @@ function checkLyrics() {
 startBtn.addEventListener('click', () => {
     startScreen.classList.remove('active');
     
-    if(audioPoema.src) {
-        audioPoema.play().catch(e => console.log("Falta el audio o no puede iniciar", e));
+    if(audioPoema && audioPoema.src) {
+        audioPoema.play().catch(e => console.log("No hay audio subido aún, usando modo texto automático"));
     }
     
     isPlaying = true;
+    lastTime = Date.now();
+    virtualTime = 0;
     checkLyrics();
     
     // Lanzar primeros faroles en masa

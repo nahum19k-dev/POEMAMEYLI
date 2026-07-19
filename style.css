@@ -46,15 +46,33 @@ body, html {
 
 .realistic-lantern {
     position: absolute;
-    background-image: url('assets/lantern.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* mix-blend-mode: screen hace que el negro del fondo del farol desaparezca y la luz se fusione con la noche */
-    mix-blend-mode: screen; 
-    filter: drop-shadow(0 0 20px rgba(255, 180, 50, 0.8));
+    /* Dibujo CSS del farol hiperrealista para evitar los cuadros negros */
+    background: radial-gradient(circle at 50% 70%, #ffefb3, #ff9d00 50%, #8a2be2 120%);
+    border-radius: 40% 40% 30% 30% / 50% 50% 20% 20%;
+    box-shadow: 
+        0 0 20px 5px rgba(255, 160, 0, 0.7),
+        0 0 50px 20px rgba(255, 100, 0, 0.4),
+        inset 0 -5px 15px rgba(0,0,0,0.5);
     animation: floatUp linear forwards;
-    will-change: transform, top;
+    will-change: transform, top, opacity;
+}
+
+/* El fueguito de adentro del farol */
+.realistic-lantern::after {
+    content: '';
+    position: absolute;
+    bottom: 15%; left: 50%;
+    transform: translateX(-50%);
+    width: 25%; height: 25%;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 20px #ffdf80;
+    animation: flicker 0.15s infinite alternate;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.7; transform: translateX(-50%) scale(0.9); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
 }
 
 @keyframes floatUp {
