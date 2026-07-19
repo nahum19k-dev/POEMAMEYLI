@@ -407,11 +407,13 @@ body, html {
 }
 
 .poem-line {
-    font-family: 'Great Vibes', cursive;
-    font-size: 1.4rem;
-    color: #5a4a35;
+    font-family: 'Montserrat', sans-serif; /* Cambiar a Montserrat para que sea muy legible en tamaño pequeño */
+    font-size: 0.70rem;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #4a3a25;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 1s ease-out, transform 1s ease-out; /* Tun tun tun */
@@ -430,9 +432,11 @@ body, html {
 
 .acrostic-letter {
     font-family: 'Cinzel Decorative', serif;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #d4af37;
+    margin-right: 2px;
+    text-transform: uppercase;
 }
 
 #btn-close-card {
@@ -698,7 +702,8 @@ body, html {
     .card-mask { height: 700px; }
     .card { width: 310px; height: 440px; bottom: 0; transform: translate(-50%, 110%); }
     .name-text { font-size: 5rem; }
-    .poem-line { font-size: 1.2rem; }
+    .poem-line { font-size: 0.60rem; line-height: 1.2; }
+    .acrostic-letter { font-size: 1.1rem; }
     .card.slide-out { transform: translate(-50%, 0); }
     .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
     .magic-text { font-size: 2rem; width: 90%; }
