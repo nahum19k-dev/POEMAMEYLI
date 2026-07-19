@@ -307,7 +307,7 @@ body, html {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, 0%); /* Oculta un poco más abajo al inicio */
+    transform: translate(-50%, -50%) scale(0.4); /* Empieza pequeñita para esconderse detrás del sobre */
     width: 360px;
     height: 520px; /* Formato retrato (carta real) */
     border-radius: 12px;
@@ -326,22 +326,24 @@ body, html {
         inset 0 0 50px rgba(230, 200, 200, 0.15); /* Resplandor cálido interior */
 }
 
-/* Borde exterior fino y moderno */
+/* Borde exterior más elegante */
 .card-border-outer {
-    width: 90%; height: 93%;
-    border: 1px solid rgba(212, 175, 55, 0.6);
-    border-radius: 6px;
+    width: 92%; height: 94%;
+    border: 2px solid rgba(212, 175, 55, 0.7);
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.08);
+    box-shadow: 
+        inset 0 0 15px rgba(212, 175, 55, 0.15),
+        0 0 10px rgba(212, 175, 55, 0.2);
 }
 
 /* Borde interior súper delicado */
 .card-border-inner {
-    width: 95%; height: 96%;
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    width: 96%; height: 97%;
+    border: 1px dashed rgba(212, 175, 55, 0.4);
     border-radius: 4px;
     display: flex;
     flex-direction: column; /* Cambiado a column para acomodar Nombre y Poema */
@@ -435,10 +437,10 @@ body, html {
     opacity: 1;
 }
 
-/* Tarjeta sale y se centra PERFECTAMENTE en el medio */
+/* Tarjeta sale, CRECE y se centra PERFECTAMENTE en el medio */
 .card.slide-out {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(1);
     z-index: 10;
 }
 
@@ -633,10 +635,10 @@ body, html {
     .envelope-wrapper { width: 310px; height: 195px; }
     .envelope-flap { border-width: 108px 155px 0 155px; }
     .wax-seal { top: 80px; width: 52px; height: 52px; }
-    .card { width: 310px; height: 440px; top: 50%; }
+    .card { width: 310px; height: 440px; top: 50%; transform: translate(-50%, -50%) scale(0.4); }
     .name-text { font-size: 5rem; }
     .poem-line { font-size: 1.8rem; }
-    .card.slide-out { transform: translate(-50%, -50%); }
+    .card.slide-out { transform: translate(-50%, -50%) scale(1); }
     .card.submerge { transform: translate(-50%, -50%) scale(1.1); }
     .magic-text { font-size: 2.2rem; width: 90%; }
     .handwritten-text { font-size: 3.5rem; }

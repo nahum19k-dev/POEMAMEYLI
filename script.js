@@ -79,6 +79,14 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
+    // 0. Desbloquear audio silenciosamente
+    audioPoema.volume = 0;
+    audioPoema.play().then(() => {
+        audioPoema.pause();
+        audioPoema.volume = 1;
+        audioPoema.currentTime = 0;
+    }).catch(e => console.log('Autoplay requiere interacción más fuerte:', e));
+
     // 1. Quema el sello
     waxSeal.classList.add('burn');
     ribbonText.classList.add('hide');
@@ -105,12 +113,31 @@ envelopeClick.addEventListener('click', () => {
 
 // ===== SECUENCIA DEL POEMA EN LA CARTA =====
 function startPoemOnCard() {
-    audioPoema.play().catch(() => {});
+    let audioStarted = false;
+    
+    // Intentar reproducir (ya debería estar desbloqueado)
+    audioPoema.play().then(() => {
+        audioStarted = true;
+    }).catch((e) => {
+        console.log('Audio bloqueado, usando temporizador de respaldo', e);
+    });
     
     let currentLine = 0;
+    let fallbackTime = 0;
+    let lastTick = Date.now();
     
     const interval = setInterval(() => {
-        let currentTime = audioPoema.currentTime;
+        let currentTime = 0;
+        
+        // Si el audio suena, sincronizar con él. Si no, usar tiempo simulado.
+        if (audioStarted) {
+            currentTime = audioPoema.currentTime;
+        } else {
+            const now = Date.now();
+            fallbackTime += (now - lastTick) / 1000;
+            lastTick = now;
+            currentTime = fallbackTime;
+        }
         
         // Escribir líneas en la carta
         if (currentLine < poemaSync.length && currentTime >= poemaSync[currentLine].time) {
