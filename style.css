@@ -13,24 +13,29 @@ body, html {
     color: white;
 }
 
-/* --- Fondo Fotorealista --- */
-#real-background {
+/* --- Fondos Dinámicos Fotorealistas --- */
+.real-background {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-image: url('assets/background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     z-index: 1;
+    opacity: 0;
+    transition: opacity 4s ease-in-out; /* Transición súper suave tipo cine */
 }
 
-/* Capa sutil de movimiento para el agua (opcional) */
+.real-background.active {
+    opacity: 1;
+}
+
+/* Capa sutil de oscuridad mágica para que las letras doradas resalten más */
 #water-overlay {
     position: absolute;
     bottom: 0; left: 0;
-    width: 100%; height: 40%;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
     z-index: 2;
     pointer-events: none;
 }
@@ -46,7 +51,6 @@ body, html {
 
 .realistic-lantern {
     position: absolute;
-    /* Dibujo CSS del farol hiperrealista para evitar los cuadros negros */
     background: radial-gradient(circle at 50% 70%, #ffefb3, #ff9d00 50%, #8a2be2 120%);
     border-radius: 40% 40% 30% 30% / 50% 50% 20% 20%;
     box-shadow: 
@@ -57,7 +61,6 @@ body, html {
     will-change: transform, top, opacity;
 }
 
-/* El fueguito de adentro del farol */
 .realistic-lantern::after {
     content: '';
     position: absolute;
@@ -80,12 +83,8 @@ body, html {
         transform: translateY(100px) scale(0.5) rotate(0deg);
         opacity: 0;
     }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        opacity: 1;
-    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
     100% {
         transform: translateY(-120vh) scale(0.3) rotate(15deg);
         opacity: 0;
@@ -107,9 +106,9 @@ body, html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.9) 100%);
-    backdrop-filter: blur(8px);
-    transition: opacity 1.5s ease;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,1) 100%);
+    backdrop-filter: blur(15px);
+    transition: opacity 2s ease;
     pointer-events: auto;
 }
 
@@ -118,108 +117,58 @@ body, html {
     pointer-events: none;
 }
 
-/* --- La Carta (Animación de Apertura) --- */
-.envelope-wrapper {
-    cursor: pointer;
-    transition: transform 0.4s ease;
-}
-.envelope-wrapper:hover {
-    transform: scale(1.05);
-}
-
-.envelope {
-    position: relative;
-    width: 320px;
-    height: 220px;
-    perspective: 1000px;
-}
-
-.envelope-back {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: #d8c3a5;
-    z-index: 1;
-    border-radius: 5px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-}
-
-.letter {
-    position: absolute;
-    top: 10px; left: 10px;
-    width: 300px; height: 200px;
-    background: #fffaf0;
-    z-index: 2;
+/* --- La Nueva Carta con Lazo --- */
+.real-envelope-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    border-radius: 5px;
-    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s ease;
 }
 
-.title-letter {
-    font-family: 'Great Vibes', cursive;
-    font-size: 3.5rem;
-    color: #8b0000;
+.real-envelope-wrapper:hover {
+    transform: scale(1.03);
 }
 
-.subtitle-letter {
+.real-envelope-image {
+    width: 380px;
+    height: 300px;
+    background-image: url('assets/envelope.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.9));
+    animation: floatEnvelope 4s infinite ease-in-out;
+}
+
+@keyframes floatEnvelope {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.ribbon-text {
     font-family: 'Cinzel', serif;
-    font-size: 1rem;
-    color: #555;
-    margin-top: 10px;
+    font-size: 1.1rem;
+    color: #ffefb3;
+    margin-top: 30px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(255, 239, 179, 0.9);
+    animation: pulseText 2s infinite ease-in-out;
 }
 
-.envelope-body {
-    position: absolute;
-    top: 0; left: 0;
-    width: 0; height: 0;
-    border-style: solid;
-    border-width: 0 160px 220px 160px;
-    border-color: transparent #e9d5b8 #e2cdad #e9d5b8;
-    z-index: 3;
-    border-radius: 0 0 5px 5px;
+@keyframes pulseText {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; text-shadow: 0 0 25px rgba(255, 239, 179, 1); }
 }
 
-.flap {
-    position: absolute;
-    top: 0; left: 0;
-    width: 0; height: 0;
-    border-style: solid;
-    border-width: 130px 160px 0 160px;
-    border-color: #eeddc3 transparent transparent transparent;
-    z-index: 4;
-    transform-origin: top;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.wax-seal {
-    position: absolute;
-    top: 110px; left: 140px;
-    width: 40px; height: 40px;
-    background: #8b0000;
-    border-radius: 50%;
-    z-index: 5;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.3);
-    transition: opacity 0.3s ease;
-}
-
-/* Animaciones al abrir */
-.envelope-wrapper.open .wax-seal {
+/* Animación Mágica al Desatar el Lazo */
+.real-envelope-wrapper.open {
+    transform: scale(1.3) translateY(-50px);
     opacity: 0;
-}
-.envelope-wrapper.open .flap {
-    transform: rotateX(180deg);
-    z-index: 1; /* Pasa atrás de la carta para dejarla salir */
-}
-.envelope-wrapper.open .letter {
-    transform: translateY(-150px);
-    z-index: 6; /* Pasa al frente */
+    filter: blur(10px) brightness(2) contrast(1.5);
 }
 
-/* --- Texto Cinemático --- */
+/* --- Texto Mágico de Oro --- */
 #experience-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -229,20 +178,20 @@ body, html {
 }
 
 .magic-text {
-    font-family: 'Cinzel', serif;
-    font-size: 2.2rem;
-    color: #ffffff;
+    font-family: 'Great Vibes', cursive;
+    font-size: 4rem;
+    color: #ffeb99; /* Oro claro */
     text-align: center;
     width: 80%;
-    max-width: 900px;
-    line-height: 1.6;
+    max-width: 1000px;
+    line-height: 1.4;
     text-shadow: 
-        0 2px 4px rgba(0,0,0,0.8),
-        0 0 20px rgba(255, 210, 122, 0.9),
-        0 0 40px rgba(255, 255, 255, 0.3);
+        0 2px 5px rgba(0,0,0,1),
+        0 0 25px rgba(255, 215, 0, 0.8),
+        0 0 45px rgba(255, 255, 255, 0.4);
     opacity: 0;
-    transform: scale(0.95);
-    transition: opacity 2s ease, transform 3s ease-out;
+    transform: scale(0.9);
+    transition: opacity 1.5s ease-out, transform 2s ease-out;
     font-weight: 400;
 }
 
@@ -251,8 +200,15 @@ body, html {
     transform: scale(1);
 }
 
+/* El humo/desvanecimiento al terminar la frase */
+.magic-text.fade-out {
+    opacity: 0;
+    transform: scale(1.1) translateY(-20px);
+    transition: opacity 1.2s ease-in, transform 1.2s ease-in, filter 1.2s ease-in;
+    filter: blur(8px);
+}
+
 @media (max-width: 768px) {
-    .title { font-size: 3.5rem; }
-    .subtitle { font-size: 0.9rem; padding: 0 20px; }
-    .magic-text { font-size: 1.3rem; width: 90%; }
+    .real-envelope-image { width: 300px; height: 240px; }
+    .magic-text { font-size: 2.2rem; width: 90%; }
 }
