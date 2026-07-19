@@ -34,17 +34,31 @@
     <!-- UI Overlay -->
     <div id="ui-layer">
         
-        <!-- Pantalla de inicio (La Carta Fotorealista) -->
+        <!-- Pantalla de inicio (Sobre 100% CSS Programado) -->
         <div id="start-screen" class="active">
             <div class="letter-scene">
-                <!-- El papel que sale del sobre -->
-                <div id="sliding-parchment" class="sliding-parchment">
-                    <h2 class="parchment-name">Meyli</h2>
-                </div>
-                <!-- El Sobre Frontal -->
-                <div class="real-envelope-wrapper" id="envelope-btn">
-                    <div class="real-envelope-image"></div>
-                    <p class="ribbon-text" id="ribbon-txt">Toca para abrir la carta ✨</p>
+                <div class="css-envelope-wrapper" id="envelope-btn">
+                    <div class="css-envelope">
+                        <!-- Parte Trasera -->
+                        <div class="css-envelope-back"></div>
+                        
+                        <!-- El Pergamino Extraíble -->
+                        <div id="sliding-parchment" class="sliding-parchment">
+                            <h2 class="parchment-name">Meyli</h2>
+                        </div>
+                        
+                        <!-- Solapas Delanteras (Abajo y Lados) -->
+                        <div class="css-envelope-front"></div>
+                        
+                        <!-- Solapa Superior -->
+                        <div class="css-envelope-flap"></div>
+                        
+                        <!-- Sello de Cera Rojo -->
+                        <div class="css-wax-seal">
+                            <span class="seal-inner">❤</span>
+                        </div>
+                    </div>
+                    <p class="ribbon-text" id="ribbon-txt">Rompe el sello para abrir la carta ✨</p>
                 </div>
             </div>
         </div>
