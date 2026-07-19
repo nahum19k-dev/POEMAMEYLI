@@ -301,65 +301,91 @@ body, html {
 }
 
 /* ========================================
-   LA TARJETA (OCULTA DETRÁS DEL SOBRE)
+   LA TARJETA PREMIUM
    ======================================== */
 .card {
     position: absolute;
     top: 30px;
     left: 50%;
     transform: translateX(-50%);
-    width: 300px;
-    height: 190px;
-    background: #fdfbf7;
-    border-radius: 4px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 1; /* DETRÁS del sobre (z:3) */
-    opacity: 0; /* INVISIBLE hasta la animación */
+    width: 310px;
+    height: 200px;
+    border-radius: 6px;
+    z-index: 1;
+    opacity: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2s ease;
+    /* Fondo con textura de papel antiguo */
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 28px,
+            rgba(200, 170, 120, 0.04) 28px,
+            rgba(200, 170, 120, 0.04) 29px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 28px,
+            rgba(200, 170, 120, 0.04) 28px,
+            rgba(200, 170, 120, 0.04) 29px
+        ),
+        radial-gradient(ellipse at 30% 20%, #fdf9f0, #f5ead6 40%, #ede0c8 80%, #e5d5b5);
+    box-shadow:
+        0 12px 35px rgba(0,0,0,0.5),
+        inset 0 0 40px rgba(180, 150, 100, 0.15);
 }
 
+/* Borde exterior dorado grueso */
 .card-border-outer {
-    width: 92%; height: 86%;
-    border: 2px solid #d4af37;
-    border-radius: 2px;
+    width: 94%; height: 90%;
+    border: 3px solid #c9a84c;
+    border-radius: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    box-shadow:
+        0 0 0 1px rgba(201, 168, 76, 0.3),
+        inset 0 0 0 1px rgba(201, 168, 76, 0.3);
 }
 
+/* Borde interior fino y elegante */
 .card-border-inner {
-    width: 92%; height: 86%;
-    border: 1px dashed rgba(212, 175, 55, 0.35);
+    width: 90%; height: 82%;
+    border: 1px solid rgba(201, 168, 76, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
 }
 
-/* Ornamentos en las esquinas */
+/* Ornamentos en las 4 esquinas del borde exterior */
 .card-border-outer::before,
 .card-border-outer::after {
-    content: '✦';
+    content: '❦';
     position: absolute;
-    font-size: 0.9rem;
-    color: rgba(212, 175, 55, 0.5);
+    font-size: 1.4rem;
+    color: rgba(201, 168, 76, 0.65);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-.card-border-outer::before { top: 6px; left: 8px; }
-.card-border-outer::after { bottom: 6px; right: 8px; }
+.card-border-outer::before { top: 4px; left: 8px; }
+.card-border-outer::after { bottom: 4px; right: 8px; transform: rotate(180deg); }
 
+/* Ornamentos contrarios del borde interior */
 .card-border-inner::before,
 .card-border-inner::after {
-    content: '✦';
+    content: '❦';
     position: absolute;
-    font-size: 0.9rem;
-    color: rgba(212, 175, 55, 0.5);
+    font-size: 1.4rem;
+    color: rgba(201, 168, 76, 0.65);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-.card-border-inner::before { top: 4px; right: 6px; }
-.card-border-inner::after { bottom: 4px; left: 6px; }
+.card-border-inner::before { top: 2px; right: 6px; transform: scaleX(-1); }
+.card-border-inner::after { bottom: 2px; left: 6px; transform: scaleX(-1) rotate(180deg); }
 
 /* Contenedor del nombre */
 .card-name-area {
@@ -369,28 +395,34 @@ body, html {
     min-height: 80px;
 }
 
-/* Cada letra aparece individualmente */
+/* Cada letra elegante */
 .letter {
-    font-family: 'Great Vibes', cursive;
-    font-size: 5.5rem;
-    color: #d4af37;
-    text-shadow: 1px 2px 4px rgba(212, 175, 55, 0.3);
+    font-family: 'Cinzel Decorative', 'Cinzel', serif;
+    font-size: 4.8rem;
+    font-weight: 700;
     display: inline-block;
     opacity: 0;
     transform: translateY(15px) scale(0.3);
+    /* Efecto de oro con degradado */
+    background: linear-gradient(180deg, #e8c65a 0%, #c9a84c 30%, #a07830 60%, #c9a84c 80%, #e8c65a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
 }
 
 .letter.appear {
-    animation: letterPaint 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation: letterPaint 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes letterPaint {
-    0% { opacity: 0; transform: translateY(15px) scale(0.3); }
-    50% { opacity: 0.7; transform: translateY(-3px) scale(1.1); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% { opacity: 0; transform: translateY(20px) scale(0.2) rotate(-5deg); }
+    40% { opacity: 0.6; transform: translateY(-5px) scale(1.15) rotate(2deg); }
+    70% { opacity: 0.9; transform: translateY(2px) scale(0.98) rotate(0deg); }
+    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
 }
 
-/* Tarjeta visible y sale lentamente del sobre */
+/* Tarjeta visible */
 .card.visible {
     opacity: 1;
 }
@@ -401,7 +433,7 @@ body, html {
     z-index: 10;
 }
 
-/* Tarjeta se sumerge suavemente (como entrando al agua) */
+/* Tarjeta se sumerge */
 .card.submerge {
     transform: translateX(-50%) translateY(-120px) scale(1.1);
     opacity: 0;
@@ -526,8 +558,8 @@ body, html {
     .envelope-wrapper { width: 310px; height: 195px; }
     .envelope-flap { border-width: 108px 155px 0 155px; }
     .wax-seal { top: 80px; width: 52px; height: 52px; }
-    .card { width: 245px; height: 155px; top: 25px; }
-    .letter { font-size: 4.2rem; }
+    .card { width: 260px; height: 170px; top: 25px; }
+    .letter { font-size: 3.6rem; }
     .card.slide-out { transform: translateX(-50%) translateY(-100px); }
     .card.submerge { transform: translateX(-50%) translateY(-100px) scale(1.1); }
     .magic-text { font-size: 2.2rem; width: 90%; }
