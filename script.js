@@ -31,7 +31,7 @@ const envelopeClick = document.getElementById('envelope-click');
 const envelopeFlap = document.getElementById('envelope-flap');
 const waxSeal = document.getElementById('wax-seal');
 const card = document.getElementById('card');
-const cardNameArea = document.getElementById('card-name');
+const cardName = document.getElementById('card-name');
 const fairyDustContainer = document.getElementById('fairy-dust-container');
 const ribbonText = document.getElementById('ribbon-txt');
 const startScreen = document.getElementById('start-screen');
@@ -50,31 +50,6 @@ let virtualTime = 0;
 let lastTime = 0;
 let finaleTriggered = false;
 let opened = false;
-
-// ===== ESCRIBIR NOMBRE LETRA POR LETRA =====
-function writeNameLetterByLetter(callback) {
-    const name = "Meyli";
-    cardNameArea.innerHTML = '';
-
-    name.split('').forEach((char, i) => {
-        setTimeout(() => {
-            const span = document.createElement('span');
-            span.textContent = char;
-            span.classList.add('letter');
-            cardNameArea.appendChild(span);
-
-            // Pequeño delay antes de la animación para que el DOM se actualice
-            requestAnimationFrame(() => {
-                span.classList.add('appear');
-            });
-
-            // Callback después de la última letra
-            if (i === name.length - 1 && callback) {
-                setTimeout(callback, 1500); // Pausa para admirar el nombre completo
-            }
-        }, i * 700); // 700ms entre cada letra (lento y romántico)
-    });
-}
 
 // ===== POLVO DE HADAS =====
 function burstFairyDust() {
@@ -224,14 +199,16 @@ envelopeClick.addEventListener('click', () => {
         envelopeClick.classList.add('drop');
     }, 3500);
 
-    // ── PASO 4: Escritura mágica letra por letra (M...e...y...l...i) ──
+    // ── PASO 4: Escritura fluida del nombre ──
     setTimeout(() => {
-        writeNameLetterByLetter(() => {
-            // ── PASO 5: Después de admirar el nombre, la tarjeta se sumerge ──
-            card.classList.add('submerge');
+        cardName.classList.add('write');
+    }, 4500);
 
-            // ── Entramos al Río Oscuro ──
-            setTimeout(startExperience, 2500);
-        });
-    }, 5500);
+    // ── PASO 5: Después de admirar el nombre, la tarjeta se sumerge ──
+    setTimeout(() => {
+        card.classList.add('submerge');
+
+        // ── Entramos al Río Oscuro ──
+        setTimeout(startExperience, 2500);
+    }, 9000);
 });
