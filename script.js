@@ -33,7 +33,9 @@ const poemaSync = [
 
 // ===== ELEMENTOS DOM =====
 const envelopeBtn = document.getElementById('envelope-btn');
-const slidingParchment = document.getElementById('sliding-parchment');
+const foldedParchment = document.getElementById('folded-parchment');
+const fairyDustContainer = document.getElementById('fairy-dust-container');
+const liveWritingText = document.querySelector('.live-writing-text');
 const startScreen = document.getElementById('start-screen');
 const audioPoema = document.getElementById('audio-poema');
 const magicText = document.getElementById('magic-text');
@@ -50,6 +52,29 @@ let currentLineIndex = -1;
 let virtualTime = 0;
 let lastTime = 0;
 let finaleTriggered = false;
+
+// ===== POLVO DE HADAS (Efecto Sorpresa) =====
+function burstFairyDust() {
+    for (let i = 0; i < 40; i++) {
+        const dust = document.createElement('div');
+        dust.classList.add('fairy-dust');
+        
+        // Randomizar dirección de explosión
+        const tx = (Math.random() - 0.5) * 800 + 'px';
+        const ty = (Math.random() - 0.5) * 800 + 'px';
+        dust.style.setProperty('--tx', tx);
+        dust.style.setProperty('--ty', ty);
+        
+        const duration = Math.random() * 1.5 + 0.5;
+        dust.style.animation = `fairyExplode ${duration}s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`;
+        
+        fairyDustContainer.appendChild(dust);
+        
+        setTimeout(() => {
+            if(dust.parentNode) dust.parentNode.removeChild(dust);
+        }, duration * 1000);
+    }
+}
 
 // ===== MOTOR DE FAROLES HIPERREALISTAS =====
 function spawnRealisticLantern() {
@@ -149,36 +174,45 @@ function triggerPoeticFinale() {
     if (finaleTriggered) return;
     finaleTriggered = true;
     
-    // 1. Transición al pergamino antiguo
     bg3.classList.remove('active');
-    bg4.classList.add('active'); // Fondo de pergamino
+    bg4.classList.add('active'); 
     
-    // 2. Desaparecer los faroles poco a poco (ya que es papel)
     const lanterns = document.querySelectorAll('.realistic-lantern');
     lanterns.forEach(l => l.style.opacity = '0');
     
-    // 3. Escribir la firma a mano con pluma invisible
     setTimeout(() => {
         handwrittenFinale.classList.add('show');
-    }, 3000); // Espera 3 segundos a que el pergamino aparezca bien
+    }, 3000); 
 }
 
-// ===== INTERACCION: SACAR LA CARTA =====
+// ===== LA GRAN SECUENCIA DE APERTURA (5 EFECTOS) =====
 envelopeBtn.addEventListener('click', () => {
-    // 1. El sobre cae
+    // 1. El Clic: El sobre cae, el sello de cera estalla en fuego (Clase .drop en CSS)
     envelopeBtn.classList.add('drop');
     
-    // 2. El papel interior sale hacia arriba
-    setTimeout(() => {
-        slidingParchment.classList.add('slide-out');
-    }, 400);
-
-    // 3. El papel hace zoom in hacia la cámara
-    setTimeout(() => {
-        slidingParchment.classList.add('zoom-in');
-    }, 1500);
+    // 2. Magia: Estallido de polvo de hadas saliendo del sobre
+    setTimeout(burstFairyDust, 200);
     
-    // 4. Se desvanece todo y empieza la magia en el río
+    // 3. Papel 3D: Sale del sobre y se desdobla
+    setTimeout(() => {
+        foldedParchment.classList.add('slide-out');
+    }, 500);
+
+    setTimeout(() => {
+        foldedParchment.classList.add('unfold');
+    }, 1500);
+
+    // 4. Escritura en tiempo real (Tinta de oro)
+    setTimeout(() => {
+        liveWritingText.classList.add('write');
+    }, 3000); // Se escribe después de estar desdoblado
+    
+    // 5. El zoom in final hacia el poema
+    setTimeout(() => {
+        foldedParchment.classList.add('zoom-in');
+    }, 6000); // 3 seg para desdoblar + 2.5s para escribir
+    
+    // Entrando al Río Oscuro
     setTimeout(() => {
         startScreen.classList.remove('active');
         
@@ -194,5 +228,5 @@ envelopeBtn.addEventListener('click', () => {
         for(let i=0; i<8; i++) {
             setTimeout(spawnRealisticLantern, i * 400);
         }
-    }, 3200);
+    }, 7800);
 });

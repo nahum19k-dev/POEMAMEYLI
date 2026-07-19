@@ -36,7 +36,10 @@
         
         <!-- Pantalla de inicio (Sobre 100% CSS Programado) -->
         <div id="start-screen" class="active">
-            <div class="letter-scene">
+            <div class="letter-scene" id="letter-scene">
+                <!-- Polvo de Hadas Container -->
+                <div id="fairy-dust-container"></div>
+                
                 <div class="css-envelope-wrapper" id="envelope-btn">
                     <div class="css-envelope">
                         <!-- Parte Trasera y Detalles de Envío -->
@@ -45,11 +48,17 @@
                             <div class="css-postmark"></div>
                         </div>
                         
-                        <!-- La Tarjeta Elegante Extraíble (Puro CSS) -->
-                        <div id="sliding-parchment" class="sliding-parchment">
-                            <div class="card-border-inner">
-                                <h2 class="parchment-name">Meyli</h2>
+                        <!-- La Carta Plegada 3D Extraíble -->
+                        <div id="folded-parchment" class="folded-parchment">
+                            <div class="fold fold-top"></div>
+                            <div class="fold fold-center">
+                                <div class="card-border-inner">
+                                    <div class="live-writing-container" id="live-writing-container">
+                                        <span class="live-writing-text">Meyli</span>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="fold fold-bottom"></div>
                         </div>
                         
                         <!-- Solapas Delanteras (Abajo y Lados) -->
