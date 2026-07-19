@@ -7,13 +7,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Great+Vibes&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
     <audio id="audio-poema" src="poema.mp3" preload="auto"></audio>
 
-    <!-- Fondos Fotorealistas Dinámicos -->
+    <!-- Fondos -->
     <div id="bg-1" class="real-background active" style="background-image: url('assets/background.png');"></div>
     <div id="bg-2" class="real-background" style="background-image: url('assets/bg-forest.png');"></div>
     <div id="bg-3" class="real-background" style="background-image: url('assets/bg-sunrise.png');"></div>
@@ -21,7 +21,7 @@
     
     <div id="water-overlay"></div>
 
-    <!-- Final Poético Manuscrito -->
+    <!-- Final Poético -->
     <div id="handwritten-finale">
         <div class="handwritten-text">Para siempre, tuyo.</div>
     </div>
@@ -32,36 +32,36 @@
     <!-- UI -->
     <div id="ui-layer">
 
-        <!-- INICIO: La Carta -->
+        <!-- INICIO -->
         <div id="start-screen" class="active">
             <div class="envelope-scene">
 
-                <!-- Polvo de Hadas (se inyecta por JS) -->
                 <div id="fairy-dust-container"></div>
 
-                <!-- La Tarjeta Interior (DETRÁS del sobre, invisible al inicio) -->
-                <div class="card" id="card">
-                    <div class="card-inner-border">
-                        <span class="card-name" id="card-name">Meyli</span>
+                <!-- Contenedor que agrupa sobre y tarjeta -->
+                <div class="envelope-wrapper">
+
+                    <!-- TARJETA (invisible, detrás del sobre) -->
+                    <div class="card" id="card">
+                        <div class="card-border-outer">
+                            <div class="card-border-inner">
+                                <div class="card-name-area" id="card-name"></div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- SOBRE (visible, delante) -->
+                    <div class="envelope" id="envelope-click">
+                        <div class="envelope-body"></div>
+                        <div class="envelope-flap" id="envelope-flap"></div>
+                        <div class="wax-seal" id="wax-seal">
+                            <span class="seal-heart">❤</span>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- El Sobre (DELANTE de la tarjeta) -->
-                <div class="envelope" id="envelope-click">
-                    <!-- Cuerpo del sobre -->
-                    <div class="envelope-body">
-                        <!-- Líneas de doblez decorativas -->
-                        <div class="envelope-fold-lines"></div>
-                    </div>
-                    <!-- Solapa superior (se abre en 3D) -->
-                    <div class="envelope-flap" id="envelope-flap"></div>
-                    <!-- Sello de cera con corazón (protagonista) -->
-                    <div class="wax-seal" id="wax-seal">
-                        <span class="seal-heart">❤</span>
-                    </div>
-                </div>
-
-                <p class="ribbon-text">Rompe el sello para abrir la carta ✨</p>
+                <p class="ribbon-text" id="ribbon-txt">Rompe el sello para abrir la carta ✨</p>
             </div>
         </div>
 
@@ -72,6 +72,6 @@
 
     </div>
 
-    <script src="script.js?v=20"></script>
+    <script src="script.js?v=30"></script>
 </body>
 </html>

@@ -14,7 +14,7 @@ body, html {
 }
 
 /* ========================================
-   FONDOS DINÁMICOS FOTOREALISTAS
+   FONDOS
    ======================================== */
 .real-background {
     position: absolute;
@@ -22,11 +22,9 @@ body, html {
     width: 100%; height: 100%;
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
     z-index: 1;
     opacity: 0;
     transition: opacity 4s ease-in-out, filter 4s ease-in-out;
-    transform: scale(1.0);
 }
 
 .real-background.active {
@@ -89,14 +87,14 @@ body, html {
 }
 
 @keyframes floatUp {
-    0% { transform: translateY(100px) scale(0.5) rotate(0deg); opacity: 0; }
+    0% { transform: translateY(100px) scale(0.5); opacity: 0; }
     10% { opacity: 1; }
     90% { opacity: 1; }
-    100% { transform: translateY(-120vh) scale(0.3) rotate(15deg); opacity: 0; }
+    100% { transform: translateY(-120vh) scale(0.3); opacity: 0; }
 }
 
 /* ========================================
-   UI LAYER
+   UI
    ======================================== */
 #ui-layer {
     position: absolute;
@@ -113,9 +111,8 @@ body, html {
     align-items: center;
     background: radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.95) 100%);
     backdrop-filter: blur(12px);
-    transition: opacity 2s ease;
+    transition: opacity 2.5s ease;
     pointer-events: auto;
-    opacity: 1;
 }
 
 #start-screen:not(.active) {
@@ -124,24 +121,33 @@ body, html {
 }
 
 /* ========================================
-   LA ESCENA DE LA CARTA
+   ESCENA DE LA CARTA
    ======================================== */
 .envelope-scene {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* ---- EL SOBRE (DELANTE) ---- */
-.envelope {
+/* Agrupa sobre y tarjeta en la misma posición */
+.envelope-wrapper {
     position: relative;
     width: 380px;
     height: 240px;
+}
+
+/* ========================================
+   EL SOBRE
+   ======================================== */
+.envelope {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
     cursor: pointer;
-    z-index: 10;
+    z-index: 3; /* DELANTE de la tarjeta */
     animation: floatEnvelope 4s infinite ease-in-out;
-    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.2s ease;
+    transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1), opacity 2s ease;
 }
 
 @keyframes floatEnvelope {
@@ -153,47 +159,34 @@ body, html {
     transform: scale(1.02);
 }
 
-/* Cuerpo principal del sobre */
+/* Cuerpo */
 .envelope-body {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     background: linear-gradient(160deg, #e8d9c5, #d4c4ad 40%, #c9b89e);
-    border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 5px;
+    border: 1px solid rgba(0,0,0,0.08);
     box-shadow:
-        0 20px 50px rgba(0,0,0,0.7),
+        0 25px 60px rgba(0,0,0,0.7),
         inset 0 1px 0 rgba(255,255,255,0.3);
+    z-index: 1;
 }
 
-/* Líneas decorativas de doblez (forma de V) */
-.envelope-fold-lines {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-}
-.envelope-fold-lines::before,
-.envelope-fold-lines::after {
+/* Líneas de doblez en V (decorativas) */
+.envelope-body::before {
     content: '';
     position: absolute;
-    top: 0;
-    width: 50%; height: 100%;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-.envelope-fold-lines::before {
-    left: 0;
-    border-right: 1px solid rgba(0,0,0,0.04);
-    transform: skewY(25deg);
-    transform-origin: top left;
-}
-.envelope-fold-lines::after {
-    right: 0;
-    border-left: 1px solid rgba(0,0,0,0.04);
-    transform: skewY(-25deg);
-    transform-origin: top right;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+        linear-gradient(to bottom right, transparent 49.3%, rgba(0,0,0,0.04) 49.3%, rgba(0,0,0,0.04) 50.7%, transparent 50.7%),
+        linear-gradient(to bottom left, transparent 49.3%, rgba(0,0,0,0.04) 49.3%, rgba(0,0,0,0.04) 50.7%, transparent 50.7%);
+    pointer-events: none;
+    border-radius: 5px;
 }
 
-/* Solapa superior del sobre (triángulo que se abre en 3D) */
+/* Solapa (triángulo que se abre) */
 .envelope-flap {
     position: absolute;
     top: 0; left: 0;
@@ -201,117 +194,145 @@ body, html {
     border-style: solid;
     border-width: 130px 190px 0 190px;
     border-color: #ddd0be transparent transparent transparent;
-    z-index: 11;
+    z-index: 2;
     transform-origin: top center;
-    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
 
-/* ---- SELLO DE CERA (PROTAGONISTA) ---- */
+/* ---- SELLO DE CERA ---- */
 .wax-seal {
     position: absolute;
-    top: 100px;
+    top: 98px;
     left: 50%;
     transform: translateX(-50%);
-    width: 58px; height: 58px;
+    width: 60px; height: 60px;
     background: radial-gradient(circle at 35% 35%, #d42a2a, #9b0000 55%, #520000);
     border-radius: 50%;
-    z-index: 12;
+    z-index: 4;
     box-shadow:
-        0 4px 12px rgba(0,0,0,0.7),
-        inset 0 2px 4px rgba(255,180,180,0.4),
-        inset 0 -3px 5px rgba(0,0,0,0.5);
+        0 4px 15px rgba(0,0,0,0.7),
+        inset 0 2px 5px rgba(255,180,180,0.4),
+        inset 0 -3px 6px rgba(0,0,0,0.5);
     display: flex;
     justify-content: center;
     align-items: center;
     animation: heartBeat 1.4s infinite alternate;
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
 }
 
-/* Borde irregular del sello (más realista) */
+/* Borde irregular como cera real */
 .wax-seal::before {
     content: '';
     position: absolute;
-    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    top: -4px; left: -4px; right: -4px; bottom: -4px;
     background: radial-gradient(circle at 35% 35%, #d42a2a, #9b0000 55%, #520000);
     border-radius: 50%;
     z-index: -1;
-    clip-path: polygon(50% 0%, 61% 4%, 70% 2%, 78% 8%, 85% 15%, 92% 22%, 98% 33%, 100% 44%, 98% 56%, 96% 67%, 92% 76%, 85% 84%, 78% 90%, 68% 96%, 58% 100%, 48% 98%, 38% 96%, 28% 92%, 18% 85%, 10% 76%, 5% 65%, 2% 54%, 0% 44%, 2% 33%, 6% 22%, 12% 14%, 20% 7%, 30% 3%, 40% 0%);
+    clip-path: polygon(50% 0%, 63% 3%, 72% 1%, 80% 7%, 88% 15%, 94% 24%, 98% 35%, 100% 46%, 97% 58%, 94% 68%, 88% 78%, 80% 86%, 72% 93%, 63% 97%, 50% 100%, 37% 97%, 28% 93%, 20% 86%, 12% 78%, 6% 68%, 3% 58%, 0% 46%, 2% 35%, 6% 24%, 12% 15%, 20% 7%, 28% 1%, 37% 3%);
 }
 
 .seal-heart {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     color: rgba(255,180,180,0.85);
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
 }
 
 @keyframes heartBeat {
     0% {
         transform: translateX(-50%) scale(1);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.7);
     }
     100% {
-        transform: translateX(-50%) scale(1.08);
-        box-shadow: 0 4px 20px rgba(200,0,0,0.5), 0 0 30px rgba(255,0,0,0.2);
+        transform: translateX(-50%) scale(1.1);
+        box-shadow:
+            0 4px 20px rgba(200,0,0,0.6),
+            0 0 35px rgba(255,50,50,0.3),
+            0 0 60px rgba(255,0,0,0.15);
     }
 }
 
-/* Hover: brillo dorado mágico */
+/* Hover dorado */
 .envelope:hover .wax-seal {
     animation: none;
     transform: translateX(-50%) scale(1.15);
-    box-shadow: 0 0 35px rgba(255, 215, 0, 0.8), inset 0 0 12px rgba(255, 215, 0, 0.3);
+    box-shadow:
+        0 0 40px rgba(255, 215, 0, 0.9),
+        0 0 80px rgba(255, 180, 0, 0.4),
+        inset 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
 /* ---- ANIMACIONES DE APERTURA ---- */
 
-/* Sello se quema y desaparece */
+/* Sello se quema lentamente */
 .wax-seal.burn {
-    animation: none !important;
-    transform: translateX(-50%) scale(2.5) !important;
-    background: radial-gradient(circle at center, #ffcc00, #ff4400 40%, transparent 75%) !important;
-    box-shadow: 0 0 60px #ff4400, 0 0 120px #ffcc00 !important;
-    opacity: 0;
-    transition: transform 0.6s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.5s ease 0.15s, background 0.3s, box-shadow 0.3s;
+    animation: sealBurn 1.2s ease-out forwards !important;
 }
 
-/* Solapa se abre hacia arriba */
+@keyframes sealBurn {
+    0% { transform: translateX(-50%) scale(1); opacity: 1; }
+    30% {
+        transform: translateX(-50%) scale(1.3);
+        background: radial-gradient(circle at center, #ff6600, #cc0000 50%, #520000);
+        box-shadow: 0 0 40px #ff4400, 0 0 80px #ff8800;
+    }
+    60% {
+        transform: translateX(-50%) scale(2);
+        background: radial-gradient(circle at center, #ffcc00, #ff4400 40%, transparent 75%);
+        box-shadow: 0 0 60px #ff4400, 0 0 120px #ffcc00;
+    }
+    100% {
+        transform: translateX(-50%) scale(2.5);
+        opacity: 0;
+        box-shadow: 0 0 80px transparent;
+    }
+}
+
+/* Solapa se abre lentamente */
 .envelope-flap.open {
     transform: rotateX(180deg);
 }
 
-/* El sobre entero cae y desaparece */
+/* Sobre cae suavemente */
 .envelope.drop {
     animation: none;
-    transform: translateY(180px) rotate(-8deg);
+    transform: translateY(200px) rotate(-5deg);
     opacity: 0;
 }
 
-/* ---- LA TARJETA INTERIOR (DETRÁS DEL SOBRE) ---- */
+/* ========================================
+   LA TARJETA (OCULTA DETRÁS DEL SOBRE)
+   ======================================== */
 .card {
     position: absolute;
-    top: 40px;
+    top: 30px;
     left: 50%;
     transform: translateX(-50%);
-    width: 290px;
-    height: 180px;
-    background: #fcfaf6;
-    border: 2px solid #d4af37;
-    border-radius: 3px;
-    box-shadow:
-        inset 0 0 0 5px #fcfaf6,
-        inset 0 0 0 6px rgba(212,175,55,0.4),
-        0 8px 25px rgba(0,0,0,0.4);
-    z-index: 5; /* DETRÁS del sobre (z:10) */
+    width: 300px;
+    height: 190px;
+    background: #fdfbf7;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1; /* DETRÁS del sobre (z:3) */
+    opacity: 0; /* INVISIBLE hasta la animación */
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2s ease;
 }
 
-.card-inner-border {
-    width: 88%;
-    height: 82%;
+.card-border-outer {
+    width: 92%; height: 86%;
+    border: 2px solid #d4af37;
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.card-border-inner {
+    width: 92%; height: 86%;
     border: 1px dashed rgba(212, 175, 55, 0.35);
     display: flex;
     justify-content: center;
@@ -319,52 +340,73 @@ body, html {
     position: relative;
 }
 
-/* Esquinitas decorativas doradas */
-.card-inner-border::before,
-.card-inner-border::after {
-    content: '❧';
+/* Ornamentos en las esquinas */
+.card-border-outer::before,
+.card-border-outer::after {
+    content: '✦';
     position: absolute;
-    font-size: 1.2rem;
-    color: rgba(212, 175, 55, 0.4);
+    font-size: 0.9rem;
+    color: rgba(212, 175, 55, 0.5);
 }
-.card-inner-border::before { top: 2px; left: 6px; }
-.card-inner-border::after { bottom: 2px; right: 6px; transform: rotate(180deg); }
+.card-border-outer::before { top: 6px; left: 8px; }
+.card-border-outer::after { bottom: 6px; right: 8px; }
 
-/* El nombre (oculto al inicio, se "escribe" después) */
-.card-name {
+.card-border-inner::before,
+.card-border-inner::after {
+    content: '✦';
+    position: absolute;
+    font-size: 0.9rem;
+    color: rgba(212, 175, 55, 0.5);
+}
+.card-border-inner::before { top: 4px; right: 6px; }
+.card-border-inner::after { bottom: 4px; left: 6px; }
+
+/* Contenedor del nombre */
+.card-name-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}
+
+/* Cada letra aparece individualmente */
+.letter {
     font-family: 'Great Vibes', cursive;
-    font-size: 5rem;
+    font-size: 5.5rem;
     color: #d4af37;
-    text-shadow: 1px 1px 3px rgba(212, 175, 55, 0.3);
+    text-shadow: 1px 2px 4px rgba(212, 175, 55, 0.3);
     display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 0;
-    border-right: 2px solid transparent;
-}
-
-/* Animación de escritura mágica */
-.card-name.write {
-    animation: writeGold 2s ease-in-out forwards;
-}
-
-@keyframes writeGold {
-    0% { max-width: 0; border-right-color: rgba(212,175,55,0.8); }
-    85% { border-right-color: rgba(212,175,55,0.8); }
-    100% { max-width: 350px; border-right-color: transparent; }
-}
-
-/* Tarjeta sale del sobre (desliza hacia arriba) */
-.card.slide-out {
-    transform: translateX(-50%) translateY(-280px);
-    z-index: 20;
-}
-
-/* Tarjeta hace zoom y se disuelve */
-.card.zoom-in {
-    transform: translateX(-50%) translateY(-280px) scale(8);
     opacity: 0;
-    transition: transform 2s ease-in, opacity 1.5s ease-in 0.5s;
+    transform: translateY(15px) scale(0.3);
+}
+
+.letter.appear {
+    animation: letterPaint 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes letterPaint {
+    0% { opacity: 0; transform: translateY(15px) scale(0.3); }
+    50% { opacity: 0.7; transform: translateY(-3px) scale(1.1); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Tarjeta visible y sale lentamente del sobre */
+.card.visible {
+    opacity: 1;
+}
+
+.card.slide-out {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-270px);
+    z-index: 10;
+}
+
+/* Tarjeta se sumerge suavemente (como entrando al agua) */
+.card.submerge {
+    transform: translateX(-50%) translateY(-270px) scale(1.1);
+    opacity: 0;
+    filter: blur(6px);
+    transition: transform 3s ease-in, opacity 2.5s ease-in 0.5s, filter 2.5s ease-in;
 }
 
 /* ---- POLVO DE HADAS ---- */
@@ -378,7 +420,6 @@ body, html {
 
 .fairy-dust {
     position: absolute;
-    width: 6px; height: 6px;
     background: #ffd700;
     border-radius: 50%;
     box-shadow: 0 0 8px #fff, 0 0 15px #ffd700;
@@ -389,7 +430,7 @@ body, html {
     100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
 }
 
-/* ---- TEXTO DEBAJO DEL SOBRE ---- */
+/* ---- TEXTO DEBAJO ---- */
 .ribbon-text {
     font-family: 'Cinzel', serif;
     font-size: 1rem;
@@ -398,20 +439,18 @@ body, html {
     letter-spacing: 2px;
     text-shadow: 0 0 15px rgba(255, 239, 179, 0.8);
     animation: pulseText 2s infinite ease-in-out;
-    transition: opacity 0.5s;
+    transition: opacity 1s;
 }
 
 @keyframes pulseText {
-    0%, 100% { opacity: 0.5; }
+    0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
 }
 
-.ribbon-text.hide {
-    opacity: 0;
-}
+.ribbon-text.hide { opacity: 0; }
 
 /* ========================================
-   TEXTO MÁGICO DEL POEMA
+   POEMA
    ======================================== */
 #experience-screen {
     position: absolute;
@@ -438,20 +477,17 @@ body, html {
     transition: opacity 1.5s ease-out, transform 2s ease-out;
 }
 
-.magic-text.show {
-    opacity: 1;
-    transform: scale(1);
-}
+.magic-text.show { opacity: 1; transform: scale(1); }
 
 .magic-text.fade-out {
     opacity: 0;
     transform: scale(1.1) translateY(-20px);
-    transition: opacity 1.2s ease-in, transform 1.2s ease-in, filter 1.2s ease-in;
+    transition: opacity 1.2s, transform 1.2s, filter 1.2s;
     filter: blur(8px);
 }
 
 /* ========================================
-   FINAL POÉTICO MANUSCRITO
+   FINAL
    ======================================== */
 #handwritten-finale {
     position: absolute;
@@ -460,7 +496,7 @@ body, html {
     z-index: 8;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 2s ease-in;
+    transition: opacity 2s;
 }
 
 .handwritten-text {
@@ -470,12 +506,9 @@ body, html {
     white-space: nowrap;
     overflow: hidden;
     max-width: 0;
-    padding: 10px 0;
 }
 
-#handwritten-finale.show {
-    opacity: 1;
-}
+#handwritten-finale.show { opacity: 1; }
 
 #handwritten-finale.show .handwritten-text {
     animation: typing 3.5s ease-in-out forwards;
@@ -490,15 +523,13 @@ body, html {
    RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
-    .envelope { width: 300px; height: 190px; }
-    .envelope-flap { border-width: 105px 150px 0 150px; }
-    .wax-seal { top: 78px; width: 50px; height: 50px; }
-    .seal-heart { font-size: 1.2rem; }
-    .card { width: 230px; height: 145px; top: 30px; }
-    .card-name { font-size: 3.8rem; }
+    .envelope-wrapper { width: 310px; height: 195px; }
+    .envelope-flap { border-width: 108px 155px 0 155px; }
+    .wax-seal { top: 80px; width: 52px; height: 52px; }
+    .card { width: 245px; height: 155px; top: 25px; }
+    .letter { font-size: 4.2rem; }
     .card.slide-out { transform: translateX(-50%) translateY(-220px); }
-    .card.zoom-in { transform: translateX(-50%) translateY(-220px) scale(8); }
+    .card.submerge { transform: translateX(-50%) translateY(-220px) scale(1.1); }
     .magic-text { font-size: 2.2rem; width: 90%; }
     .handwritten-text { font-size: 3.5rem; }
-    .ribbon-text { font-size: 0.85rem; }
 }
