@@ -21,12 +21,11 @@ const startScreen = document.getElementById('start-screen');
 const envelopeScene = document.querySelector('.envelope-scene');
 const audioPoema = document.getElementById('audio-poema');
 const lanternsContainer = document.getElementById('lanterns-container');
-const magicText = document.getElementById('magic-text');
 const bg1 = document.getElementById('bg-1');
 const bg2 = document.getElementById('bg-2');
 const bg3 = document.getElementById('bg-3');
 const bg4 = document.getElementById('bg-4');
-const handwrittenFinale = document.getElementById('handwritten-finale');
+const btnCloseCard = document.getElementById('btn-close-card');
 
 let finaleTriggered = false;
 let opened = false;
@@ -101,63 +100,12 @@ envelopeClick.addEventListener('click', () => {
     // 4. Escribe MEYLI
     setTimeout(() => { cardName.classList.add('write'); }, 4500);
 
-    // 5. Destello rápido del poema en la carta
-    setTimeout(flashAcrosticOnCard, 6000);
+    // 5. Empieza el poema lento sobre la carta
+    setTimeout(startSlowPoemOnCard, 7000);
 });
 
-// ===== DESTELLO DEL ACRÓSTICO EN LA CARTA =====
-function flashAcrosticOnCard() {
-    // 1. Mostrar todo el poema completo instantáneamente
-    const fullText = acrosticSync.map(para => {
-        // Resaltar la primera letra para que se note el acróstico M-E-Y-L-I
-        const firstLetter = para.text.charAt(0);
-        const restOfText = para.text.slice(1);
-        return `<span class="acrostic-letter">${firstLetter}</span>${restOfText}`;
-    }).join('<br><br>');
-
-    poemContainer.innerHTML = `<div class="full-poem-text">${fullText}</div>`;
-
-    // 2. Esperar unos segundos para que se aprecie la carta completa, y ¡EXPLOTA!
-    setTimeout(explodeCard, 5000); // Explota después de 5 segundos de verla completa
-}
-
-// ===== LA EXPLOSIÓN Y EL PORTAL =====
-function explodeCard() {
-    // 1. Quemar carta brevemente
-    card.classList.add('burning');
-    cardName.classList.add('smoke');
-    poemContainer.classList.add('smoke');
-
-    // 2. Explosión inmersiva (nos sumergimos al fondo del bosque/luna)
-    setTimeout(() => {
-        createExplosionParticles(false); // Expansión masiva
-        
-        card.classList.add('submerge'); // La carta viene hacia la cámara
-        
-        setTimeout(() => {
-            envelopeScene.style.display = 'none'; // Desaparece sobre y carta
-        }, 1000);
-        
-        lanternsContainer.classList.remove('hidden'); // Revela el bosque
-        
-        // Faroles
-        for (let i = 0; i < 8; i++) {
-            setTimeout(spawnLantern, i * 400);
-        }
-        
-        // 3. Ya sumergidos en el fondo, mostramos el poema completo flotando y arranca el audio
-        setTimeout(startForestPoem, 2000); 
-    }, 1500);
-}
-
-// ===== EL VIAJE EN EL BOSQUE (LECTURA DEL POEMA) =====
-function startForestPoem() {
-    // Cambiar fondos lentamente (Luna -> Bosque -> Río)
-    bg1.style.opacity = '1';
-    setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 30000);
-    setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 60000);
-    setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 90000);
-
+// ===== POEMA LENTO EN LA CARTA =====
+function startSlowPoemOnCard() {
     // Reproducir audio
     audioPoema.play().then(() => {
         audioStarted = true;
@@ -165,31 +113,15 @@ function startForestPoem() {
         console.log('Audio bloqueado, usando temporizador', e);
     });
 
-    // Mostrar el poema completo en el bosque (flotando mágico)
-    const fullText = acrosticSync.map(para => {
-        return `<span class="acrostic-letter" style="color: #ffd700; text-shadow: 0 0 10px #ffcc00;">${para.text.charAt(0)}</span>${para.text.slice(1)}`;
-    }).join('<br><br>');
-    
-    magicText.innerHTML = fullText;
-    magicText.style.fontSize = '1.2rem';
-    magicText.style.textAlign = 'center';
-    magicText.style.lineHeight = '1.5';
-    magicText.style.width = '90%';
-    magicText.style.opacity = '0';
-    magicText.style.transform = 'translate(-50%, 20px)';
-    
-    setTimeout(() => {
-        magicText.style.opacity = '1';
-        magicText.style.transform = 'translate(-50%, -50%)';
-    }, 1000);
+    poemContainer.innerHTML = '<div class="full-poem-text" id="full-poem-text-container"></div>';
+    const textContainer = document.getElementById('full-poem-text-container');
 
-    // Reloj interno para detonar el final
+    let currentPara = 0;
     let fallbackTime = 0;
     let lastTick = Date.now();
     
     const interval = setInterval(() => {
         let currentTime = 0;
-        
         if (audioStarted) {
             currentTime = audioPoema.currentTime;
         } else {
@@ -199,72 +131,129 @@ function startForestPoem() {
             currentTime = fallbackTime;
         }
 
-        // Final del poema (115s aprox, detona reconstrucción)
+        // Mostrar párrafos 1 a 1 de forma lenta
+        if (currentPara < acrosticSync.length && currentTime >= acrosticSync[currentPara].time) {
+            const p = document.createElement('p');
+            p.className = 'poem-line';
+            
+            // Resaltar acróstico
+            const firstLetter = acrosticSync[currentPara].text.charAt(0);
+            const restOfText = acrosticSync[currentPara].text.slice(1);
+            p.innerHTML = `<span class="acrostic-letter">${firstLetter}</span>${restOfText}`;
+            
+            textContainer.appendChild(p);
+            requestAnimationFrame(() => {
+                p.classList.add('show');
+            });
+            currentPara++;
+        }
+
+        // Final del poema (115s aprox, detona explosión)
         if (currentTime >= 115 && !finaleTriggered) { 
             finaleTriggered = true;
             clearInterval(interval);
-            magicText.style.opacity = '0'; // Ocultar poema
-            triggerReconstructionPhase();
+            explodeCardIntoSquares();
         }
     }, 100);
 }
 
-    }, 1200);
-}
+// ===== LA EXPLOSIÓN EN CUADRITOS Y EL PORTAL =====
+function explodeCardIntoSquares() {
+    // 1. Quemar carta brevemente
+    card.classList.add('burning');
+    cardName.classList.add('smoke');
+    poemContainer.classList.add('smoke');
 
-// ===== FASE DE RECONSTRUCCIÓN =====
-function triggerReconstructionPhase() {
-    // 1. Pergamino final flotando en el bosque
+    // 2. Explosión inmersiva (nos sumergimos al fondo)
     setTimeout(() => {
-        handwrittenFinale.classList.remove('hidden');
-        handwrittenFinale.style.animation = 'fadeIn 3s forwards';
-    }, 1000);
-
-    // 2. Reconstrucción inversa
-    setTimeout(() => {
-        handwrittenFinale.style.animation = 'fadeOut 2s forwards';
-        lanternsContainer.style.transition = 'opacity 2s';
-        lanternsContainer.style.opacity = '0'; // Adiós bosque
-
-        createExplosionParticles(true); // Partículas succión
-
+        createSquareParticles(false); // Expansión masiva de cuadritos
+        
+        card.classList.add('submerge'); // La carta viene hacia la cámara y desaparece
+        
         setTimeout(() => {
-            envelopeScene.style.display = 'flex';
-            envelopeScene.style.opacity = '0';
-            
-            // Limpiar daños de la explosión
-            card.classList.remove('burning', 'submerge', 'slide-out');
-            cardName.classList.remove('smoke');
-            poemContainer.innerHTML = ''; 
-            
-            // Reconstruir
-            card.classList.add('reconstruct');
-            document.querySelector('.envelope').classList.add('reconstruct');
-            
-            // Aparece de nuevo
-            setTimeout(() => {
-                envelopeScene.style.opacity = '1';
-                
-                // Guardar
-                setTimeout(() => {
-                    // La carta cae devuelta al bolsillo
-                    card.style.transform = 'translate(-50%, 110%)'; 
-                    card.style.opacity = '0'; // Se esconde en el bolsillo
-                    
-                    setTimeout(() => {
-                        envelopeFlap.classList.remove('open');
-                    }, 2000);
-                }, 4000);
-            }, 100);
-            
-        }, 1500);
-    }, 6000); // 6 segundos leyendo "Para siempre, tuyo"
+            envelopeScene.style.display = 'none'; // Desaparece la escena
+        }, 1000);
+        
+        // Cambiar fondos mágicos en el bosque
+        lanternsContainer.classList.remove('hidden');
+        bg1.style.opacity = '1';
+        setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
+        setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
+        setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
+        
+        // Empiezan los faroles
+        for (let i = 0; i < 8; i++) {
+            setTimeout(spawnLantern, i * 400);
+        }
+        
+        // 3. Ya sumergidos en el fondo, admiramos 10 segundos, y luego reconstrucción
+        setTimeout(triggerReconstructionPhase, 12000); 
+    }, 1500);
 }
 
-// ===== SISTEMA DE PARTÍCULAS (Explosión) =====
-function createExplosionParticles(reverse) {
+// ===== FASE DE RECONSTRUCCIÓN FINAL =====
+function triggerReconstructionPhase() {
+    // Adiós bosque
+    lanternsContainer.style.transition = 'opacity 2s';
+    lanternsContainer.style.opacity = '0'; 
+
+    createSquareParticles(true); // Partículas succión (cuadritos)
+
+    setTimeout(() => {
+        envelopeScene.style.display = 'flex';
+        envelopeScene.style.opacity = '0';
+        
+        // Limpiar daños de la explosión
+        card.classList.remove('burning', 'submerge', 'slide-out');
+        cardName.classList.remove('smoke');
+        poemContainer.classList.remove('smoke');
+        
+        // Reconstruir
+        card.classList.add('reconstruct');
+        document.querySelector('.envelope').classList.add('reconstruct');
+        
+        // Aparece la carta entera reconstruida
+        setTimeout(() => {
+            envelopeScene.style.opacity = '1';
+            
+            // Volvemos a mostrar la carta afuera
+            card.classList.add('slide-out');
+            
+            // Mostrar botón Cerrar
+            setTimeout(() => {
+                btnCloseCard.classList.remove('hidden');
+                btnCloseCard.style.animation = 'fadeIn 2s forwards';
+            }, 3000);
+            
+        }, 100);
+        
+    }, 1500);
+}
+
+// ===== BOTÓN CERRAR =====
+btnCloseCard.addEventListener('click', () => {
+    btnCloseCard.classList.add('hidden');
+    
+    // Romper en cuadritos de nuevo (opcional, o simplemente se guarda)
+    createSquareParticles(false);
+    card.classList.add('burning');
+    
+    setTimeout(() => {
+        card.classList.remove('burning');
+        // La carta cae devuelta al bolsillo
+        card.style.transform = 'translate(-50%, 110%)'; 
+        card.style.opacity = '0'; 
+        
+        setTimeout(() => {
+            envelopeFlap.classList.remove('open');
+        }, 2000);
+    }, 1500);
+});
+
+// ===== SISTEMA DE CUADRITOS (Explosión) =====
+function createSquareParticles(reverse) {
     explosionContainer.innerHTML = '';
-    const numParticles = 200;
+    const numParticles = 250; // Más partículas
     const colors = ['#ffcc00', '#ff6600', '#ff3300', '#ffffff', '#ffd700'];
 
     for (let i = 0; i < numParticles; i++) {
@@ -286,9 +275,9 @@ function createExplosionParticles(reverse) {
         if (reverse) {
             // Succión
             p.animate([
-                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${Math.random()})`, opacity: 0 },
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${Math.random()}) rotate(${Math.random()*360}deg)`, opacity: 0 },
                 { opacity: 1, offset: 0.2 },
-                { transform: 'translate(-50%, -50%) scale(1)', opacity: 0 }
+                { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 0 }
             ], {
                 duration: 2000 + Math.random() * 1500,
                 easing: 'cubic-bezier(0.2, 0, 0.8, 1)',
@@ -297,8 +286,8 @@ function createExplosionParticles(reverse) {
         } else {
             // Expansión masiva hacia la cámara
             p.animate([
-                { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(10)`, opacity: 0 }
+                { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(10) rotate(${Math.random()*360}deg)`, opacity: 0 }
             ], {
                 duration: 1500 + Math.random() * 2000,
                 easing: 'cubic-bezier(0.2, 1, 0.3, 1)',
