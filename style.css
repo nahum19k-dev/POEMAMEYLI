@@ -301,91 +301,58 @@ body, html {
 }
 
 /* ========================================
-   LA TARJETA PREMIUM
+   LA CARTA (GRANDE, MODERNA Y ROMÁNTICA)
    ======================================== */
 .card {
     position: absolute;
-    top: 30px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    width: 380px;
-    height: 240px;
-    border-radius: 6px;
+    transform: translate(-50%, 0%); /* Oculta un poco más abajo al inicio */
+    width: 480px;
+    height: 320px;
+    border-radius: 12px;
     z-index: 1;
     opacity: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2s ease;
-    /* Fondo con textura de papel antiguo */
-    background:
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 28px,
-            rgba(200, 170, 120, 0.04) 28px,
-            rgba(200, 170, 120, 0.04) 29px
-        ),
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 28px,
-            rgba(200, 170, 120, 0.04) 28px,
-            rgba(200, 170, 120, 0.04) 29px
-        ),
-        radial-gradient(ellipse at 30% 20%, #fdf9f0, #f5ead6 40%, #ede0c8 80%, #e5d5b5);
+    transition: transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2.5s ease;
+    
+    /* Fondo romántico moderno: Blanco cálido con un brillo sutil en el centro */
+    background: #fffcf9;
+    background-image: radial-gradient(ellipse at center, rgba(255,255,255,1) 0%, rgba(253,245,240,1) 100%);
     box-shadow:
-        0 12px 35px rgba(0,0,0,0.5),
-        inset 0 0 40px rgba(180, 150, 100, 0.15);
+        0 25px 60px rgba(0,0,0,0.6),
+        inset 0 0 50px rgba(230, 200, 200, 0.15); /* Resplandor cálido interior */
 }
 
-/* Borde exterior dorado grueso */
+/* Borde exterior fino y moderno */
 .card-border-outer {
-    width: 94%; height: 90%;
-    border: 3px solid #c9a84c;
-    border-radius: 4px;
+    width: 94%; height: 92%;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    box-shadow:
-        0 0 0 1px rgba(201, 168, 76, 0.3),
-        inset 0 0 0 1px rgba(201, 168, 76, 0.3);
 }
 
-/* Borde interior fino y elegante */
+/* Borde interior súper delicado */
 .card-border-inner {
-    width: 90%; height: 82%;
-    border: 1px solid rgba(201, 168, 76, 0.5);
+    width: 97%; height: 95%;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
 }
 
-/* Ornamentos en las 4 esquinas del borde exterior */
-.card-border-outer::before,
-.card-border-outer::after {
-    content: '❦';
-    position: absolute;
-    font-size: 1.4rem;
-    color: rgba(201, 168, 76, 0.65);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+/* Ornamentos esquineros eliminados para un look más moderno y limpio */
+.card-border-outer::before, .card-border-outer::after,
+.card-border-inner::before, .card-border-inner::after {
+    content: none;
 }
-.card-border-outer::before { top: 4px; left: 8px; }
-.card-border-outer::after { bottom: 4px; right: 8px; transform: rotate(180deg); }
-
-/* Ornamentos contrarios del borde interior */
-.card-border-inner::before,
-.card-border-inner::after {
-    content: '❦';
-    position: absolute;
-    font-size: 1.4rem;
-    color: rgba(201, 168, 76, 0.65);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-.card-border-inner::before { top: 2px; right: 6px; transform: scaleX(-1); }
-.card-border-inner::after { bottom: 2px; left: 6px; transform: scaleX(-1) rotate(180deg); }
 
 /* Contenedor del nombre */
 .card-name-area {
@@ -395,20 +362,20 @@ body, html {
     min-height: 80px;
 }
 
-/* Cada letra elegante */
+/* Cada letra escrita a mano */
 .letter {
-    font-family: 'Cinzel Decorative', 'Cinzel', serif;
-    font-size: 4.8rem;
-    font-weight: 700;
+    font-family: 'Great Vibes', cursive; /* Tipografía más romántica */
+    font-size: 6.5rem;
+    font-weight: 400;
     display: inline-block;
     opacity: 0;
     transform: translateY(15px) scale(0.3);
-    /* Efecto de oro con degradado */
-    background: linear-gradient(180deg, #e8c65a 0%, #c9a84c 30%, #a07830 60%, #c9a84c 80%, #e8c65a 100%);
+    /* Efecto de oro rosado/dorado cálido */
+    background: linear-gradient(135deg, #d4af37 0%, #b8860b 50%, #d4af37 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
 }
 
 .letter.appear {
@@ -427,18 +394,19 @@ body, html {
     opacity: 1;
 }
 
+/* Tarjeta sale y se centra PERFECTAMENTE en el medio */
 .card.slide-out {
     opacity: 1;
-    transform: translateX(-50%) translateY(-60px);
+    transform: translate(-50%, -50%);
     z-index: 10;
 }
 
 /* Tarjeta se sumerge */
 .card.submerge {
-    transform: translateX(-50%) translateY(-60px) scale(1.1);
+    transform: translate(-50%, -50%) scale(1.1);
     opacity: 0;
-    filter: blur(6px);
-    transition: transform 3s ease-in, opacity 2.5s ease-in 0.5s, filter 2.5s ease-in;
+    filter: blur(8px);
+    transition: transform 3.5s ease-in, opacity 2.5s ease-in 0.5s, filter 2.5s ease-in;
 }
 
 /* ---- POLVO DE HADAS ---- */
@@ -558,10 +526,10 @@ body, html {
     .envelope-wrapper { width: 310px; height: 195px; }
     .envelope-flap { border-width: 108px 155px 0 155px; }
     .wax-seal { top: 80px; width: 52px; height: 52px; }
-    .card { width: 300px; height: 190px; top: 25px; }
-    .letter { font-size: 4rem; }
-    .card.slide-out { transform: translateX(-50%) translateY(-50px); }
-    .card.submerge { transform: translateX(-50%) translateY(-50px) scale(1.1); }
+    .card { width: 340px; height: 240px; top: 50%; }
+    .letter { font-size: 5rem; }
+    .card.slide-out { transform: translate(-50%, -50%); }
+    .card.submerge { transform: translate(-50%, -50%) scale(1.1); }
     .magic-text { font-size: 2.2rem; width: 90%; }
     .handwritten-text { font-size: 3.5rem; }
 }
