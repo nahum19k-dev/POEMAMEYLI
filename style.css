@@ -397,13 +397,13 @@ body, html {
 
 .card.slide-out {
     opacity: 1;
-    transform: translateX(-50%) translateY(-270px);
+    transform: translateX(-50%) translateY(-120px);
     z-index: 10;
 }
 
 /* Tarjeta se sumerge suavemente (como entrando al agua) */
 .card.submerge {
-    transform: translateX(-50%) translateY(-270px) scale(1.1);
+    transform: translateX(-50%) translateY(-120px) scale(1.1);
     opacity: 0;
     filter: blur(6px);
     transition: transform 3s ease-in, opacity 2.5s ease-in 0.5s, filter 2.5s ease-in;
@@ -528,8 +528,8 @@ body, html {
     .wax-seal { top: 80px; width: 52px; height: 52px; }
     .card { width: 245px; height: 155px; top: 25px; }
     .letter { font-size: 4.2rem; }
-    .card.slide-out { transform: translateX(-50%) translateY(-220px); }
-    .card.submerge { transform: translateX(-50%) translateY(-220px) scale(1.1); }
+    .card.slide-out { transform: translateX(-50%) translateY(-100px); }
+    .card.submerge { transform: translateX(-50%) translateY(-100px) scale(1.1); }
     .magic-text { font-size: 2.2rem; width: 90%; }
     .handwritten-text { font-size: 3.5rem; }
 }
