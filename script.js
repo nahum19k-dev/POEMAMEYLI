@@ -107,22 +107,18 @@ envelopeClick.addEventListener('click', () => {
 
 // ===== DESTELLO DEL ACRÓSTICO EN LA CARTA =====
 function flashAcrosticOnCard() {
-    // Ponemos todo el poema de golpe, muy rápido
-    acrosticSync.forEach((para, index) => {
-        setTimeout(() => {
-            const p = document.createElement('p');
-            p.className = 'poem-line';
-            p.innerHTML = para.text;
-            poemContainer.appendChild(p);
-            requestAnimationFrame(() => {
-                p.classList.add('show');
-                poemContainer.scrollTo({ top: poemContainer.scrollHeight, behavior: 'smooth' });
-            });
-        }, index * 400); // 400ms por párrafo, súper rápido
-    });
+    // 1. Mostrar todo el poema completo instantáneamente
+    const fullText = acrosticSync.map(para => {
+        // Resaltar la primera letra para que se note el acróstico M-E-Y-L-I
+        const firstLetter = para.text.charAt(0);
+        const restOfText = para.text.slice(1);
+        return `<span class="acrostic-letter">${firstLetter}</span>${restOfText}`;
+    }).join('<br><br>');
 
-    // 6. Tan pronto termina de imprimirse rápido, ¡EXPLOTA!
-    setTimeout(explodeCard, 2800); 
+    poemContainer.innerHTML = `<div class="full-poem-text">${fullText}</div>`;
+
+    // 2. Esperar unos segundos para que se aprecie la carta completa, y ¡EXPLOTA!
+    setTimeout(explodeCard, 5000); // Explota después de 5 segundos de verla completa
 }
 
 // ===== LA EXPLOSIÓN Y EL PORTAL =====
@@ -130,33 +126,33 @@ function explodeCard() {
     // 1. Quemar carta brevemente
     card.classList.add('burning');
     cardName.classList.add('smoke');
-    document.querySelectorAll('.poem-line').forEach(p => p.classList.add('smoke'));
+    poemContainer.classList.add('smoke');
 
-    // 2. Explosión inmersiva (nos sumergimos)
+    // 2. Explosión inmersiva (nos sumergimos al fondo del bosque/luna)
     setTimeout(() => {
         createExplosionParticles(false); // Expansión masiva
         
-        card.classList.add('submerge'); // La carta viene hacia la cámara y se desvanece
+        card.classList.add('submerge'); // La carta viene hacia la cámara
         
         setTimeout(() => {
-            envelopeScene.style.display = 'none'; // Desaparece la escena inicial
+            envelopeScene.style.display = 'none'; // Desaparece sobre y carta
         }, 1000);
         
         lanternsContainer.classList.remove('hidden'); // Revela el bosque
         
-        // Empiezan los faroles
+        // Faroles
         for (let i = 0; i < 8; i++) {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // 3. Empieza el viaje y el audio en el bosque
+        // 3. Ya sumergidos en el fondo, mostramos el poema completo flotando y arranca el audio
         setTimeout(startForestPoem, 2000); 
     }, 1500);
 }
 
 // ===== EL VIAJE EN EL BOSQUE (LECTURA DEL POEMA) =====
 function startForestPoem() {
-    // Cambiar fondos lentamente
+    // Cambiar fondos lentamente (Luna -> Bosque -> Río)
     bg1.style.opacity = '1';
     setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 30000);
     setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 60000);
@@ -169,7 +165,25 @@ function startForestPoem() {
         console.log('Audio bloqueado, usando temporizador', e);
     });
 
-    let currentPara = 0;
+    // Mostrar el poema completo en el bosque (flotando mágico)
+    const fullText = acrosticSync.map(para => {
+        return `<span class="acrostic-letter" style="color: #ffd700; text-shadow: 0 0 10px #ffcc00;">${para.text.charAt(0)}</span>${para.text.slice(1)}`;
+    }).join('<br><br>');
+    
+    magicText.innerHTML = fullText;
+    magicText.style.fontSize = '1.2rem';
+    magicText.style.textAlign = 'center';
+    magicText.style.lineHeight = '1.5';
+    magicText.style.width = '90%';
+    magicText.style.opacity = '0';
+    magicText.style.transform = 'translate(-50%, 20px)';
+    
+    setTimeout(() => {
+        magicText.style.opacity = '1';
+        magicText.style.transform = 'translate(-50%, -50%)';
+    }, 1000);
+
+    // Reloj interno para detonar el final
     let fallbackTime = 0;
     let lastTick = Date.now();
     
@@ -185,30 +199,16 @@ function startForestPoem() {
             currentTime = fallbackTime;
         }
 
-        // Mostrar párrafos en el centro de la pantalla (magicText)
-        if (currentPara < acrosticSync.length && currentTime >= acrosticSync[currentPara].time) {
-            showText(acrosticSync[currentPara].text);
-            currentPara++;
-        }
-
-        // Final del poema (115s aprox)
+        // Final del poema (115s aprox, detona reconstrucción)
         if (currentTime >= 115 && !finaleTriggered) { 
             finaleTriggered = true;
             clearInterval(interval);
-            magicText.style.opacity = '0';
+            magicText.style.opacity = '0'; // Ocultar poema
             triggerReconstructionPhase();
         }
     }, 100);
 }
 
-function showText(htmlText) {
-    magicText.style.opacity = '0';
-    magicText.style.transform = 'translate(-50%, 20px)';
-    
-    setTimeout(() => {
-        magicText.innerHTML = htmlText; // Usamos innerHTML por los <br>
-        magicText.style.opacity = '1';
-        magicText.style.transform = 'translate(-50%, -50%)';
     }, 1200);
 }
 
