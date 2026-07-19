@@ -7,32 +7,81 @@
 body, html {
     width: 100%;
     height: 100%;
-    background-color: #03040c; /* Noche muy oscura */
+    background-color: #000;
     overflow: hidden;
     font-family: 'Montserrat', sans-serif;
     color: white;
 }
 
-#magic-canvas {
+/* --- Fondo Fotorealista --- */
+#real-background {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Al fondo */
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('assets/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
 }
 
+/* Capa sutil de movimiento para el agua (opcional) */
+#water-overlay {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 40%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* --- Faroles Fotorealistas --- */
+#lanterns-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.realistic-lantern {
+    position: absolute;
+    background-image: url('assets/lantern.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* mix-blend-mode: screen hace que el negro del fondo del farol desaparezca y la luz se fusione con la noche */
+    mix-blend-mode: screen; 
+    filter: drop-shadow(0 0 20px rgba(255, 180, 50, 0.8));
+    animation: floatUp linear forwards;
+    will-change: transform, top;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(100px) scale(0.5) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-120vh) scale(0.3) rotate(15deg);
+        opacity: 0;
+    }
+}
+
+/* --- Interfaz de Usuario --- */
 #ui-layer {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10; /* Arriba del canvas */
-    pointer-events: none; /* Para que no bloquee los clicks al canvas, a menos que se necesite */
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10;
+    pointer-events: none;
 }
 
-/* --- Pantalla de Inicio --- */
 #start-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -40,10 +89,10 @@ body, html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, rgba(3,4,12,0.4) 0%, rgba(3,4,12,0.9) 100%);
-    backdrop-filter: blur(5px);
+    background: radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.9) 100%);
+    backdrop-filter: blur(8px);
     transition: opacity 1.5s ease;
-    pointer-events: auto; /* Para poder dar click al boton */
+    pointer-events: auto;
 }
 
 #start-screen:not(.active) {
@@ -54,15 +103,15 @@ body, html {
 .title {
     font-family: 'Great Vibes', cursive;
     font-size: 5rem;
-    color: #ffda75; /* Dorado calido luz de farol */
-    text-shadow: 0 0 20px rgba(255, 218, 117, 0.6);
+    color: #ffd27a;
+    text-shadow: 0 0 20px rgba(255, 210, 122, 0.8);
     margin-bottom: 20px;
 }
 
 .subtitle {
     font-size: 1.1rem;
     font-weight: 300;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 50px;
     letter-spacing: 1px;
     text-align: center;
@@ -72,23 +121,23 @@ body, html {
     padding: 15px 40px;
     font-size: 1.2rem;
     font-family: 'Cinzel', serif;
-    background: rgba(255, 218, 117, 0.1);
-    color: #ffda75;
-    border: 1px solid rgba(255, 218, 117, 0.4);
+    background: rgba(255, 210, 122, 0.1);
+    color: #ffd27a;
+    border: 1px solid rgba(255, 210, 122, 0.5);
     border-radius: 30px;
     cursor: pointer;
-    box-shadow: 0 0 30px rgba(255, 218, 117, 0.2);
+    box-shadow: 0 0 30px rgba(255, 210, 122, 0.3);
     transition: all 0.4s ease;
     backdrop-filter: blur(10px);
 }
 
 #start-btn:hover {
-    background: rgba(255, 218, 117, 0.2);
-    box-shadow: 0 0 50px rgba(255, 218, 117, 0.4);
+    background: rgba(255, 210, 122, 0.25);
+    box-shadow: 0 0 50px rgba(255, 210, 122, 0.6);
     transform: scale(1.05);
 }
 
-/* --- Subtítulos Mágicos --- */
+/* --- Texto Cinemático --- */
 #experience-screen {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -99,29 +148,29 @@ body, html {
 
 .magic-text {
     font-family: 'Cinzel', serif;
-    font-size: 2rem;
+    font-size: 2.2rem;
     color: #ffffff;
     text-align: center;
     width: 80%;
-    max-width: 800px;
+    max-width: 900px;
     line-height: 1.6;
     text-shadow: 
-        0 0 20px rgba(255, 218, 117, 0.8),
-        0 0 40px rgba(255, 75, 130, 0.4);
+        0 2px 4px rgba(0,0,0,0.8),
+        0 0 20px rgba(255, 210, 122, 0.9),
+        0 0 40px rgba(255, 255, 255, 0.3);
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 1.5s ease, transform 1.5s ease;
+    transform: scale(0.95);
+    transition: opacity 2s ease, transform 3s ease-out;
     font-weight: 400;
 }
 
 .magic-text.show {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
 }
 
-/* Ajustes para celular */
 @media (max-width: 768px) {
     .title { font-size: 3.5rem; }
     .subtitle { font-size: 0.9rem; padding: 0 20px; }
-    .magic-text { font-size: 1.4rem; width: 90%; }
+    .magic-text { font-size: 1.3rem; width: 90%; }
 }

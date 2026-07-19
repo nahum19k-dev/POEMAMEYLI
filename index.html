@@ -12,8 +12,14 @@
 <body>
 
     <!-- Audio elements -->
-    <!-- Te recomiendo poner aquí el archivo final mezclado (voz + musica) que hagas en CapCut, o 2 separados. -->
     <audio id="audio-poema" src="poema.mp3" preload="auto"></audio>
+
+    <!-- Fondo Fotorealista -->
+    <div id="real-background"></div>
+    <div id="water-overlay"></div> <!-- Para simular movimiento en el agua -->
+
+    <!-- Contenedor para los faroles fotorealistas -->
+    <div id="lanterns-container"></div>
 
     <!-- UI Overlay -->
     <div id="ui-layer">
@@ -31,9 +37,6 @@
         </div>
 
     </div>
-
-    <!-- Canvas para los gráficos realistas (Cielo, Luna, Faroles, Agua) -->
-    <canvas id="magic-canvas"></canvas>
 
     <script src="script.js"></script>
 </body>
