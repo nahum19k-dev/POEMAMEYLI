@@ -124,6 +124,7 @@ function startSlowPoemOnCard() {
     
     setTimeout(() => topOrnament.classList.add('show'), 1000);
 
+    let currentPara = 0;
     let lastTick = Date.now();
     
     // Tiempos ultra rápidos para que la carta no demore (6 segundos total)
