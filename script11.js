@@ -199,6 +199,7 @@ function explodeCardIntoSquares() {
         
         setTimeout(() => {
             envelopeScene.style.display = 'none'; // Desaparece la escena
+            startScreen.classList.remove('active'); // Elimina el overlay oscuro del principio
         }, 1000);
         
         // Cambiar fondos mágicos en el bosque
@@ -227,6 +228,14 @@ function explodeCardIntoSquares() {
             const finale = document.getElementById('handwritten-finale');
             finale.classList.add('show');
         };
+
+        // Fallback por si acaso el navegador bloqueó completamente el audio
+        setTimeout(() => {
+            const finale = document.getElementById('handwritten-finale');
+            if (!finale.classList.contains('show')) {
+                finale.classList.add('show');
+            }
+        }, Math.max((audioPoema.duration || 30) * 1000 + 1000, 25000));
         
     }, 1500);
 }
