@@ -123,27 +123,15 @@ function startSlowPoemOnCard() {
     setTimeout(() => topOrnament.classList.add('show'), 1000);
 
     let currentPara = 0;
+    let lastTick = Date.now();
     
-    // Si por alguna razón el audio no cargó su duración, asumimos 30 segundos
-    let totalDuration = audioPoema.duration && !isNaN(audioPoema.duration) ? audioPoema.duration : 30;
+    // Tiempos ultra rápidos (6 segundos total) como pediste
+    const dynamicTimes = [0.5, 1.5, 2.5, 3.5, 4.5];
     
-    // Dividimos el tiempo de la voz para que los 5 párrafos salgan a lo largo de lo que hablas
-    let timeStep = totalDuration / (poemParagraphs.length + 1);
-
     const interval = setInterval(() => {
-        let currentTime = audioPoema.currentTime;
-        
-        // Si el audio falló en reproducirse por Apple, usamos un contador falso para no trabar la experiencia
-        if (audioPoema.paused || audioPoema.currentTime === 0) {
-            if (!this.fakeTime) this.fakeTime = 0;
-            this.fakeTime += 0.1;
-            currentTime = this.fakeTime;
-        }
+        const currentTime = (Date.now() - lastTick) / 1000;
 
-        // Momento en que debe salir el párrafo actual
-        let targetTime = (currentPara * timeStep) + 1; // +1s de compensación inicial
-
-        if (currentPara < poemParagraphs.length && currentTime >= targetTime) {
+        if (currentPara < poemParagraphs.length && currentTime >= dynamicTimes[currentPara]) {
             
             // Añadir el divisor antes de cada párrafo (excepto el primero)
             if (currentPara > 0) {
@@ -180,28 +168,17 @@ function startSlowPoemOnCard() {
                     bottomOrnament.innerHTML = '⊱ ♥ ⊰';
                     textContainer.appendChild(bottomOrnament);
                     requestAnimationFrame(() => bottomOrnament.classList.add('show'));
-                }, 1500);
+                }, 3000);
             }
         }
-    }, 100);
 
-    // Cuando termina tu voz (el poema recitado), explota la carta y sale el bosque
-    audioPoema.onended = () => {
-        if (!finaleTriggered) {
-            finaleTriggered = true;
-            clearInterval(interval);
-            setTimeout(explodeCardIntoSquares, 500);
-        }
-    };
-
-    // Fallback de seguridad: si el audio falló por culpa de Safari, explotar por tiempo
-    setTimeout(() => {
-        if (!finaleTriggered) {
+        // Final del poema detona explosión automáticamente a los 6 segundos (como estaba antes)
+        if (currentTime >= 6.0 && !finaleTriggered) { 
             finaleTriggered = true;
             clearInterval(interval);
             explodeCardIntoSquares();
         }
-    }, (totalDuration + 2) * 1000);
+    }, 100);
 }
 
 // ===== LA EXPLOSIÓN EN CUADRITOS Y EL PORTAL =====
@@ -241,11 +218,16 @@ function explodeCardIntoSquares() {
         setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
         setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
         
-        // A los 2 segundos de haber entrado al bosque, aparece "Para siempre, tuyo"
+        // A los pocos segundos aparece el texto final (o cuando termine la voz si tarda más)
+        audioPoema.onended = () => {
+            const finale = document.getElementById('handwritten-finale');
+            if (!finale.classList.contains('show')) finale.classList.add('show');
+        };
+        
         setTimeout(() => {
             const finale = document.getElementById('handwritten-finale');
-            finale.classList.add('show');
-        }, 3000);
+            if (!finale.classList.contains('show')) finale.classList.add('show');
+        }, 20000); // 20 seg fallback
         
     }, 1500);
 }
