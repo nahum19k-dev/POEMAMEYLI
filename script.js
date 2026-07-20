@@ -76,13 +76,12 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // Desbloquear audio silenciosamente
-    audioPoema.volume = 0;
+    // Reproducir audio inmediatamente para no perder el permiso del navegador
+    audioPoema.volume = 1;
+    audioPoema.currentTime = 0;
     audioPoema.play().then(() => {
-        audioPoema.pause();
-        audioPoema.volume = 1;
-        audioPoema.currentTime = 0;
-    }).catch(e => console.log('Autoplay requiere interacción:', e));
+        audioStarted = true;
+    }).catch(e => console.log('Autoplay bloqueado:', e));
 
     // 1. Quema el sello y abre solapa
     waxSeal.classList.add('burn');
@@ -109,13 +108,6 @@ envelopeClick.addEventListener('click', () => {
 
 // ===== POEMA LENTO EN LA CARTA =====
 function startSlowPoemOnCard() {
-    // Reproducir audio
-    audioPoema.play().then(() => {
-        audioStarted = true;
-    }).catch((e) => {
-        console.log('Audio bloqueado, usando temporizador', e);
-    });
-
     poemContainer.innerHTML = '<div class="full-poem-text" id="full-poem-text-container"></div>';
     const textContainer = document.getElementById('full-poem-text-container');
 
@@ -129,7 +121,8 @@ function startSlowPoemOnCard() {
             currentTime = audioPoema.currentTime;
         } else {
             const now = Date.now();
-            fallbackTime += (now - lastTick) / 1000;
+            // Si el audio falló, avanzamos 4 veces más rápido para que no se aburra esperando
+            fallbackTime += ((now - lastTick) / 1000) * 4; 
             lastTick = now;
             currentTime = fallbackTime;
         }
