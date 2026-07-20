@@ -1,3 +1,17 @@
+// ===== CONFIGURACIÓN DE SINCRONIZACIÓN Y AUDIO =====
+const CONFIG = {
+    // Si tu audio de voz tiene silencio al inicio antes de que empieces a hablar, pon aquí los segundos.
+    silencioInicial: 0.0,
+    // Si hay silencio al final del audio después de que terminaste de hablar.
+    silencioFinal: 0.0,
+    // Multiplicador de volumen de tu voz (2.5 = se escuchará más del doble de fuerte)
+    boostVoz: 3.0,
+    // Volumen de la música de fondo en la primera pantalla (0.3 = 30%)
+    volumenFondoInicio: 0.3,
+    // Volumen de la música de fondo cuando empieza el poema (0.05 = 5% bien bajito para no taparte)
+    volumenFondoPoema: 0.08
+};
+
 // ===== ACRÓSTICO =====
 const poemParagraphs = [
     "Más de una vez me pregunté qué era esa calma,<br>esa sensación extraña de sentir que ya te conocía,<br>como si algo en el universo le dijera a mi alma<br>que ibas a llegar, y que la espera valdría.",
@@ -86,7 +100,7 @@ envelopeClick.addEventListener('click', () => {
     opened = true;
 
     // Desbloqueo inicial
-    audioFondo.volume = 0.3; // Volumen normal desde el principio
+    audioFondo.volume = CONFIG.volumenFondoInicio; // Volumen normal desde el principio
     audioFondo.play().catch(e => console.log('Fondo bloqueado:', e));
     
     audioPoema.volume = 1;
@@ -212,7 +226,10 @@ function showPoemInForest(totalDurationVoice) {
     });
 
     // Calcular el tiempo exacto que le corresponde a cada palabra según la duración total de la voz
-    let timePerWord = totalDurationVoice / totalWords;
+    // Restamos el silencio inicial y final para que el tiempo se divida solo donde realmente hablas
+    let durationHablada = totalDurationVoice - CONFIG.silencioInicial - CONFIG.silencioFinal;
+    if (durationHablada <= 0) durationHablada = totalDurationVoice;
+    let timePerWord = durationHablada / totalWords;
     let globalWordIndex = 0;
     
     let paraElements = [];
@@ -242,9 +259,9 @@ function showPoemInForest(totalDurationVoice) {
                 span.textContent = word;
             }
             
-            // Asignar los tiempos exactos de inicio y fin para iluminar
-            span.dataset.startTime = globalWordIndex * timePerWord;
-            span.dataset.endTime = (globalWordIndex + 1) * timePerWord;
+            // Asignar los tiempos exactos de inicio y fin para iluminar tomando en cuenta el silencio inicial
+            span.dataset.startTime = CONFIG.silencioInicial + (globalWordIndex * timePerWord);
+            span.dataset.endTime = CONFIG.silencioInicial + ((globalWordIndex + 1) * timePerWord);
             
             p.appendChild(span);
             p.appendChild(document.createTextNode(" "));
@@ -289,6 +306,16 @@ function showPoemInForest(totalDurationVoice) {
                 newPara.classList.remove('fade-out');
                 // Timeout pequeñísimo para que el display:block se aplique antes de la opacidad
                 setTimeout(() => { newPara.classList.add('show'); }, 50);
+
+                // --- TRANSICIÓN DE FONDOS POR PÁRRAFO ---
+                // Para 0 y 1: bg1. Para 2 y 3: bg2. Para 4: bg3.
+                if (currentParaIndex === 2) {
+                    bg1.style.opacity = '0';
+                    bg2.style.opacity = '1';
+                } else if (currentParaIndex === 4) {
+                    bg2.style.opacity = '0';
+                    bg3.style.opacity = '1';
+                }
             }
             
             // Iluminar palabras una por una basadas en el tiempo exacto del audio
@@ -303,6 +330,10 @@ function showPoemInForest(totalDurationVoice) {
                  paraElements[currentParaIndex].element.classList.remove('show');
                  paraElements[currentParaIndex].element.classList.add('fade-out');
                  currentParaIndex = -1;
+                 
+                 // Fondo de pergamino final
+                 bg3.style.opacity = '0';
+                 bg4.style.opacity = '1';
              }
         }
     });
@@ -340,14 +371,32 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // AUDIO: Aseguramos la música de fondo
-        audioFondo.volume = 0.3;
+        // AUDIO: Aseguramos la música de fondo y LE BAJAMOS EL VOLUMEN para que destaque la voz
+        audioFondo.volume = CONFIG.volumenFondoPoema;
         if (audioFondo.paused) {
             audioFondo.play().catch(e => console.log('Fondo final bloqueado', e));
         }
         
         audioPoema.volume = 1;
         audioPoema.currentTime = 0;
+        
+        // BOOST VOZ: Usamos Web Audio API para multiplicar el volumen de tu voz más allá del límite de 100%
+        try {
+            if (!window.audioCtx) {
+                window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = window.audioCtx.createMediaElementSource(audioPoema);
+                const gainNode = window.audioCtx.createGain();
+                gainNode.gain.value = CONFIG.boostVoz; // Multiplicador
+                source.connect(gainNode);
+                gainNode.connect(window.audioCtx.destination);
+            }
+            if (window.audioCtx.state === 'suspended') {
+                window.audioCtx.resume();
+            }
+        } catch(e) {
+            console.log("Web Audio API no soportada o ya conectada:", e);
+        }
+
         audioPoema.play().catch(e => console.log('Audio voz bloqueado', e));
         
         // Cuando termina la voz, mostrar texto final
@@ -361,21 +410,8 @@ function explodeCardIntoSquares() {
             showPoemInForest(voiceDuration);
         }, 500);
         
-        // Efecto del amanecer dinámico vinculado al tiempo real del audio
-        audioPoema.addEventListener('timeupdate', () => {
-            const actualDuration = audioPoema.duration || voiceDuration;
-            const progress = audioPoema.currentTime / actualDuration;
-            if (progress >= 0.2 && progress < 0.5) {
-                bg1.style.opacity = '0'; bg2.style.opacity = '1';
-            } else if (progress >= 0.5 && progress < 0.8) {
-                bg2.style.opacity = '0'; bg3.style.opacity = '1';
-            } else if (progress >= 0.8) {
-                bg3.style.opacity = '0'; bg4.style.opacity = '1';
-            }
-        });
-        
         // Fallback para el final por si falla el evento onended
-        setTimeout(triggerFinaleText, (voiceDuration * 1000) + 3000); 
+        setTimeout(triggerFinaleText, (voiceDuration * 1000) + 5000); 
         
     }, 1500);
 }
