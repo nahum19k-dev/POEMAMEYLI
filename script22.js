@@ -495,19 +495,19 @@ btnCloseCard.addEventListener('click', () => {
     card.classList.remove('reconstruct');
     const env = document.querySelector('.envelope');
     
-    // MAGIA: El sobre aparece de la nada!
-    env.classList.remove('drop'); // Quitar la clase de caída por si acaso
+    // MAGIA: El sobre aparece de la nada
+    env.classList.remove('drop'); 
     env.style.display = 'block';
     env.style.opacity = '1';
     env.classList.add('reconstruct');
     
-    // Damos un tiempito a que el sobre aparezca antes de meter la carta
+    // Damos un tiempito a que el sobre aparezca antes de explotar la carta
     setTimeout(() => {
-        // La carta cae devuelta al bolsillo
-        card.style.transform = 'translate(-50%, 110%)'; 
-        card.style.opacity = '0'; 
+        // La carta se hace cuadraditos y se comprime!
+        createSquareParticles(false); 
+        card.classList.add('submerge'); // Ahora submerge hace que se comprima en su lugar (scale 0)
         
-        // El sobre se cierra
+        // El sobre se cierra un poco después de la explosión
         setTimeout(() => {
             envelopeFlap.classList.remove('open');
             

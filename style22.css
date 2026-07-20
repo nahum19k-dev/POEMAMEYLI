@@ -535,7 +535,7 @@ body, html {
 
 /* Tarjeta se sumerge (El viaje portal) */
 .card.submerge {
-    transform: translate(-50%, 0) scale(3) !important;
+    transform: translate(-50%, 0) scale(0); /* Se comprime en su mismo sitio */
     opacity: 0;
     filter: blur(10px);
     transition: transform 2s ease-in, opacity 1.5s ease-in 0.5s, filter 1.5s ease-in;
@@ -743,10 +743,10 @@ body, html {
     font-size: 5rem;
     color: #3b2b18; /* Tinta oscura, no brillante */
     text-shadow: none; /* Quitamos el brillo neón para que parezca tinta real */
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 0;
+    white-space: normal; /* Permitir siempre múltiples líneas */
     margin: 0 auto;
+    opacity: 0; /* Animaremos la opacidad en JS en lugar del ancho */
+    transition: opacity 3s ease-in;
 }
 
 #handwritten-finale.show { opacity: 1; }
@@ -775,7 +775,7 @@ body, html {
     .divider-heart { margin: 2px 0; }
     .ornament { margin: 2px 0; font-size: 0.8rem; }
     .card.slide-out { transform: translate(-50%, 0); }
-    .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
+    .card.submerge { transform: translate(-50%, 0) scale(0) !important; }
     .magic-text { font-size: 1.5rem; width: 95%; }
     .handwritten-text { 
         font-size: 1.5rem; /* Letra lo suficientemente chica para que entre sin cortarse */
