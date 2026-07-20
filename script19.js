@@ -21,19 +21,30 @@ const ribbonText = document.getElementById('ribbon-txt');
 let finaleTriggered = false;
 let opened = false;
 
+// Variables de Web Audio API para asegurar que la voz suene siempre en iPhone
+let audioCtx;
+let voiceBuffer;
+let voiceSource;
+let isVoiceReady = false;
+
+// Pre-cargar la voz para que esté lista inmediatamente
+fetch('assets/SONIDO CON VOZ.mp3')
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => {
+        window.voiceArrayBuffer = arrayBuffer;
+    })
+    .catch(e => console.log("Error precargando voz:", e));
+
 // Referencias del DOM
 const startScreen = document.getElementById('start-screen');
 const envelopeScene = document.querySelector('.envelope-scene');
 const audioFondo = document.getElementById('audio-fondo');
-const audioPoema = document.getElementById('audio-poema');
 const lanternsContainer = document.getElementById('lanterns-container');
 const bg1 = document.getElementById('bg-1');
 const bg2 = document.getElementById('bg-2');
 const bg3 = document.getElementById('bg-3');
 const bg4 = document.getElementById('bg-4');
 const btnCloseCard = document.getElementById('btn-close-card');
-
-
 
 // ===== POLVO DE HADAS (Apertura) =====
 function burstFairyDust() {
@@ -79,13 +90,20 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // Reproducir audios sincronizados (Nativo HTML5)
-    // El fondo bajito, la voz fuerte.
+    // 1. Inicializar AudioContext en el primer clic (Bypass vital de iOS)
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Si ya descargamos el buffer, lo decodificamos
+    if (window.voiceArrayBuffer) {
+        audioCtx.decodeAudioData(window.voiceArrayBuffer.slice(0), (buffer) => {
+            voiceBuffer = buffer;
+            isVoiceReady = true;
+        });
+    }
+
+    // Reproducir audio de fondo (Nativo HTML5)
     audioFondo.volume = 0.3;
     audioFondo.play().catch(e => console.log('Fondo bloqueado:', e));
-
-    audioPoema.volume = 1;
-    audioPoema.play().catch(e => console.log('Voz bloqueada:', e));
 
     // 1. Quema el sello y abre solapa (RÁPIDO)
     waxSeal.classList.add('burn');
@@ -182,16 +200,14 @@ function startSlowPoemOnCard() {
 }
 
 // ===== MOSTRAR EL POEMA KARAOKE EN EL BOSQUE =====
-function showPoemInForest() {
+function showPoemInForest(totalDurationVoice) {
     const expScreen = document.getElementById('experience-screen');
     expScreen.style.zIndex = '50'; // Asegurar que esté encima de todo
 
     let index = 0;
-    // Asumimos 30s de tu voz si falla la lectura de duración
-    let duration = audioPoema.duration && !isNaN(audioPoema.duration) ? audioPoema.duration : 30;
     
     // Cada párrafo se mostrará durante este tiempo
-    let timePerPara = duration / poemParagraphs.length; 
+    let timePerPara = totalDurationVoice / poemParagraphs.length; 
 
     function showNext() {
         if (index >= poemParagraphs.length) return;
@@ -210,7 +226,7 @@ function showPoemInForest() {
         
         let wordSpans = [];
         
-        // Crear un span apagado por cada palabra
+        // Crear un span completamente INVISIBLE por cada palabra
         words.forEach((word, i) => {
             if (word === "<br>") {
                 p.appendChild(document.createElement('br'));
@@ -237,24 +253,24 @@ function showPoemInForest() {
             wordSpans.push(span);
         });
         
-        // Aparece el párrafo en pantalla apagado
+        // Aparece el contenedor del párrafo en pantalla (estará vacío porque las palabras son invisibles)
         setTimeout(() => p.classList.add('show'), 100);
         
-        // --- LÓGICA DE KARAOKE ---
-        // Calcula a qué velocidad se debe iluminar cada palabra para que cuadre con tu voz
+        // --- LÓGICA DE KARAOKE SUBTÍTULO ---
+        // Calcula a qué velocidad DEBE APARECER cada palabra para que cuadre con tu voz
         let illuminateDuration = timePerPara - 1.5; // Terminamos de iluminar 1.5s antes de que desaparezca
         if (illuminateDuration < 1) illuminateDuration = timePerPara;
         
         let timePerWord = (illuminateDuration / wordSpans.length) * 1000;
         
-        // Iluminar palabra por palabra
+        // Las palabras VAN APARECIENDO una por una (estilo subtítulo pop-up)
         wordSpans.forEach((span, i) => {
             setTimeout(() => {
                 span.classList.add('illuminated');
             }, i * timePerWord);
         });
         
-        // Se desvanece
+        // Se desvanece todo el párrafo junto
         setTimeout(() => {
             p.classList.remove('show');
             p.classList.add('fade-out');
@@ -301,35 +317,53 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // AUDIO: Bajamos la música de fondo y arrancamos tu voz
+        // AUDIO: Bajamos la música de fondo y arrancamos tu voz usando Web Audio API!
         audioFondo.volume = 0.3;
-        audioPoema.volume = 1;
-        audioPoema.currentTime = 0;
-        audioPoema.play().catch(e => console.log('Audio voz bloqueado', e));
         
-        // Y COMENZAMOS A MOSTRAR EL POEMA SOBRE EL BOSQUE
-        setTimeout(showPoemInForest, 500);
+        let voiceLength = 30; // Fallback
+        
+        if (audioCtx && isVoiceReady && voiceBuffer) {
+            voiceSource = audioCtx.createBufferSource();
+            voiceSource.buffer = voiceBuffer;
+            voiceSource.connect(audioCtx.destination);
+            voiceSource.start(0); // ESTO FUNCIONA 100% EN iPHONE
+            voiceLength = voiceBuffer.duration;
+            
+            // Cuando termina la voz, mostrar texto final
+            voiceSource.onended = triggerFinaleText;
+        } else {
+            // Si falló Web Audio API, intentar con HTML5 por si acaso
+            const fb = document.getElementById('audio-poema');
+            if (fb) {
+                fb.volume = 1;
+                fb.play().catch(e => console.log('Audio fallback bloqueado', e));
+                voiceLength = fb.duration || 30;
+                fb.onended = triggerFinaleText;
+            }
+        }
+        
+        // Y COMENZAMOS A MOSTRAR EL POEMA SUBTÍTULO SOBRE EL BOSQUE
+        setTimeout(() => {
+            showPoemInForest(voiceLength);
+        }, 500);
         
         // Efecto del amanecer
         setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
         setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
         setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
         
-        // A los pocos segundos aparece el texto final (cuando termine la voz)
-        audioPoema.onended = () => {
-            document.getElementById('experience-screen').innerHTML = ''; // Limpiar poema flotante
-            const finale = document.getElementById('handwritten-finale');
-            if (!finale.classList.contains('show')) finale.classList.add('show');
-        };
-        
-        // Fallback de 35 segundos
-        setTimeout(() => {
-            document.getElementById('experience-screen').innerHTML = '';
-            const finale = document.getElementById('handwritten-finale');
-            if (!finale.classList.contains('show')) finale.classList.add('show');
-        }, 35000); 
+        // Fallback de 35 segundos para el final
+        setTimeout(triggerFinaleText, 35000); 
         
     }, 1500);
+}
+
+function triggerFinaleText() {
+    document.getElementById('experience-screen').innerHTML = ''; // Limpiar poema flotante
+    const finale = document.getElementById('handwritten-finale');
+    if (finale && !finale.classList.contains('show')) {
+        finale.classList.add('show');
+    }
 }
 
 
