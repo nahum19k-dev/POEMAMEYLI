@@ -474,6 +474,10 @@ function reconstructCardFromSquares() {
     card.classList.remove('burning');
     card.classList.add('reconstruct');
     
+    // Restaurar el nombre Meyli
+    const cardName = document.getElementById('card-name');
+    if (cardName) cardName.classList.remove('smoke');
+    
     // 5. Mostrar botón de cerrar en la carta
     setTimeout(() => {
         btnCloseCard.classList.remove('hidden');

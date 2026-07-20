@@ -774,6 +774,7 @@ body, html {
     .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
     .magic-text { font-size: 1.5rem; width: 95%; }
     .handwritten-text { 
-        font-size: 6vw; /* Escala con la pantalla para que nunca se corte */
+        font-size: 1.5rem; /* Letra lo suficientemente chica para que entre sin cortarse */
+        white-space: normal; /* Permitir que ocupe varias líneas si fuera necesario */
     }
 }
