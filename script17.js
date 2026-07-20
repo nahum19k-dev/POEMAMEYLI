@@ -106,79 +106,57 @@ envelopeClick.addEventListener('click', () => {
     // 4. Escribe MEYLI
     setTimeout(() => { cardName.classList.add('write'); }, 1800);
 
-    // 5. Empieza a sincronizar el poema con la voz
-    setTimeout(startSlowPoemOnCard, 2200);
-});
-
-// ===== POEMA LENTO EN LA CARTA =====
-function startSlowPoemOnCard() {
-    poemContainer.innerHTML = '<div class="full-poem-text" id="full-poem-text-container"></div>';
-    const textContainer = document.getElementById('full-poem-text-container');
-
-    const topOrnament = document.createElement('div');
-    topOrnament.className = 'ornament';
-    topOrnament.innerHTML = '⊱ ♥ ⊰';
-    textContainer.appendChild(topOrnament);
-    
-    setTimeout(() => topOrnament.classList.add('show'), 1000);
-
-    let currentPara = 0;
-    let lastTick = Date.now();
-    
-    // Tiempos ultra rápidos (6 segundos total) como pediste
-    const dynamicTimes = [0.5, 1.5, 2.5, 3.5, 4.5];
-    
-    const interval = setInterval(() => {
-        const currentTime = (Date.now() - lastTick) / 1000;
-
-        if (currentPara < poemParagraphs.length && currentTime >= dynamicTimes[currentPara]) {
-            
-            // Añadir el divisor antes de cada párrafo (excepto el primero)
-            if (currentPara > 0) {
-                const divider = document.createElement('div');
-                divider.className = 'divider-heart';
-                divider.innerHTML = '<span>♥</span>';
-                textContainer.appendChild(divider);
-                requestAnimationFrame(() => {
-                    divider.classList.add('show');
-                    divider.style.opacity = '1';
-                    divider.style.transform = 'translateY(0)';
-                });
-            }
-
-            const p = document.createElement('p');
-            p.className = 'poem-line';
-            
-            // Resaltar acróstico
-            const firstLetter = poemParagraphs[currentPara].charAt(0);
-            const restOfText = poemParagraphs[currentPara].slice(1);
-            p.innerHTML = `<span class="acrostic-letter">${firstLetter}</span>${restOfText}`;
-            
-            textContainer.appendChild(p);
-            requestAnimationFrame(() => {
-                p.classList.add('show');
-            });
-            currentPara++;
-
-            // Si es el último párrafo, añadir adorno final poco después
-            if (currentPara === poemParagraphs.length) {
-                setTimeout(() => {
-                    const bottomOrnament = document.createElement('div');
-                    bottomOrnament.className = 'ornament';
-                    bottomOrnament.innerHTML = '⊱ ♥ ⊰';
-                    textContainer.appendChild(bottomOrnament);
-                    requestAnimationFrame(() => bottomOrnament.classList.add('show'));
-                }, 3000);
-            }
-        }
-
-        // Final del poema detona explosión automáticamente a los 6 segundos (como estaba antes)
-        if (currentTime >= 6.0 && !finaleTriggered) { 
+    // 5. Explota la carta directamente para ir al bosque y empezar a recitar!
+    setTimeout(() => {
+        if (!finaleTriggered) {
             finaleTriggered = true;
-            clearInterval(interval);
             explodeCardIntoSquares();
         }
-    }, 100);
+    }, 4500);
+});
+
+// ===== MOSTRAR EL POEMA MÁGICO EN EL BOSQUE =====
+function showPoemInForest() {
+    const expScreen = document.getElementById('experience-screen');
+    expScreen.style.zIndex = '50'; // Asegurar que esté encima de todo
+
+    let index = 0;
+    // Asumimos 30s de tu voz si falla la lectura de duración
+    let duration = audioPoema.duration && !isNaN(audioPoema.duration) ? audioPoema.duration : 30;
+    
+    // Cada párrafo se mostrará durante este tiempo
+    let timePerPara = duration / poemParagraphs.length; 
+
+    function showNext() {
+        if (index >= poemParagraphs.length) return;
+        
+        const p = document.createElement('div');
+        p.className = 'magic-text';
+        
+        // Letra dorada al inicio
+        const firstLetter = poemParagraphs[index].charAt(0);
+        const restOfText = poemParagraphs[index].slice(1);
+        p.innerHTML = `<span style="color: #d4af37; font-size: 5rem; font-family: 'Playfair Display', serif;">${firstLetter}</span>${restOfText}`;
+        
+        expScreen.innerHTML = '';
+        expScreen.appendChild(p);
+        
+        // Aparece
+        setTimeout(() => p.classList.add('show'), 100);
+        
+        // Se desvanece un poco antes de que termine su tiempo
+        setTimeout(() => {
+            p.classList.remove('show');
+            p.classList.add('fade-out');
+        }, (timePerPara * 1000) - 1500); 
+        
+        index++;
+        if (index < poemParagraphs.length) {
+            setTimeout(showNext, timePerPara * 1000);
+        }
+    }
+    
+    showNext();
 }
 
 // ===== LA EXPLOSIÓN EN CUADRITOS Y EL PORTAL =====
@@ -213,21 +191,33 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
+        // AUDIO: Bajamos la música de fondo y arrancamos tu voz
+        audioFondo.volume = 0.3;
+        audioPoema.volume = 1;
+        audioPoema.currentTime = 0;
+        audioPoema.play().catch(e => console.log('Audio voz bloqueado', e));
+        
+        // Y COMENZAMOS A MOSTRAR EL POEMA SOBRE EL BOSQUE
+        setTimeout(showPoemInForest, 500);
+        
         // Efecto del amanecer
         setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
         setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
         setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
         
-        // A los pocos segundos aparece el texto final (o cuando termine la voz si tarda más)
+        // A los pocos segundos aparece el texto final (cuando termine la voz)
         audioPoema.onended = () => {
+            document.getElementById('experience-screen').innerHTML = ''; // Limpiar poema flotante
             const finale = document.getElementById('handwritten-finale');
             if (!finale.classList.contains('show')) finale.classList.add('show');
         };
         
+        // Fallback de 35 segundos
         setTimeout(() => {
+            document.getElementById('experience-screen').innerHTML = '';
             const finale = document.getElementById('handwritten-finale');
             if (!finale.classList.contains('show')) finale.classList.add('show');
-        }, 20000); // 20 seg fallback
+        }, 35000); 
         
     }, 1500);
 }
