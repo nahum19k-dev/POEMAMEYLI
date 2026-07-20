@@ -106,16 +106,82 @@ envelopeClick.addEventListener('click', () => {
     // 4. Escribe MEYLI
     setTimeout(() => { cardName.classList.add('write'); }, 1800);
 
-    // 5. Explota la carta directamente para ir al bosque y empezar a recitar!
-    setTimeout(() => {
-        if (!finaleTriggered) {
-            finaleTriggered = true;
-            explodeCardIntoSquares();
-        }
-    }, 4500);
+    // 5. Empieza a escribir el poema en la carta muy rápido
+    setTimeout(startSlowPoemOnCard, 2200);
 });
 
-// ===== MOSTRAR EL POEMA MÁGICO EN EL BOSQUE =====
+// ===== POEMA RÁPIDO EN LA CARTA =====
+function startSlowPoemOnCard() {
+    poemContainer.innerHTML = '<div class="full-poem-text" id="full-poem-text-container"></div>';
+    const textContainer = document.getElementById('full-poem-text-container');
+
+    const topOrnament = document.createElement('div');
+    topOrnament.className = 'ornament';
+    topOrnament.innerHTML = '⊱ ♥ ⊰';
+    textContainer.appendChild(topOrnament);
+    
+    setTimeout(() => topOrnament.classList.add('show'), 1000);
+
+    let currentPara = 0;
+    let lastTick = Date.now();
+    
+    // Tiempos ultra rápidos (6 segundos total)
+    const dynamicTimes = [0.5, 1.5, 2.5, 3.5, 4.5];
+    
+    const interval = setInterval(() => {
+        const currentTime = (Date.now() - lastTick) / 1000;
+
+        if (currentPara < poemParagraphs.length && currentTime >= dynamicTimes[currentPara]) {
+            
+            // Añadir el divisor antes de cada párrafo (excepto el primero)
+            if (currentPara > 0) {
+                const divider = document.createElement('div');
+                divider.className = 'divider-heart';
+                divider.innerHTML = '<span>♥</span>';
+                textContainer.appendChild(divider);
+                requestAnimationFrame(() => {
+                    divider.classList.add('show');
+                    divider.style.opacity = '1';
+                    divider.style.transform = 'translateY(0)';
+                });
+            }
+
+            const p = document.createElement('p');
+            p.className = 'poem-line';
+            
+            // Resaltar acróstico
+            const firstLetter = poemParagraphs[currentPara].charAt(0);
+            const restOfText = poemParagraphs[currentPara].slice(1);
+            p.innerHTML = `<span class="acrostic-letter">${firstLetter}</span>${restOfText}`;
+            
+            textContainer.appendChild(p);
+            requestAnimationFrame(() => {
+                p.classList.add('show');
+            });
+            currentPara++;
+
+            // Si es el último párrafo, añadir adorno final poco después
+            if (currentPara === poemParagraphs.length) {
+                setTimeout(() => {
+                    const bottomOrnament = document.createElement('div');
+                    bottomOrnament.className = 'ornament';
+                    bottomOrnament.innerHTML = '⊱ ♥ ⊰';
+                    textContainer.appendChild(bottomOrnament);
+                    requestAnimationFrame(() => bottomOrnament.classList.add('show'));
+                }, 1000);
+            }
+        }
+
+        // A los 6 segundos explota la carta para ir al bosque
+        if (currentTime >= 6.0 && !finaleTriggered) { 
+            finaleTriggered = true;
+            clearInterval(interval);
+            explodeCardIntoSquares();
+        }
+    }, 100);
+}
+
+// ===== MOSTRAR EL POEMA KARAOKE EN EL BOSQUE =====
 function showPoemInForest() {
     const expScreen = document.getElementById('experience-screen');
     expScreen.style.zIndex = '50'; // Asegurar que esté encima de todo
@@ -133,22 +199,66 @@ function showPoemInForest() {
         const p = document.createElement('div');
         p.className = 'magic-text';
         
-        // Letra dorada al inicio
-        const firstLetter = poemParagraphs[index].charAt(0);
-        const restOfText = poemParagraphs[index].slice(1);
-        p.innerHTML = `<span style="color: #d4af37; font-size: 5rem; font-family: 'Playfair Display', serif;">${firstLetter}</span>${restOfText}`;
+        // El texto original de la estrofa
+        const text = poemParagraphs[index];
+        // Reemplazar <br> con un marcador para poder separar en palabras sin perder los saltos de línea
+        const cleanText = text.replace(/<br>/g, " <br> ");
+        const words = cleanText.split(/\s+/);
         
         expScreen.innerHTML = '';
         expScreen.appendChild(p);
         
-        // Aparece
+        let wordSpans = [];
+        
+        // Crear un span apagado por cada palabra
+        words.forEach((word, i) => {
+            if (word === "<br>") {
+                p.appendChild(document.createElement('br'));
+                return;
+            }
+            
+            const span = document.createElement('span');
+            span.className = 'karaoke-word';
+            
+            // La primera palabra de la estrofa tiene la Letra Dorada Gigante del acróstico
+            if (i === 0) {
+                const firstLetter = word.charAt(0);
+                const restOfWord = word.slice(1);
+                span.innerHTML = `<span style="color: #d4af37; font-size: 5rem; font-family: 'Playfair Display', serif; text-shadow: 0 0 30px rgba(255,157,0,1);">${firstLetter}</span>${restOfWord}`;
+            } else {
+                span.textContent = word;
+            }
+            
+            p.appendChild(span);
+            // Añadir espacio de separación manualmente para que los spans en inline-block no colisionen
+            const space = document.createTextNode(" ");
+            p.appendChild(space);
+            
+            wordSpans.push(span);
+        });
+        
+        // Aparece el párrafo en pantalla apagado
         setTimeout(() => p.classList.add('show'), 100);
         
-        // Se desvanece un poco antes de que termine su tiempo
+        // --- LÓGICA DE KARAOKE ---
+        // Calcula a qué velocidad se debe iluminar cada palabra para que cuadre con tu voz
+        let illuminateDuration = timePerPara - 1.5; // Terminamos de iluminar 1.5s antes de que desaparezca
+        if (illuminateDuration < 1) illuminateDuration = timePerPara;
+        
+        let timePerWord = (illuminateDuration / wordSpans.length) * 1000;
+        
+        // Iluminar palabra por palabra
+        wordSpans.forEach((span, i) => {
+            setTimeout(() => {
+                span.classList.add('illuminated');
+            }, i * timePerWord);
+        });
+        
+        // Se desvanece
         setTimeout(() => {
             p.classList.remove('show');
             p.classList.add('fade-out');
-        }, (timePerPara * 1000) - 1500); 
+        }, (timePerPara * 1000) - 1000); 
         
         index++;
         if (index < poemParagraphs.length) {

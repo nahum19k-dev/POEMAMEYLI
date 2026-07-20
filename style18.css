@@ -664,25 +664,40 @@ body, html {
     font-size: 4rem;
     color: #ffeb99;
     text-align: center;
-    width: 80%;
+    width: 90%;
     max-width: 1000px;
-    line-height: 1.4;
-    text-shadow:
-        0 2px 5px rgba(0,0,0,1),
-        0 0 25px rgba(255, 215, 0, 0.8),
-        0 0 45px rgba(255, 255, 255, 0.4);
+    line-height: 1.5;
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
     transition: opacity 1.5s ease-out, transform 2s ease-out;
 }
 
 .magic-text.show { opacity: 1; transform: scale(1); }
 
+/* Efecto Karaoke Palabra por Palabra */
+.karaoke-word {
+    display: inline-block;
+    color: rgba(255, 235, 153, 0.25); /* Letra apagada esperando tu voz */
+    text-shadow: none;
+    transition: color 0.4s ease, text-shadow 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-right: 8px; /* Espaciado entre palabras */
+}
+
+/* La palabra iluminada por la voz */
+.karaoke-word.illuminated {
+    color: #ffefb3;
+    text-shadow:
+        0 2px 5px rgba(0,0,0,1),
+        0 0 20px rgba(255, 215, 0, 1),
+        0 0 40px rgba(255, 157, 0, 0.8);
+    transform: scale(1.08); /* Pequeño salto cuando se canta/recita */
+}
+
 .magic-text.fade-out {
     opacity: 0;
-    transform: scale(1.1) translateY(-20px);
+    transform: scale(1.05) translateY(-10px);
     transition: opacity 1.2s, transform 1.2s, filter 1.2s;
-    filter: blur(8px);
+    filter: blur(5px);
 }
 
 /* ========================================
