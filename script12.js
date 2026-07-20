@@ -55,7 +55,6 @@ function burstFairyDust() {
 
 // ===== FAROLES DEL BOSQUE =====
 function spawnLantern() {
-    if (finaleTriggered) return;
     const lantern = document.createElement('div');
     lantern.classList.add('realistic-lantern');
     const size = Math.random() * 60 + 40;
@@ -200,6 +199,11 @@ function explodeCardIntoSquares() {
         setTimeout(() => {
             envelopeScene.style.display = 'none'; // Desaparece la escena
             startScreen.classList.remove('active'); // Elimina el overlay oscuro del principio
+            startScreen.style.display = 'none'; // Forza a quitar el blur que se bugea en celulares
+            
+            // Elimina la capa de sombra del agua para que los fondos se vean súper brillantes y claros
+            const waterOverlay = document.getElementById('water-overlay');
+            if (waterOverlay) waterOverlay.style.opacity = '0';
         }, 1000);
         
         // Cambiar fondos mágicos en el bosque
