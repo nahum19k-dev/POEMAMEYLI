@@ -27,8 +27,8 @@ let voiceBuffer;
 let voiceSource;
 let isVoiceReady = false;
 
-// Pre-cargar la voz para que esté lista inmediatamente (Ruta corregida)
-fetch('voz.mp3')
+// Pre-cargar la voz para que esté lista inmediatamente (Ruta corregida EXACTA mayúsculas)
+fetch('VOZ.mp3')
     .then(response => response.arrayBuffer())
     .then(arrayBuffer => {
         window.voiceArrayBuffer = arrayBuffer;
