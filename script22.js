@@ -445,6 +445,38 @@ function triggerFinaleText() {
     if (finale && !finale.classList.contains('show')) {
         finale.classList.add('show');
     }
+    
+    // Llamar a la reconstrucción 6 segundos después de que aparece el texto final
+    setTimeout(reconstructCardFromSquares, 6000);
+}
+
+// ===== RECONSTRUIR CARTA =====
+function reconstructCardFromSquares() {
+    // 1. Quitar el texto final y fondos
+    const finale = document.getElementById('handwritten-finale');
+    if (finale) finale.classList.remove('show');
+    bg4.style.opacity = '0';
+    
+    // 2. Restaurar la escena
+    startScreen.style.display = 'flex';
+    envelopeScene.style.display = 'flex';
+    setTimeout(() => startScreen.classList.add('active'), 50);
+    
+    // 3. Succión de cuadritos
+    createSquareParticles(true);
+    
+    // 4. Animación de reconstrucción
+    const env = document.querySelector('.envelope');
+    env.classList.add('reconstruct');
+    
+    card.classList.remove('submerge');
+    card.classList.remove('burning');
+    card.classList.add('reconstruct');
+    
+    // 5. Mostrar botón de cerrar en la carta
+    setTimeout(() => {
+        btnCloseCard.classList.remove('hidden');
+    }, 4500);
 }
 
 
@@ -453,20 +485,30 @@ function triggerFinaleText() {
 btnCloseCard.addEventListener('click', () => {
     btnCloseCard.classList.add('hidden');
     
-    // Romper en cuadritos de nuevo (opcional, o simplemente se guarda)
-    createSquareParticles(false);
-    card.classList.add('burning');
+    // Quitar clases de reconstrucción para poder animarla de nuevo
+    card.classList.remove('reconstruct');
+    const env = document.querySelector('.envelope');
+    env.classList.remove('reconstruct');
     
+    // La carta cae devuelta al bolsillo
+    card.style.transform = 'translate(-50%, 110%)'; 
+    card.style.opacity = '0'; 
+    
+    // El sobre se cierra
     setTimeout(() => {
-        card.classList.remove('burning');
-        // La carta cae devuelta al bolsillo
-        card.style.transform = 'translate(-50%, 110%)'; 
-        card.style.opacity = '0'; 
+        envelopeFlap.classList.remove('open');
         
+        // El texto "Rompe el sello..." vuelve a aparecer
+        ribbonText.classList.remove('hide');
+        
+        // El sello vuelve a estar entero
         setTimeout(() => {
-            envelopeFlap.classList.remove('open');
-        }, 2000);
-    }, 1500);
+            waxSeal.classList.remove('burn');
+            // resetear variables por si quiere abrirlo de nuevo
+            opened = false;
+            finaleTriggered = false;
+        }, 1200);
+    }, 1000);
 });
 
 // ===== SISTEMA DE CUADRITOS (Explosión) =====

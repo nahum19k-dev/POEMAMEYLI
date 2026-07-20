@@ -593,9 +593,9 @@ body, html {
     animation: reconstructCard 4s forwards;
 }
 @keyframes reconstructCard {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; filter: blur(20px) sepia(1) brightness(0); }
-    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.8; filter: blur(5px) sepia(0.5) brightness(0.8); }
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: blur(0) sepia(0) brightness(1); }
+    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; filter: blur(20px) sepia(1) brightness(0); }
+    50% { transform: translate(-50%, 0) scale(1.05); opacity: 0.8; filter: blur(5px) sepia(0.5) brightness(0.8); }
+    100% { transform: translate(-50%, 0) scale(1); opacity: 1; filter: blur(0) sepia(0) brightness(1); }
 }
 
 /* Entrar la carta de nuevo al sobre */
@@ -719,12 +719,13 @@ body, html {
 
 .handwritten-text {
     font-family: 'Great Vibes', cursive;
-    font-size: 6rem;
+    font-size: 5rem;
     color: #ffefb3;
     text-shadow: 0 0 20px rgba(255, 239, 179, 0.8), 0 0 40px rgba(255, 157, 0, 0.5);
     white-space: nowrap;
     overflow: hidden;
     max-width: 0;
+    margin: 0 auto;
 }
 
 #handwritten-finale.show { opacity: 1; }
@@ -755,5 +756,5 @@ body, html {
     .card.slide-out { transform: translate(-50%, 0); }
     .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
     .magic-text { font-size: 1.5rem; width: 95%; }
-    .handwritten-text { font-size: 3.5rem; }
+    .handwritten-text { font-size: 2.2rem; }
 }
