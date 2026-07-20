@@ -477,14 +477,11 @@ body, html {
     font-size: 4.5rem;
     font-weight: 400;
     line-height: 1;
-    padding: 0;
+    padding: 0 15px; /* Evita que la cursiva se corte en los bordes */
     
-    /* Efecto de oro rosado/dorado cálido */
-    background: linear-gradient(135deg, #d4af37 0%, #b8860b 50%, #d4af37 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+    /* Usar color sólido y text-shadow en lugar de background-clip para evitar el bug de la caja blanca en Safari/iOS */
+    color: #cca43b;
+    text-shadow: 1px 2px 3px rgba(0,0,0,0.2);
     
     /* Animación de máscara de revelado (clip-path) */
     clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
@@ -708,9 +705,10 @@ body, html {
     .wax-seal { top: 80px; width: 52px; height: 52px; }
     .card-mask { height: 700px; }
     .card { width: 310px; height: 440px; bottom: 0; transform: translate(-50%, 110%); }
-    .name-text { font-size: 3.8rem; }
-    .poem-line { font-size: 0.65rem; line-height: 1.3; margin-bottom: 2px; }
-    .acrostic-letter { font-size: 0.75rem; }
+    .name-text { font-size: 3.6rem; }
+    .poem-line { font-size: 0.60rem; line-height: 1.25; margin-bottom: 2px; }
+    .acrostic-letter { font-size: 0.70rem; }
+    .divider-heart { margin: 2px 0; }
     .card.slide-out { transform: translate(-50%, 0); }
     .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
     .magic-text { font-size: 2rem; width: 90%; }
