@@ -103,21 +103,34 @@ function burstFairyDust() {
 }
 
 // ===== FAROLES DEL BOSQUE =====
+let activeLanterns = 0;
 function spawnLantern() {
-    const lantern = document.createElement('div');
-    lantern.classList.add('realistic-lantern');
-    const size = Math.random() * 60 + 40;
-    lantern.style.width = size + 'px';
-    lantern.style.height = (size * 1.5) + 'px';
-    lantern.style.left = Math.random() * 90 + '%';
-    lantern.style.bottom = '-150px';
-    const duration = Math.random() * 15 + 20;
-    const delay = Math.random() * 2;
-    lantern.style.animationDuration = duration + 's';
-    lantern.style.animationDelay = delay + 's';
-    lanternsContainer.appendChild(lantern);
-    setTimeout(() => { if (lantern.parentNode) lantern.remove(); }, (duration + delay) * 1000);
-    setTimeout(spawnLantern, Math.random() * 1500 + 500);
+    const isMobile = window.innerWidth < 768;
+    const maxLanterns = isMobile ? 2 : 15; // MAXIMO 2 EN CELULAR!
+    
+    if (activeLanterns < maxLanterns) {
+        activeLanterns++;
+        const lantern = document.createElement('div');
+        lantern.classList.add('realistic-lantern');
+        const size = Math.random() * (isMobile ? 30 : 60) + (isMobile ? 20 : 40); // Más pequeños en celular
+        lantern.style.width = size + 'px';
+        lantern.style.height = (size * 1.5) + 'px';
+        lantern.style.left = Math.random() * 90 + '%';
+        lantern.style.bottom = '-150px';
+        const duration = Math.random() * 15 + 20;
+        const delay = Math.random() * 2;
+        lantern.style.animationDuration = duration + 's';
+        lantern.style.animationDelay = delay + 's';
+        lanternsContainer.appendChild(lantern);
+        
+        setTimeout(() => { 
+            if (lantern.parentNode) lantern.remove(); 
+            activeLanterns--;
+        }, (duration + delay) * 1000);
+    }
+    
+    const nextSpawnDelay = isMobile ? (Math.random() * 4000 + 3000) : (Math.random() * 1500 + 500);
+    setTimeout(spawnLantern, nextSpawnDelay);
 }
 
 // ===== EVENTO PRINCIPAL (CLICK) =====
