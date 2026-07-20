@@ -495,7 +495,7 @@ body, html {
 /* Escritura fluida del nombre completo (Sin separar letras) */
 .name-text {
     font-family: 'Alex Brush', cursive;
-    font-size: 4.5rem;
+    font-size: 3.5rem;
     font-weight: 400;
     line-height: 1;
     padding: 0 15px; /* Evita que la cursiva se corte en los bordes */
@@ -728,7 +728,7 @@ body, html {
     .wax-seal { top: 80px; width: 52px; height: 52px; }
     .card-mask { height: 750px; }
     .card { width: 310px; height: 460px; bottom: 0; transform: translate(-50%, 110%); }
-    .name-text { font-size: 3.8rem; }
+    .name-text { font-size: 2.8rem; }
     .poem-line { font-size: 0.65rem; line-height: 1.3; margin-bottom: 2px; }
     .divider-heart { margin: 2px 0; }
     .ornament { margin: 2px 0; font-size: 0.8rem; }
