@@ -222,51 +222,16 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // 3. Ya sumergidos en el fondo, admiramos 10 segundos, y luego reconstrucción
-        setTimeout(triggerReconstructionPhase, 12000); 
-    }, 1500);
-}
-
-// ===== FASE DE RECONSTRUCCIÓN FINAL =====
-function triggerReconstructionPhase() {
-    // Adiós bosque
-    lanternsContainer.style.transition = 'opacity 2s';
-    lanternsContainer.style.opacity = '0'; 
-
-    createSquareParticles(true); // Partículas succión (cuadritos)
-
-    setTimeout(() => {
-        envelopeScene.style.display = 'flex';
-        envelopeScene.style.opacity = '0';
-        
-        // Limpiar daños de la explosión
-        card.classList.remove('burning', 'submerge', 'slide-out');
-        cardName.classList.remove('smoke');
-        poemContainer.classList.remove('smoke');
-        document.querySelector('.envelope-wrapper').classList.remove('shift-down');
-        
-        // Reconstruir
-        card.classList.add('reconstruct');
-        document.querySelector('.envelope').classList.add('reconstruct');
-        
-        // Aparece la carta entera reconstruida
-        setTimeout(() => {
-            envelopeScene.style.opacity = '1';
-            
-            // Volvemos a mostrar la carta afuera
-            card.classList.add('slide-out');
-            
-            // Mostrar botón Cerrar
-            setTimeout(() => {
-                document.querySelector('.envelope-wrapper').classList.add('shift-down');
-                btnCloseCard.classList.remove('hidden');
-                btnCloseCard.style.animation = 'fadeIn 2s forwards';
-            }, 3000);
-            
-        }, 100);
+        // Cuando tu voz termina de hablar, aparece el texto final escrito a mano
+        audioPoema.onended = () => {
+            const finale = document.getElementById('handwritten-finale');
+            finale.classList.add('show');
+        };
         
     }, 1500);
 }
+
+
 
 // ===== BOTÓN CERRAR =====
 btnCloseCard.addEventListener('click', () => {

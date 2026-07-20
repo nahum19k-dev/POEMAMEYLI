@@ -701,7 +701,8 @@ body, html {
 .handwritten-text {
     font-family: 'Great Vibes', cursive;
     font-size: 6rem;
-    color: #2c1e16;
+    color: #ffefb3;
+    text-shadow: 0 0 20px rgba(255, 239, 179, 0.8), 0 0 40px rgba(255, 157, 0, 0.5);
     white-space: nowrap;
     overflow: hidden;
     max-width: 0;
