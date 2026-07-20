@@ -7,7 +7,7 @@ const CONFIG = {
     // (NUEVO) Para una sincronización PERFECTA: anota el segundo exacto en el que empiezas a leer cada párrafo.
     // Si lo dejas vacío [], el código lo adivinará repartiendo el tiempo equitativamente.
     // Ejemplo: [ 0.0, 12.5, 25.0, 36.2, 45.0 ]
-    tiemposParrafos: [],
+    tiemposParrafos: [ 0.0, 13.0, 23.0, 38.0, 50.0 ],
     // Multiplicador de volumen de tu voz (2.5 = se escuchará más del doble de fuerte)
     boostVoz: 3.0,
     // Volumen de la música de fondo en la primera pantalla (0.3 = 30%)
