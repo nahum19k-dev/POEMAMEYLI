@@ -85,19 +85,15 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // Desbloqueo inicial (truco para Safari/Móviles)
-    // Reproducimos y pausamos inmediatamente para que el navegador nos dé permiso de usarlos luego
-    audioFondo.volume = 0;
-    audioFondo.play().then(() => {
-        audioFondo.pause();
-        audioFondo.currentTime = 0;
-    }).catch(e => console.log('Desbloqueo fondo falló:', e));
+    // Desbloqueo inicial
+    audioFondo.volume = 0.3; // Volumen normal desde el principio
+    audioFondo.play().catch(e => console.log('Fondo bloqueado:', e));
     
-    audioPoema.volume = 0;
+    audioPoema.volume = 1;
     audioPoema.play().then(() => {
         audioPoema.pause();
         audioPoema.currentTime = 0;
-    }).catch(e => console.log('Desbloqueo voz falló:', e));
+    }).catch(e => console.log('Voz bloqueada:', e));
 
     // 1. Quema el sello y abre solapa (RÁPIDO)
     waxSeal.classList.add('burn');
@@ -196,32 +192,40 @@ function startSlowPoemOnCard() {
 // ===== MOSTRAR EL POEMA KARAOKE EN EL BOSQUE =====
 function showPoemInForest(totalDurationVoice) {
     const expScreen = document.getElementById('experience-screen');
-    expScreen.style.zIndex = '50'; // Asegurar que esté encima de todo
+    expScreen.style.zIndex = '50';
+    expScreen.innerHTML = '';
 
-    let index = 0;
+    // Contar el total de palabras reales (ignorando <br>)
+    let totalWords = 0;
+    let paragraphsData = [];
     
-    // Cada párrafo se mostrará durante este tiempo
-    let timePerPara = totalDurationVoice / poemParagraphs.length; 
-
-    function showNext() {
-        if (index >= poemParagraphs.length) return;
+    poemParagraphs.forEach(para => {
+        const cleanText = para.replace(/<br>/g, " <br> ");
+        const words = cleanText.split(/\s+/).filter(w => w.length > 0);
+        let wordCount = words.filter(w => w !== '<br>').length;
+        totalWords += wordCount;
         
+        paragraphsData.push({
+            words: words,
+            wordCount: wordCount
+        });
+    });
+
+    // Calcular el tiempo exacto que le corresponde a cada palabra según la duración total de la voz
+    let timePerWord = totalDurationVoice / totalWords;
+    let globalWordIndex = 0;
+    
+    let paraElements = [];
+    
+    paragraphsData.forEach((pData) => {
         const p = document.createElement('div');
         p.className = 'magic-text';
-        
-        // El texto original de la estrofa
-        const text = poemParagraphs[index];
-        // Reemplazar <br> con un marcador para poder separar en palabras sin perder los saltos de línea
-        const cleanText = text.replace(/<br>/g, " <br> ");
-        const words = cleanText.split(/\s+/);
-        
-        expScreen.innerHTML = '';
-        expScreen.appendChild(p);
+        p.style.display = 'none'; // oculto al inicio
         
         let wordSpans = [];
+        let wordIndexInPara = 0;
         
-        // Crear un span completamente INVISIBLE por cada palabra
-        words.forEach((word, i) => {
+        pData.words.forEach((word) => {
             if (word === "<br>") {
                 p.appendChild(document.createElement('br'));
                 return;
@@ -230,53 +234,78 @@ function showPoemInForest(totalDurationVoice) {
             const span = document.createElement('span');
             span.className = 'karaoke-word';
             
-            // La primera palabra de la estrofa tiene la Letra Dorada Gigante del acróstico
-            if (i === 0) {
+            if (wordIndexInPara === 0) {
                 const firstLetter = word.charAt(0);
                 const restOfWord = word.slice(1);
-                span.innerHTML = `<span style="color: #d4af37; font-size: 5rem; font-family: 'Playfair Display', serif; text-shadow: 0 0 30px rgba(255,157,0,1);">${firstLetter}</span>${restOfWord}`;
+                span.innerHTML = `<span style="color: #d4af37; font-size: 5rem; font-family: 'Playfair Display', serif; text-shadow: 0 0 30px rgba(255,157,0,1); line-height: 0.8; vertical-align: bottom;">${firstLetter}</span>${restOfWord}`;
             } else {
                 span.textContent = word;
             }
             
+            // Asignar los tiempos exactos de inicio y fin para iluminar
+            span.dataset.startTime = globalWordIndex * timePerWord;
+            span.dataset.endTime = (globalWordIndex + 1) * timePerWord;
+            
             p.appendChild(span);
-            // Añadir espacio de separación manualmente para que los spans en inline-block no colisionen
-            const space = document.createTextNode(" ");
-            p.appendChild(space);
+            p.appendChild(document.createTextNode(" "));
             
             wordSpans.push(span);
+            globalWordIndex++;
+            wordIndexInPara++;
         });
         
-        // Aparece el contenedor del párrafo en pantalla (estará vacío porque las palabras son invisibles)
-        setTimeout(() => p.classList.add('show'), 100);
+        pData.element = p;
+        pData.wordSpans = wordSpans;
+        pData.startTime = parseFloat(pData.wordSpans[0].dataset.startTime);
+        pData.endTime = parseFloat(pData.wordSpans[pData.wordSpans.length - 1].dataset.endTime);
         
-        // --- LÓGICA DE KARAOKE SUBTÍTULO ---
-        // Calcula a qué velocidad DEBE APARECER cada palabra para que cuadre con tu voz
-        let illuminateDuration = timePerPara - 1.5; // Terminamos de iluminar 1.5s antes de que desaparezca
-        if (illuminateDuration < 1) illuminateDuration = timePerPara;
+        expScreen.appendChild(p);
+        paraElements.push(pData);
+    });
+
+    let currentParaIndex = -1;
+
+    // Usamos el evento timeupdate para sincronización PERFECTA con el audio
+    audioPoema.addEventListener('timeupdate', () => {
+        const currTime = audioPoema.currentTime;
         
-        let timePerWord = (illuminateDuration / wordSpans.length) * 1000;
+        // Encontrar qué estrofa debería estar activa (damos 1.5s de margen al final para el desvanecimiento)
+        let activeParaIndex = paraElements.findIndex(p => currTime >= p.startTime && currTime <= p.endTime + 1.5);
         
-        // Las palabras VAN APARECIENDO una por una (estilo subtítulo pop-up)
-        wordSpans.forEach((span, i) => {
-            setTimeout(() => {
-                span.classList.add('illuminated');
-            }, i * timePerWord);
-        });
-        
-        // Se desvanece todo el párrafo junto
-        setTimeout(() => {
-            p.classList.remove('show');
-            p.classList.add('fade-out');
-        }, (timePerPara * 1000) - 1000); 
-        
-        index++;
-        if (index < poemParagraphs.length) {
-            setTimeout(showNext, timePerPara * 1000);
+        if (activeParaIndex !== -1) {
+            if (currentParaIndex !== activeParaIndex) {
+                // Ocultar la anterior
+                if (currentParaIndex !== -1) {
+                    const oldPara = paraElements[currentParaIndex].element;
+                    oldPara.classList.remove('show');
+                    oldPara.classList.add('fade-out');
+                    setTimeout(() => { oldPara.style.display = 'none'; }, 1000);
+                }
+                
+                // Mostrar la nueva
+                currentParaIndex = activeParaIndex;
+                const newPara = paraElements[currentParaIndex].element;
+                newPara.style.display = 'block';
+                newPara.classList.remove('fade-out');
+                // Timeout pequeñísimo para que el display:block se aplique antes de la opacidad
+                setTimeout(() => { newPara.classList.add('show'); }, 50);
+            }
+            
+            // Iluminar palabras una por una basadas en el tiempo exacto del audio
+            paraElements[currentParaIndex].wordSpans.forEach(span => {
+                if (currTime >= parseFloat(span.dataset.startTime)) {
+                    span.classList.add('illuminated');
+                }
+            });
+        } else if (paraElements.length > 0 && currTime > paraElements[paraElements.length - 1].endTime + 1.5) {
+             // Fin del poema
+             if (currentParaIndex !== -1) {
+                 paraElements[currentParaIndex].element.classList.remove('show');
+                 paraElements[currentParaIndex].element.classList.add('fade-out');
+                 currentParaIndex = -1;
+             }
         }
-    }
-    
-    showNext();
+    });
 }
 
 // ===== LA EXPLOSIÓN EN CUADRITOS Y EL PORTAL =====
@@ -311,9 +340,11 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // AUDIO: Bajamos la música de fondo y arrancamos tu voz
+        // AUDIO: Aseguramos la música de fondo
         audioFondo.volume = 0.3;
-        audioFondo.play().catch(e => console.log('Fondo final bloqueado', e));
+        if (audioFondo.paused) {
+            audioFondo.play().catch(e => console.log('Fondo final bloqueado', e));
+        }
         
         audioPoema.volume = 1;
         audioPoema.currentTime = 0;
@@ -324,21 +355,27 @@ function explodeCardIntoSquares() {
         
         // Y COMENZAMOS A MOSTRAR EL POEMA SUBTÍTULO SOBRE EL BOSQUE
         setTimeout(() => {
-            // Asegurarnos de usar la duración actualizada por si cargó tarde
             if (!isNaN(audioPoema.duration) && audioPoema.duration > 0) {
                 voiceDuration = audioPoema.duration;
             }
             showPoemInForest(voiceDuration);
         }, 500);
         
-        // Efecto del amanecer (Lento, sincronizado con un poema largo de 30-40s)
-        const timeToDawn = voiceDuration * 1000;
-        setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, timeToDawn * 0.2);
-        setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, timeToDawn * 0.5);
-        setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, timeToDawn * 0.8);
+        // Efecto del amanecer dinámico vinculado al tiempo real del audio
+        audioPoema.addEventListener('timeupdate', () => {
+            const actualDuration = audioPoema.duration || voiceDuration;
+            const progress = audioPoema.currentTime / actualDuration;
+            if (progress >= 0.2 && progress < 0.5) {
+                bg1.style.opacity = '0'; bg2.style.opacity = '1';
+            } else if (progress >= 0.5 && progress < 0.8) {
+                bg2.style.opacity = '0'; bg3.style.opacity = '1';
+            } else if (progress >= 0.8) {
+                bg3.style.opacity = '0'; bg4.style.opacity = '1';
+            }
+        });
         
         // Fallback para el final por si falla el evento onended
-        setTimeout(triggerFinaleText, timeToDawn + 3000); 
+        setTimeout(triggerFinaleText, (voiceDuration * 1000) + 3000); 
         
     }, 1500);
 }
