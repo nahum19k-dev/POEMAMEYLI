@@ -18,6 +18,9 @@ const CONFIG = {
 
 // === NOTIFICACIÓN A TELEGRAM ===
 let notificacionEnviada = false;
+let startTime = 0;
+let exitNotificacionEnviada = false;
+
 function notifyTelegram() {
     if (notificacionEnviada) return; // Solo avisar una vez por recarga
     
@@ -35,7 +38,37 @@ function notifyTelegram() {
         }).catch(e => console.log(e));
         
         notificacionEnviada = true;
+        startTime = Date.now(); // Empezar a contar el tiempo
+        
+        // Registrar evento para cuando se vaya de la página
+        window.addEventListener('pagehide', sendExitNotification);
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') sendExitNotification();
+        });
     }
+}
+
+function sendExitNotification() {
+    if (exitNotificacionEnviada || startTime === 0) return;
+    exitNotificacionEnviada = true;
+    
+    const timeSpentMs = Date.now() - startTime;
+    const minutes = Math.floor(timeSpentMs / 60000);
+    const seconds = Math.floor((timeSpentMs % 60000) / 1000);
+    
+    const timeText = minutes > 0 ? `${minutes} minutos y ${seconds} segundos` : `${seconds} segundos`;
+    const text = `🚪 Meyli ha salido de la página.\n⏱️ Tiempo total leyendo la carta: ${timeText}.`;
+    
+    const botToken = '7824975926:AAFQktpZSPhFhe_CU1JdmkU9FUBYhHeeYfs';
+    const chatId = '7456159823';
+    
+    // fetch con keepalive:true asegura que se envíe incluso si el navegador se está cerrando
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text }),
+        keepalive: true 
+    }).catch(e => console.log(e));
 }
 
 // ===== ACRÓSTICO =====
