@@ -4,6 +4,10 @@ const CONFIG = {
     silencioInicial: 0.0,
     // Si hay silencio al final del audio después de que terminaste de hablar.
     silencioFinal: 0.0,
+    // (NUEVO) Para una sincronización PERFECTA: anota el segundo exacto en el que empiezas a leer cada párrafo.
+    // Si lo dejas vacío [], el código lo adivinará repartiendo el tiempo equitativamente.
+    // Ejemplo: [ 0.0, 12.5, 25.0, 36.2, 45.0 ]
+    tiemposParrafos: [],
     // Multiplicador de volumen de tu voz (2.5 = se escuchará más del doble de fuerte)
     boostVoz: 3.0,
     // Volumen de la música de fondo en la primera pantalla (0.3 = 30%)
@@ -226,21 +230,35 @@ function showPoemInForest(totalDurationVoice) {
     });
 
     // Calcular el tiempo exacto que le corresponde a cada palabra según la duración total de la voz
-    // Restamos el silencio inicial y final para que el tiempo se divida solo donde realmente hablas
     let durationHablada = totalDurationVoice - CONFIG.silencioInicial - CONFIG.silencioFinal;
     if (durationHablada <= 0) durationHablada = totalDurationVoice;
-    let timePerWord = durationHablada / totalWords;
+    
+    // Si el usuario provee los 5 tiempos manuales, los usamos. Si no, calculamos uniforme.
+    let useManualTimes = (CONFIG.tiemposParrafos && CONFIG.tiemposParrafos.length === poemParagraphs.length);
+    let globalTimePerWord = durationHablada / totalWords;
     let globalWordIndex = 0;
     
     let paraElements = [];
     
-    paragraphsData.forEach((pData) => {
+    paragraphsData.forEach((pData, pIndex) => {
         const p = document.createElement('div');
         p.className = 'magic-text';
         p.style.display = 'none'; // oculto al inicio
         
         let wordSpans = [];
         let wordIndexInPara = 0;
+        
+        // Calcular tiempo por palabra específico de este párrafo (si hay manual)
+        let paraStartTime = 0;
+        let timePerWordForPara = globalTimePerWord;
+        
+        if (useManualTimes) {
+            paraStartTime = CONFIG.tiemposParrafos[pIndex];
+            let nextParaStartTime = (pIndex < poemParagraphs.length - 1) ? CONFIG.tiemposParrafos[pIndex + 1] : totalDurationVoice - CONFIG.silencioFinal;
+            let paraDuration = nextParaStartTime - paraStartTime;
+            if (paraDuration < 0) paraDuration = 5; // Fallback
+            timePerWordForPara = paraDuration / pData.wordCount;
+        }
         
         pData.words.forEach((word) => {
             if (word === "<br>") {
@@ -254,14 +272,19 @@ function showPoemInForest(totalDurationVoice) {
             if (wordIndexInPara === 0) {
                 const firstLetter = word.charAt(0);
                 const restOfWord = word.slice(1);
-                span.innerHTML = `<span style="color: #d4af37; font-size: 5rem; font-family: 'Playfair Display', serif; text-shadow: 0 0 30px rgba(255,157,0,1); line-height: 0.8; vertical-align: bottom;">${firstLetter}</span>${restOfWord}`;
+                span.innerHTML = `<span style="color: #d4af37; font-size: 2.2em; font-family: 'Playfair Display', serif; text-shadow: 0 0 30px rgba(255,157,0,1); line-height: 0.8; vertical-align: bottom;">${firstLetter}</span>${restOfWord}`;
             } else {
                 span.textContent = word;
             }
             
-            // Asignar los tiempos exactos de inicio y fin para iluminar tomando en cuenta el silencio inicial
-            span.dataset.startTime = CONFIG.silencioInicial + (globalWordIndex * timePerWord);
-            span.dataset.endTime = CONFIG.silencioInicial + ((globalWordIndex + 1) * timePerWord);
+            // Asignar los tiempos exactos
+            if (useManualTimes) {
+                span.dataset.startTime = paraStartTime + (wordIndexInPara * timePerWordForPara);
+                span.dataset.endTime = paraStartTime + ((wordIndexInPara + 1) * timePerWordForPara);
+            } else {
+                span.dataset.startTime = CONFIG.silencioInicial + (globalWordIndex * globalTimePerWord);
+                span.dataset.endTime = CONFIG.silencioInicial + ((globalWordIndex + 1) * globalTimePerWord);
+            }
             
             p.appendChild(span);
             p.appendChild(document.createTextNode(" "));

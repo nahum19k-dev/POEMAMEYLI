@@ -664,10 +664,10 @@ body, html {
 .magic-text {
     position: relative; /* Dejamos que el flexbox del padre lo centre */
     font-family: 'Great Vibes', cursive;
-    font-size: 4rem;
+    font-size: 3rem;
     color: #ffeb99;
     text-align: center;
-    width: 90%;
+    width: 95%;
     max-width: 1000px;
     line-height: 1.5;
     opacity: 0;
@@ -754,6 +754,6 @@ body, html {
     .ornament { margin: 2px 0; font-size: 0.8rem; }
     .card.slide-out { transform: translate(-50%, 0); }
     .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
-    .magic-text { font-size: 2rem; width: 90%; }
+    .magic-text { font-size: 1.5rem; width: 95%; }
     .handwritten-text { font-size: 3.5rem; }
 }
