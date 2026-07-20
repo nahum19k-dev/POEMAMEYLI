@@ -662,7 +662,10 @@ body, html {
 }
 
 .magic-text {
-    position: relative; /* Dejamos que el flexbox del padre lo centre */
+    position: absolute; /* Evita que los párrafos se empujen entre sí y causen LAG */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: 'Great Vibes', cursive;
     font-size: 3rem;
     color: #ffeb99;
@@ -715,13 +718,20 @@ body, html {
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s;
+    /* Estilo de Pergamino Físico Real */
+    background: #fdf5e6;
+    background-image: radial-gradient(circle at center, #fffcf5 0%, #f4e5c5 100%);
+    padding: 50px 80px;
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 30px rgba(139,69,19,0.2);
+    border: 2px solid #d4af37;
 }
 
 .handwritten-text {
-    font-family: 'Great Vibes', cursive;
+    font-family: 'Alex Brush', cursive; /* Letra diferente */
     font-size: 5rem;
-    color: #ffefb3;
-    text-shadow: 0 0 20px rgba(255, 239, 179, 0.8), 0 0 40px rgba(255, 157, 0, 0.5);
+    color: #3b2b18; /* Tinta oscura, no brillante */
+    text-shadow: none; /* Quitamos el brillo neón para que parezca tinta real */
     white-space: nowrap;
     overflow: hidden;
     max-width: 0;

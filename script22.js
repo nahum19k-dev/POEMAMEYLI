@@ -460,15 +460,16 @@ function reconstructCardFromSquares() {
     // 2. Restaurar la escena
     startScreen.style.display = 'flex';
     envelopeScene.style.display = 'flex';
+    
+    const env = document.querySelector('.envelope');
+    env.style.opacity = '0'; // ¡SOBRE INVISIBLE! Solo sale la carta.
+    
     setTimeout(() => startScreen.classList.add('active'), 50);
     
     // 3. Succión de cuadritos
     createSquareParticles(true);
     
-    // 4. Animación de reconstrucción
-    const env = document.querySelector('.envelope');
-    env.classList.add('reconstruct');
-    
+    // 4. Animación de reconstrucción SOLO para la carta
     card.classList.remove('submerge');
     card.classList.remove('burning');
     card.classList.add('reconstruct');
@@ -488,27 +489,34 @@ btnCloseCard.addEventListener('click', () => {
     // Quitar clases de reconstrucción para poder animarla de nuevo
     card.classList.remove('reconstruct');
     const env = document.querySelector('.envelope');
-    env.classList.remove('reconstruct');
     
-    // La carta cae devuelta al bolsillo
-    card.style.transform = 'translate(-50%, 110%)'; 
-    card.style.opacity = '0'; 
+    // MAGIA: El sobre aparece de la nada!
+    env.style.opacity = '1';
+    env.classList.add('reconstruct');
     
-    // El sobre se cierra
+    // Damos un tiempito a que el sobre aparezca antes de meter la carta
     setTimeout(() => {
-        envelopeFlap.classList.remove('open');
+        // La carta cae devuelta al bolsillo
+        card.style.transform = 'translate(-50%, 110%)'; 
+        card.style.opacity = '0'; 
         
-        // El texto "Rompe el sello..." vuelve a aparecer
-        ribbonText.classList.remove('hide');
-        
-        // El sello vuelve a estar entero
+        // El sobre se cierra
         setTimeout(() => {
-            waxSeal.classList.remove('burn');
-            // resetear variables por si quiere abrirlo de nuevo
-            opened = false;
-            finaleTriggered = false;
-        }, 1200);
-    }, 1000);
+            envelopeFlap.classList.remove('open');
+            
+            // El texto "Rompe el sello..." vuelve a aparecer
+            ribbonText.classList.remove('hide');
+            
+            // El sello vuelve a estar entero
+            setTimeout(() => {
+                waxSeal.classList.remove('burn');
+                env.classList.remove('reconstruct'); // reset
+                // resetear variables por si quiere abrirlo de nuevo
+                opened = false;
+                finaleTriggered = false;
+            }, 1200);
+        }, 1000);
+    }, 1500); // 1.5s para que el sobre se materialice bien
 });
 
 // ===== SISTEMA DE CUADRITOS (Explosión) =====
