@@ -474,10 +474,9 @@ function reconstructCardFromSquares() {
     card.classList.remove('burning');
     card.classList.add('reconstruct');
     
-    // Restaurar el nombre Meyli y limpiar el poema
+    // Restaurar el nombre Meyli (¡y conservamos el poema tal cual quería el usuario!)
     const cardName = document.getElementById('card-name');
     if (cardName) cardName.classList.remove('smoke');
-    document.getElementById('poem-container').innerHTML = ''; // ¡BORRA EL POEMA PARA QUE QUEDE COMO AL PRINCIPIO!
     
     // 5. Mostrar botón de cerrar en la carta
     setTimeout(() => {
@@ -518,9 +517,14 @@ btnCloseCard.addEventListener('click', () => {
             setTimeout(() => {
                 waxSeal.classList.remove('burn');
                 env.classList.remove('reconstruct'); // reset
-                // resetear variables por si quiere abrirlo de nuevo
-                opened = false;
-                finaleTriggered = false;
+                
+                // NO reseteamos opened ni finaleTriggered
+                // La carta queda sellada para siempre
+                
+                // Opcional: mostrar un mensaje final muy sutil
+                setTimeout(() => {
+                    ribbonText.innerText = "❤️ Guardado para siempre ❤️";
+                }, 1000);
             }, 1200);
         }, 1000);
     }, 1500); // 1.5s para que el sobre se materialice bien
