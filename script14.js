@@ -17,6 +17,28 @@ const poemContainer = document.getElementById('poem-container');
 const fairyDustContainer = document.getElementById('fairy-dust-container');
 const explosionContainer = document.getElementById('explosion-container');
 const ribbonText = document.getElementById('ribbon-txt');
+// ===== VARIABLES GLOBALES =====
+let finaleTriggered = false;
+
+// ===== HOWLER.JS PARA AUDIO ROBUSTO EN IPHONE =====
+const soundFondo = new Howl({
+    src: ['assets/SONIDO (1).mp3'],
+    loop: true,
+    volume: 1,
+    html5: false // Fuerza Web Audio API (bypassa restricciones de iOS)
+});
+
+const soundVoz = new Howl({
+    src: ['assets/SONIDO CON VOZ.mp3'],
+    volume: 1,
+    html5: false, // Fuerza Web Audio API
+    onend: function() {
+        const finale = document.getElementById('handwritten-finale');
+        finale.classList.add('show');
+    }
+});
+
+// Referencias del DOM
 const startScreen = document.getElementById('start-screen');
 const envelopeScene = document.querySelector('.envelope-scene');
 const audioFondo = document.getElementById('audio-fondo');
@@ -76,14 +98,9 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // Reproducir música de fondo suave
-    audioFondo.volume = 1;
-    audioFondo.play().catch(e => console.log('Autoplay bloqueado (Fondo):', e));
-
-    // Desbloquear audio principal en el navegador engañando a Safari (Lo reproducimos mudo y en bucle continuo para que no muera)
-    audioPoema.volume = 0;
-    audioPoema.loop = true;
-    audioPoema.play().catch(e => console.log('Autoplay bloqueado (Voz):', e));
+    // Iniciar Howler.js (esto es 100% seguro porque ocurre dentro de un click)
+    soundFondo.volume(1);
+    soundFondo.play();
 
     // 1. Quema el sello y abre solapa
     waxSeal.classList.add('burn');
@@ -208,13 +225,10 @@ function explodeCardIntoSquares() {
         bg1.style.opacity = '1';
         
         // Detiene casi por completo la música instrumental para que no opaque tu voz
-        audioFondo.volume = 0.3;
+        soundFondo.volume(0.3);
         
         // Empieza a sonar tu voz justo cuando aparece la laguna (bg2 / bosque)
-        audioPoema.volume = 1;
-        audioPoema.loop = false; // Permitimos que termine para lanzar el texto final
-        audioPoema.currentTime = 0;
-        // No llamamos a .play() porque ya está reproduciéndose (mudo) gracias al hack de arriba
+        soundVoz.play();
 
         setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
         setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
@@ -225,19 +239,15 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // Cuando tu voz termina de hablar, aparece el texto final escrito a mano
-        audioPoema.onended = () => {
-            const finale = document.getElementById('handwritten-finale');
-            finale.classList.add('show');
-        };
-
-        // Fallback por si acaso el navegador bloqueó completamente el audio
+        // El texto final ahora se dispara automáticamente gracias al evento 'onend' de Howler.js
+        
+        // Fallback súper seguro por si falla Web Audio API (poco probable)
         setTimeout(() => {
             const finale = document.getElementById('handwritten-finale');
             if (!finale.classList.contains('show')) {
                 finale.classList.add('show');
             }
-        }, Math.max((audioPoema.duration || 30) * 1000 + 1000, 25000));
+        }, 25000);
         
     }, 1500);
 }
