@@ -136,6 +136,20 @@ function startSlowPoemOnCard() {
 
         // Mostrar párrafos 1 a 1 de forma lenta
         if (currentPara < acrosticSync.length && currentTime >= acrosticSync[currentPara].time) {
+            
+            // Añadir el divisor antes de cada párrafo (excepto el primero)
+            if (currentPara > 0) {
+                const divider = document.createElement('div');
+                divider.className = 'divider-heart';
+                divider.innerHTML = '<span>♥</span>';
+                textContainer.appendChild(divider);
+                requestAnimationFrame(() => {
+                    divider.classList.add('show');
+                    divider.style.opacity = '1';
+                    divider.style.transform = 'translateY(0)';
+                });
+            }
+
             const p = document.createElement('p');
             p.className = 'poem-line';
             
