@@ -80,13 +80,10 @@ envelopeClick.addEventListener('click', () => {
     audioFondo.volume = 1;
     audioFondo.play().catch(e => console.log('Autoplay bloqueado (Fondo):', e));
 
-    // Desbloquear audio principal en el navegador (Lo pausamos inmediatamente para usarlo después)
+    // Desbloquear audio principal en el navegador engañando a Safari (Lo reproducimos mudo y en bucle continuo para que no muera)
     audioPoema.volume = 0;
-    audioPoema.play().then(() => {
-        audioPoema.pause();
-        audioPoema.currentTime = 0;
-        audioPoema.volume = 1;
-    }).catch(e => console.log('Autoplay bloqueado (Voz):', e));
+    audioPoema.loop = true;
+    audioPoema.play().catch(e => console.log('Autoplay bloqueado (Voz):', e));
 
     // 1. Quema el sello y abre solapa
     waxSeal.classList.add('burn');
@@ -210,13 +207,14 @@ function explodeCardIntoSquares() {
         lanternsContainer.classList.remove('hidden');
         bg1.style.opacity = '1';
         
-        // Detiene la música instrumental
-        audioFondo.pause();
+        // Detiene casi por completo la música instrumental para que no opaque tu voz
+        audioFondo.volume = 0.3;
         
         // Empieza a sonar tu voz justo cuando aparece la laguna (bg2 / bosque)
         audioPoema.volume = 1;
+        audioPoema.loop = false; // Permitimos que termine para lanzar el texto final
         audioPoema.currentTime = 0;
-        audioPoema.play().catch(e => console.log('Audio error:', e));
+        // No llamamos a .play() porque ya está reproduciéndose (mudo) gracias al hack de arriba
 
         setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
         setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
