@@ -1,10 +1,10 @@
 // ===== ACRÓSTICO =====
-const acrosticSync = [
-    { time: 2.0, text: "Más de una vez me pregunté qué era esa calma,<br>esa sensación extraña de sentir que ya te conocía,<br>como si algo en el universo le dijera a mi alma<br>que ibas a llegar, y que la espera valdría." },
-    { time: 24.0, text: "Eres de esas personas difíciles de ignorar,<br>de las que sin querer se meten en el pecho,<br>y cuando intentas dejar de pensar<br>ya tienen en tu mente un sitio hecho." },
-    { time: 48.0, text: "Yo podría pasarme la noche entera escuchándote,<br>tu voz es la melodía más hermosa,<br>tu hermana diría que es odiosa,<br>pero yo me quedo con que eres una diosa." },
-    { time: 72.0, text: "Llevo contando los días desde que no te veo,<br>y volverte a verte es mi mayor anhelo,<br>espero que tú sientas lo mismo que yo creo,<br>porque sin ti el tiempo vuela sin consuelo." },
-    { time: 96.0, text: "Imagino el día en que volvamos a vernos,<br>y no tengo palabras, solo tengo certeza,<br>hay algo en ti que no termino de descubrir,<br>y si el universo concede esa belleza,<br>quiero ser esa persona que te hace sonreír." }
+const poemParagraphs = [
+    "Más de una vez me pregunté qué era esa calma,<br>esa sensación extraña de sentir que ya te conocía,<br>como si algo en el universo le dijera a mi alma<br>que ibas a llegar, y que la espera valdría.",
+    "Eres de esas personas difíciles de ignorar,<br>de las que sin querer se meten en el pecho,<br>y cuando intentas dejar de pensar<br>ya tienen en tu mente un sitio hecho.",
+    "Yo podría pasarme la noche entera escuchándote,<br>tu voz es la melodía más hermosa,<br>tu hermana diría que es odiosa,<br>pero yo me quedo con que eres una diosa.",
+    "Llevo contando los días desde que no te veo,<br>y volverte a verte es mi mayor anhelo,<br>espero que tú sientas lo mismo que yo creo,<br>porque sin ti el tiempo vuela sin consuelo.",
+    "Imagino el día en que volvamos a vernos,<br>y no tengo palabras, solo tengo certeza,<br>hay algo en ti que no termino de descubrir,<br>y si el universo concede esa belleza,<br>quiero ser esa persona que te hace sonreír."
 ];
 
 // ===== ELEMENTOS =====
@@ -122,20 +122,33 @@ function startSlowPoemOnCard() {
     let fallbackTime = 0;
     let lastTick = Date.now();
     
+    // Cálculo dinámico de tiempos basado en la duración de tu audio
+    let audioDuration = audioPoema.duration;
+    if (isNaN(audioDuration) || audioDuration < 10) {
+        audioDuration = 115; // fallback
+    }
+    const intervalTime = (audioDuration - 5) / 5;
+    const dynamicTimes = [
+        1.5,
+        intervalTime * 1 + 1.5,
+        intervalTime * 2 + 1.5,
+        intervalTime * 3 + 1.5,
+        intervalTime * 4 + 1.5
+    ];
+    
     const interval = setInterval(() => {
         let currentTime = 0;
         if (audioStarted) {
             currentTime = audioPoema.currentTime;
         } else {
             const now = Date.now();
-            // Si el audio falló, avanzamos 4 veces más rápido para que no se aburra esperando
             fallbackTime += ((now - lastTick) / 1000) * 4; 
             lastTick = now;
             currentTime = fallbackTime;
         }
 
-        // Mostrar párrafos 1 a 1 de forma lenta
-        if (currentPara < acrosticSync.length && currentTime >= acrosticSync[currentPara].time) {
+        // Mostrar párrafos 1 a 1 de forma lenta según el tiempo dinámico
+        if (currentPara < poemParagraphs.length && currentTime >= dynamicTimes[currentPara]) {
             
             // Añadir el divisor antes de cada párrafo (excepto el primero)
             if (currentPara > 0) {
@@ -154,8 +167,8 @@ function startSlowPoemOnCard() {
             p.className = 'poem-line';
             
             // Resaltar acróstico
-            const firstLetter = acrosticSync[currentPara].text.charAt(0);
-            const restOfText = acrosticSync[currentPara].text.slice(1);
+            const firstLetter = poemParagraphs[currentPara].charAt(0);
+            const restOfText = poemParagraphs[currentPara].slice(1);
             p.innerHTML = `<span class="acrostic-letter">${firstLetter}</span>${restOfText}`;
             
             textContainer.appendChild(p);
@@ -165,7 +178,7 @@ function startSlowPoemOnCard() {
             currentPara++;
 
             // Si es el último párrafo, añadir adorno final poco después
-            if (currentPara === acrosticSync.length) {
+            if (currentPara === poemParagraphs.length) {
                 setTimeout(() => {
                     const bottomOrnament = document.createElement('div');
                     bottomOrnament.className = 'ornament';
@@ -176,8 +189,8 @@ function startSlowPoemOnCard() {
             }
         }
 
-        // Final del poema (115s aprox, detona explosión)
-        if (currentTime >= 115 && !finaleTriggered) { 
+        // Final del poema detona explosión automáticamente al acabar tu audio
+        if (currentTime >= audioDuration - 0.5 && !finaleTriggered) { 
             finaleTriggered = true;
             clearInterval(interval);
             explodeCardIntoSquares();
