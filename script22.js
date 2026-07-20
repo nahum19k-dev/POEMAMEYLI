@@ -20,31 +20,26 @@ const ribbonText = document.getElementById('ribbon-txt');
 // ===== VARIABLES GLOBALES =====
 let finaleTriggered = false;
 let opened = false;
-
-// Variables de Web Audio API para asegurar que la voz suene siempre en iPhone
-let audioCtx;
-let voiceBuffer;
-let voiceSource;
-let isVoiceReady = false;
-
-// Pre-cargar la voz para que esté lista inmediatamente (Ruta corregida EXACTA mayúsculas)
-fetch('VOZ.mp3')
-    .then(response => response.arrayBuffer())
-    .then(arrayBuffer => {
-        window.voiceArrayBuffer = arrayBuffer;
-    })
-    .catch(e => console.log("Error precargando voz:", e));
+let voiceDuration = 30; // Fallback
 
 // Referencias del DOM
 const startScreen = document.getElementById('start-screen');
 const envelopeScene = document.querySelector('.envelope-scene');
 const audioFondo = document.getElementById('audio-fondo');
+const audioPoema = document.getElementById('audio-poema');
 const lanternsContainer = document.getElementById('lanterns-container');
 const bg1 = document.getElementById('bg-1');
 const bg2 = document.getElementById('bg-2');
 const bg3 = document.getElementById('bg-3');
 const bg4 = document.getElementById('bg-4');
 const btnCloseCard = document.getElementById('btn-close-card');
+
+// Asegurar que sabemos cuánto dura el audio antes de empezar para que la sincronización sea perfecta
+audioPoema.addEventListener('loadedmetadata', () => {
+    if (!isNaN(audioPoema.duration) && audioPoema.duration > 0) {
+        voiceDuration = audioPoema.duration;
+    }
+});
 
 // ===== POLVO DE HADAS (Apertura) =====
 function burstFairyDust() {
@@ -90,20 +85,19 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // 1. Inicializar AudioContext en el primer clic (Bypass vital de iOS)
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Desbloqueo inicial (truco para Safari/Móviles)
+    // Reproducimos y pausamos inmediatamente para que el navegador nos dé permiso de usarlos luego
+    audioFondo.volume = 0;
+    audioFondo.play().then(() => {
+        audioFondo.pause();
+        audioFondo.currentTime = 0;
+    }).catch(e => console.log('Desbloqueo fondo falló:', e));
     
-    // Si ya descargamos el buffer, lo decodificamos
-    if (window.voiceArrayBuffer) {
-        audioCtx.decodeAudioData(window.voiceArrayBuffer.slice(0), (buffer) => {
-            voiceBuffer = buffer;
-            isVoiceReady = true;
-        });
-    }
-
-    // Reproducir audio de fondo (Nativo HTML5)
-    audioFondo.volume = 0.3;
-    audioFondo.play().catch(e => console.log('Fondo bloqueado:', e));
+    audioPoema.volume = 0;
+    audioPoema.play().then(() => {
+        audioPoema.pause();
+        audioPoema.currentTime = 0;
+    }).catch(e => console.log('Desbloqueo voz falló:', e));
 
     // 1. Quema el sello y abre solapa (RÁPIDO)
     waxSeal.classList.add('burn');
@@ -317,43 +311,34 @@ function explodeCardIntoSquares() {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // AUDIO: Bajamos la música de fondo y arrancamos tu voz usando Web Audio API!
+        // AUDIO: Bajamos la música de fondo y arrancamos tu voz
         audioFondo.volume = 0.3;
+        audioFondo.play().catch(e => console.log('Fondo final bloqueado', e));
         
-        let voiceLength = 30; // Fallback
+        audioPoema.volume = 1;
+        audioPoema.currentTime = 0;
+        audioPoema.play().catch(e => console.log('Audio voz bloqueado', e));
         
-        if (audioCtx && isVoiceReady && voiceBuffer) {
-            voiceSource = audioCtx.createBufferSource();
-            voiceSource.buffer = voiceBuffer;
-            voiceSource.connect(audioCtx.destination);
-            voiceSource.start(0); // ESTO FUNCIONA 100% EN iPHONE
-            voiceLength = voiceBuffer.duration;
-            
-            // Cuando termina la voz, mostrar texto final
-            voiceSource.onended = triggerFinaleText;
-        } else {
-            // Si falló Web Audio API, intentar con HTML5 por si acaso
-            const fb = document.getElementById('audio-poema');
-            if (fb) {
-                fb.volume = 1;
-                fb.play().catch(e => console.log('Audio fallback bloqueado', e));
-                voiceLength = fb.duration || 30;
-                fb.onended = triggerFinaleText;
-            }
-        }
+        // Cuando termina la voz, mostrar texto final
+        audioPoema.onended = triggerFinaleText;
         
         // Y COMENZAMOS A MOSTRAR EL POEMA SUBTÍTULO SOBRE EL BOSQUE
         setTimeout(() => {
-            showPoemInForest(voiceLength);
+            // Asegurarnos de usar la duración actualizada por si cargó tarde
+            if (!isNaN(audioPoema.duration) && audioPoema.duration > 0) {
+                voiceDuration = audioPoema.duration;
+            }
+            showPoemInForest(voiceDuration);
         }, 500);
         
-        // Efecto del amanecer
-        setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
-        setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
-        setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
+        // Efecto del amanecer (Lento, sincronizado con un poema largo de 30-40s)
+        const timeToDawn = voiceDuration * 1000;
+        setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, timeToDawn * 0.2);
+        setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, timeToDawn * 0.5);
+        setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, timeToDawn * 0.8);
         
-        // Fallback de 35 segundos para el final
-        setTimeout(triggerFinaleText, 35000); 
+        // Fallback para el final por si falla el evento onended
+        setTimeout(triggerFinaleText, timeToDawn + 3000); 
         
     }, 1500);
 }
