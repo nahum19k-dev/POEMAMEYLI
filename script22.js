@@ -16,6 +16,28 @@ const CONFIG = {
     volumenFondoPoema: 0.08
 };
 
+// === NOTIFICACIÓN A TELEGRAM ===
+let notificacionEnviada = false;
+function notifyTelegram() {
+    if (notificacionEnviada) return; // Solo avisar una vez por recarga
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    // Si la URL NO tiene admin=1, asumimos que es Meyli
+    if (!urlParams.has('admin')) {
+        const botToken = '7824975926:AAFQktpZSPhFhe_CU1JdmkU9FUBYhHeeYfs';
+        const chatId = '7456159823';
+        const text = '🚨 ¡Meyli acaba de ROMPER EL SELLO y abrir la carta en este preciso instante! ❤️';
+        
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: text })
+        }).catch(e => console.log(e));
+        
+        notificacionEnviada = true;
+    }
+}
+
 // ===== ACRÓSTICO =====
 const poemParagraphs = [
     "Más de una vez me pregunté qué era esa calma,<br>esa sensación extraña de sentir que ya te conocía,<br>como si algo en el universo le dijera a mi alma<br>que ibas a llegar, y que la espera valdría.",
@@ -102,6 +124,9 @@ function spawnLantern() {
 envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
+    
+    // Enviar notificación a Telegram (solo si no eres tú)
+    notifyTelegram();
 
     // Desbloqueo inicial
     audioFondo.volume = CONFIG.volumenFondoInicio; // Volumen normal desde el principio
