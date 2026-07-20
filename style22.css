@@ -18,13 +18,22 @@ body, html {
    ======================================== */
 .real-background {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     z-index: 1;
     opacity: 0;
-    transition: opacity 4s ease-in-out, filter 4s ease-in-out;
+    transition: opacity 3s ease-in-out;
+    animation: kenBurns 30s infinite alternate linear;
+    transform: translateZ(0); /* Aceleración por Hardware Obligatoria */
+    will-change: transform, opacity; /* Aviso a la tarjeta gráfica */
+}
+
+@media (max-width: 768px) {
+    .real-background {
+        animation: none;
+    }
 }
 
 .real-background.active {
@@ -763,7 +772,17 @@ body, html {
     .envelope-flap { border-width: 108px 155px 0 155px; }
     .wax-seal { top: 80px; width: 52px; height: 52px; }
     .card-mask { height: 750px; }
-    .card { width: 310px; height: 460px; bottom: 0; transform: translate(-50%, 110%); }
+    .card { 
+        width: 310px; height: 460px; bottom: 0; transform: translate(-50%, 110%);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important; /* Sombra simplificada */
+    }
+    #handwritten-finale {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.6) !important; /* Sombra simplificada */
+    }
+    .bg { 
+        animation: none !important; /* APAGAR ZOOM LENTO EN MÓVILES */
+        transform: translateZ(0) !important; 
+    }
     .name-text { font-size: 2.8rem; }
     .poem-line { font-size: 0.65rem; line-height: 1.3; margin-bottom: 2px; }
     .divider-heart { margin: 2px 0; }
