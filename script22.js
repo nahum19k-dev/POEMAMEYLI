@@ -462,7 +462,7 @@ function reconstructCardFromSquares() {
     envelopeScene.style.display = 'flex';
     
     const env = document.querySelector('.envelope');
-    env.style.opacity = '0'; // ¡SOBRE INVISIBLE! Solo sale la carta.
+    env.style.display = 'none'; // ¡SOBRE TOTALMENTE INVISIBLE! Solo sale la carta.
     
     setTimeout(() => startScreen.classList.add('active'), 50);
     
@@ -491,6 +491,8 @@ btnCloseCard.addEventListener('click', () => {
     const env = document.querySelector('.envelope');
     
     // MAGIA: El sobre aparece de la nada!
+    env.classList.remove('drop'); // Quitar la clase de caída por si acaso
+    env.style.display = 'block';
     env.style.opacity = '1';
     env.classList.add('reconstruct');
     

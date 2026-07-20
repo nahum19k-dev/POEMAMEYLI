@@ -468,16 +468,22 @@ body, html {
 }
 
 #btn-close-card {
-    background: transparent;
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 252, 245, 0.95);
     border: 1px solid #d4af37;
     color: #d4af37;
     font-family: 'Cinzel', serif;
-    padding: 8px 16px;
+    padding: 10px 24px;
     cursor: pointer;
-    margin-top: 15px;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: all 0.3s;
     opacity: 1;
+    z-index: 20;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    font-weight: bold;
 }
 #btn-close-card:hover {
     background: #d4af37;
