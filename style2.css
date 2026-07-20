@@ -373,8 +373,8 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 40px;
-    margin-bottom: 5px;
+    min-height: 30px;
+    margin-bottom: 2px;
     margin-top: 10px;
     transition: transform 1s ease;
 }
@@ -388,6 +388,13 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.full-poem-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
 .poem-line {
@@ -483,13 +490,15 @@ body, html {
     color: #cca43b;
     text-shadow: 1px 2px 3px rgba(0,0,0,0.2);
     
-    /* Animación de máscara de revelado (clip-path) */
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    transition: clip-path 3.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+    /* Animación de revelado segura (fade-in) */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 3s ease, transform 3s ease;
 }
 
 .name-text.write {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Tarjeta visible */
@@ -706,9 +715,9 @@ body, html {
     .card-mask { height: 700px; }
     .card { width: 310px; height: 440px; bottom: 0; transform: translate(-50%, 110%); }
     .name-text { font-size: 3.6rem; }
-    .poem-line { font-size: 0.60rem; line-height: 1.25; margin-bottom: 2px; }
-    .acrostic-letter { font-size: 0.70rem; }
-    .divider-heart { margin: 2px 0; }
+    .poem-line { font-size: 0.55rem; line-height: 1.25; margin-bottom: 2px; }
+    .acrostic-letter { font-size: 0.65rem; }
+    .divider-heart { margin: 1px 0; }
     .card.slide-out { transform: translate(-50%, 0); }
     .card.submerge { transform: translate(-50%, 0) scale(3) !important; }
     .magic-text { font-size: 2rem; width: 90%; }
