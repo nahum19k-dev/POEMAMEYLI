@@ -474,9 +474,10 @@ function reconstructCardFromSquares() {
     card.classList.remove('burning');
     card.classList.add('reconstruct');
     
-    // Restaurar el nombre Meyli
+    // Restaurar el nombre Meyli y limpiar el poema
     const cardName = document.getElementById('card-name');
     if (cardName) cardName.classList.remove('smoke');
+    document.getElementById('poem-container').innerHTML = ''; // ¡BORRA EL POEMA PARA QUE QUEDE COMO AL PRINCIPIO!
     
     // 5. Mostrar botón de cerrar en la carta
     setTimeout(() => {
