@@ -76,11 +76,12 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // Reproducir audio inmediatamente para no perder el permiso del navegador
-    audioPoema.volume = 1;
-    audioPoema.currentTime = 0;
+    // Desbloquear audio en el navegador (Lo pausamos inmediatamente para usarlo después)
+    audioPoema.volume = 0;
     audioPoema.play().then(() => {
-        audioStarted = true;
+        audioPoema.pause();
+        audioPoema.currentTime = 0;
+        audioPoema.volume = 1;
     }).catch(e => console.log('Autoplay bloqueado:', e));
 
     // 1. Quema el sello y abre solapa
@@ -118,34 +119,13 @@ function startSlowPoemOnCard() {
     
     setTimeout(() => topOrnament.classList.add('show'), 1000);
 
-    let currentPara = 0;
-    let fallbackTime = 0;
     let lastTick = Date.now();
     
-    // Cálculo dinámico de tiempos basado en la duración de tu audio
-    let audioDuration = audioPoema.duration;
-    if (isNaN(audioDuration) || audioDuration < 10) {
-        audioDuration = 115; // fallback
-    }
-    const intervalTime = (audioDuration - 5) / 5;
-    const dynamicTimes = [
-        1.5,
-        intervalTime * 1 + 1.5,
-        intervalTime * 2 + 1.5,
-        intervalTime * 3 + 1.5,
-        intervalTime * 4 + 1.5
-    ];
+    // Tiempos fijos y rápidos para que la carta no demore (16 segundos total)
+    const dynamicTimes = [1.0, 4.0, 7.0, 10.0, 13.0];
     
     const interval = setInterval(() => {
-        let currentTime = 0;
-        if (audioStarted) {
-            currentTime = audioPoema.currentTime;
-        } else {
-            const now = Date.now();
-            fallbackTime += ((now - lastTick) / 1000) * 4; 
-            lastTick = now;
-            currentTime = fallbackTime;
-        }
+        const currentTime = (Date.now() - lastTick) / 1000;
 
         // Mostrar párrafos 1 a 1 de forma lenta según el tiempo dinámico
         if (currentPara < poemParagraphs.length && currentTime >= dynamicTimes[currentPara]) {
@@ -189,8 +169,8 @@ function startSlowPoemOnCard() {
             }
         }
 
-        // Final del poema detona explosión automáticamente al acabar tu audio
-        if (currentTime >= audioDuration - 0.5 && !finaleTriggered) { 
+        // Final del poema detona explosión automáticamente a los 16 segundos
+        if (currentTime >= 16 && !finaleTriggered) { 
             finaleTriggered = true;
             clearInterval(interval);
             explodeCardIntoSquares();
@@ -218,6 +198,11 @@ function explodeCardIntoSquares() {
         // Cambiar fondos mágicos en el bosque
         lanternsContainer.classList.remove('hidden');
         bg1.style.opacity = '1';
+        
+        // Empieza a sonar tu voz justo cuando aparece la laguna (bg2 / bosque)
+        audioPoema.volume = 1;
+        audioPoema.play().catch(e => console.log('Audio error:', e));
+
         setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
         setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
         setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
