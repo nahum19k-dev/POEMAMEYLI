@@ -111,6 +111,13 @@ function startSlowPoemOnCard() {
     poemContainer.innerHTML = '<div class="full-poem-text" id="full-poem-text-container"></div>';
     const textContainer = document.getElementById('full-poem-text-container');
 
+    const topOrnament = document.createElement('div');
+    topOrnament.className = 'ornament';
+    topOrnament.innerHTML = '⊱ ♥ ⊰';
+    textContainer.appendChild(topOrnament);
+    
+    setTimeout(() => topOrnament.classList.add('show'), 1000);
+
     let currentPara = 0;
     let fallbackTime = 0;
     let lastTick = Date.now();
@@ -156,6 +163,17 @@ function startSlowPoemOnCard() {
                 p.classList.add('show');
             });
             currentPara++;
+
+            // Si es el último párrafo, añadir adorno final poco después
+            if (currentPara === acrosticSync.length) {
+                setTimeout(() => {
+                    const bottomOrnament = document.createElement('div');
+                    bottomOrnament.className = 'ornament';
+                    bottomOrnament.innerHTML = '⊱ ♥ ⊰';
+                    textContainer.appendChild(bottomOrnament);
+                    requestAnimationFrame(() => bottomOrnament.classList.add('show'));
+                }, 3000);
+            }
         }
 
         // Final del poema (115s aprox, detona explosión)
