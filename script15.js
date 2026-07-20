@@ -19,24 +19,7 @@ const explosionContainer = document.getElementById('explosion-container');
 const ribbonText = document.getElementById('ribbon-txt');
 // ===== VARIABLES GLOBALES =====
 let finaleTriggered = false;
-
-// ===== HOWLER.JS PARA AUDIO ROBUSTO EN IPHONE =====
-const soundFondo = new Howl({
-    src: ['assets/SONIDO (1).mp3'],
-    loop: true,
-    volume: 1,
-    html5: false // Fuerza Web Audio API (bypassa restricciones de iOS)
-});
-
-const soundVoz = new Howl({
-    src: ['assets/SONIDO CON VOZ.mp3'],
-    volume: 1,
-    html5: false, // Fuerza Web Audio API
-    onend: function() {
-        const finale = document.getElementById('handwritten-finale');
-        finale.classList.add('show');
-    }
-});
+let opened = false;
 
 // Referencias del DOM
 const startScreen = document.getElementById('start-screen');
@@ -50,9 +33,7 @@ const bg3 = document.getElementById('bg-3');
 const bg4 = document.getElementById('bg-4');
 const btnCloseCard = document.getElementById('btn-close-card');
 
-let finaleTriggered = false;
-let opened = false;
-let audioStarted = false;
+
 
 // ===== POLVO DE HADAS (Apertura) =====
 function burstFairyDust() {
@@ -98,31 +79,35 @@ envelopeClick.addEventListener('click', () => {
     if (opened) return;
     opened = true;
 
-    // Iniciar Howler.js (esto es 100% seguro porque ocurre dentro de un click)
-    soundFondo.volume(1);
-    soundFondo.play();
+    // Reproducir audios sincronizados (Nativo HTML5)
+    // El fondo bajito, la voz fuerte.
+    audioFondo.volume = 0.3;
+    audioFondo.play().catch(e => console.log('Fondo bloqueado:', e));
 
-    // 1. Quema el sello y abre solapa
+    audioPoema.volume = 1;
+    audioPoema.play().catch(e => console.log('Voz bloqueada:', e));
+
+    // 1. Quema el sello y abre solapa (RÁPIDO)
     waxSeal.classList.add('burn');
     ribbonText.classList.add('hide');
-    setTimeout(() => { envelopeFlap.classList.add('open'); }, 800);
+    setTimeout(() => { envelopeFlap.classList.add('open'); }, 300);
 
-    // 2. Polvo de hadas y sube la carta (Bolsillo)
-    setTimeout(burstFairyDust, 1500);
-    setTimeout(() => { card.style.opacity = '1'; }, 2000);
+    // 2. Polvo de hadas y sube la carta
+    setTimeout(burstFairyDust, 600);
+    setTimeout(() => { card.style.opacity = '1'; }, 800);
     setTimeout(() => { 
         card.classList.add('slide-out'); 
         document.querySelector('.envelope-wrapper').classList.add('shift-down');
-    }, 2500);
+    }, 1000);
 
     // 3. El sobre cae
-    setTimeout(() => { envelopeClick.classList.add('drop'); }, 3500);
+    setTimeout(() => { envelopeClick.classList.add('drop'); }, 1500);
 
     // 4. Escribe MEYLI
-    setTimeout(() => { cardName.classList.add('write'); }, 4500);
+    setTimeout(() => { cardName.classList.add('write'); }, 1800);
 
-    // 5. Empieza el poema lento sobre la carta
-    setTimeout(startSlowPoemOnCard, 7000);
+    // 5. Empieza a sincronizar el poema con la voz
+    setTimeout(startSlowPoemOnCard, 2200);
 });
 
 // ===== POEMA LENTO EN LA CARTA =====
@@ -138,16 +123,27 @@ function startSlowPoemOnCard() {
     setTimeout(() => topOrnament.classList.add('show'), 1000);
 
     let currentPara = 0;
-    let lastTick = Date.now();
     
-    // Tiempos ultra rápidos para que la carta no demore (6 segundos total)
-    const dynamicTimes = [0.5, 1.5, 2.5, 3.5, 4.5];
+    // Si por alguna razón el audio no cargó su duración, asumimos 30 segundos
+    let totalDuration = audioPoema.duration && !isNaN(audioPoema.duration) ? audioPoema.duration : 30;
     
-    const interval = setInterval(() => {
-        const currentTime = (Date.now() - lastTick) / 1000;
+    // Dividimos el tiempo de la voz para que los 5 párrafos salgan a lo largo de lo que hablas
+    let timeStep = totalDuration / (poemParagraphs.length + 1);
 
-        // Mostrar párrafos 1 a 1 de forma lenta según el tiempo dinámico
-        if (currentPara < poemParagraphs.length && currentTime >= dynamicTimes[currentPara]) {
+    const interval = setInterval(() => {
+        let currentTime = audioPoema.currentTime;
+        
+        // Si el audio falló en reproducirse por Apple, usamos un contador falso para no trabar la experiencia
+        if (audioPoema.paused || audioPoema.currentTime === 0) {
+            if (!this.fakeTime) this.fakeTime = 0;
+            this.fakeTime += 0.1;
+            currentTime = this.fakeTime;
+        }
+
+        // Momento en que debe salir el párrafo actual
+        let targetTime = (currentPara * timeStep) + 1; // +1s de compensación inicial
+
+        if (currentPara < poemParagraphs.length && currentTime >= targetTime) {
             
             // Añadir el divisor antes de cada párrafo (excepto el primero)
             if (currentPara > 0) {
@@ -184,17 +180,28 @@ function startSlowPoemOnCard() {
                     bottomOrnament.innerHTML = '⊱ ♥ ⊰';
                     textContainer.appendChild(bottomOrnament);
                     requestAnimationFrame(() => bottomOrnament.classList.add('show'));
-                }, 3000);
+                }, 1500);
             }
         }
+    }, 100);
 
-        // Final del poema detona explosión automáticamente a los 6 segundos
-        if (currentTime >= 6.0 && !finaleTriggered) { 
+    // Cuando termina tu voz (el poema recitado), explota la carta y sale el bosque
+    audioPoema.onended = () => {
+        if (!finaleTriggered) {
+            finaleTriggered = true;
+            clearInterval(interval);
+            setTimeout(explodeCardIntoSquares, 500);
+        }
+    };
+
+    // Fallback de seguridad: si el audio falló por culpa de Safari, explotar por tiempo
+    setTimeout(() => {
+        if (!finaleTriggered) {
             finaleTriggered = true;
             clearInterval(interval);
             explodeCardIntoSquares();
         }
-    }, 100);
+    }, (totalDuration + 2) * 1000);
 }
 
 // ===== LA EXPLOSIÓN EN CUADRITOS Y EL PORTAL =====
@@ -224,30 +231,21 @@ function explodeCardIntoSquares() {
         lanternsContainer.classList.remove('hidden');
         bg1.style.opacity = '1';
         
-        // Detiene casi por completo la música instrumental para que no opaque tu voz
-        soundFondo.volume(0.3);
-        
-        // Empieza a sonar tu voz justo cuando aparece la laguna (bg2 / bosque)
-        soundVoz.play();
-
-        setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
-        setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
-        setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
-        
         // Empiezan los faroles
         for (let i = 0; i < 8; i++) {
             setTimeout(spawnLantern, i * 400);
         }
         
-        // El texto final ahora se dispara automáticamente gracias al evento 'onend' de Howler.js
+        // Efecto del amanecer
+        setTimeout(() => { bg1.style.opacity = '0'; bg2.style.opacity = '1'; }, 4000);
+        setTimeout(() => { bg2.style.opacity = '0'; bg3.style.opacity = '1'; }, 8000);
+        setTimeout(() => { bg3.style.opacity = '0'; bg4.style.opacity = '1'; }, 12000);
         
-        // Fallback súper seguro por si falla Web Audio API (poco probable)
+        // A los 2 segundos de haber entrado al bosque, aparece "Para siempre, tuyo"
         setTimeout(() => {
             const finale = document.getElementById('handwritten-finale');
-            if (!finale.classList.contains('show')) {
-                finale.classList.add('show');
-            }
-        }, 25000);
+            finale.classList.add('show');
+        }, 3000);
         
     }, 1500);
 }
