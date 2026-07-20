@@ -83,7 +83,7 @@ audioPoema.addEventListener('loadedmetadata', () => {
 
 // ===== POLVO DE HADAS (Apertura) =====
 function burstFairyDust() {
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 20; i++) {
         setTimeout(() => {
             const dust = document.createElement('div');
             dust.classList.add('fairy-dust');
@@ -558,7 +558,7 @@ btnCloseCard.addEventListener('click', () => {
 // ===== SISTEMA DE CUADRITOS (Explosión) =====
 function createSquareParticles(reverse) {
     explosionContainer.innerHTML = '';
-    const numParticles = 250; // Más partículas
+    const numParticles = window.innerWidth < 768 ? 60 : 120; // Super optimizado para celulares
     const colors = ['#ffcc00', '#ff6600', '#ff3300', '#ffffff', '#ffd700'];
 
     for (let i = 0; i < numParticles; i++) {

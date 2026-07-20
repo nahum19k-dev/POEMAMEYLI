@@ -537,8 +537,7 @@ body, html {
 .card.submerge {
     transform: translate(-50%, 0) scale(0); /* Se comprime en su mismo sitio */
     opacity: 0;
-    filter: blur(10px);
-    transition: transform 2s ease-in, opacity 1.5s ease-in 0.5s, filter 1.5s ease-in;
+    transition: transform 1.5s ease-in, opacity 1.2s ease-in;
 }
 
 /* ---- EFECTO DE QUEMADO Y EXPLOSIÓN ---- */
@@ -565,7 +564,7 @@ body, html {
 @keyframes textSmoke {
     0% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
     50% { opacity: 0.5; filter: blur(8px); transform: translateY(-20px) scale(1.1); color: #ffaa00; }
-    100% { opacity: 0; filter: blur(15px); transform: translateY(-50px) scale(1.5); }
+    100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
 }
 
 /* Contenedor de partículas */
@@ -592,17 +591,17 @@ body, html {
     animation: reconstructEnvelope 3s forwards;
 }
 @keyframes reconstructEnvelope {
-    0% { transform: translateY(200px) rotate(-5deg); opacity: 0; filter: blur(10px); }
-    100% { transform: translateY(-12px); opacity: 1; filter: blur(0); }
+    0% { transform: translateY(200px) rotate(-5deg); opacity: 0; }
+    100% { transform: translateY(-12px); opacity: 1; }
 }
 
 .card.reconstruct {
     animation: reconstructCard 4s forwards;
 }
 @keyframes reconstructCard {
-    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; filter: blur(20px) sepia(1) brightness(0); }
-    50% { transform: translate(-50%, 0) scale(1.05); opacity: 0.8; filter: blur(5px) sepia(0.5) brightness(0.8); }
-    100% { transform: translate(-50%, 0) scale(1); opacity: 1; filter: blur(0) sepia(0) brightness(1); }
+    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+    50% { transform: translate(-50%, 0) scale(1.05); opacity: 0.8; }
+    100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
 }
 
 /* Entrar la carta de nuevo al sobre */
