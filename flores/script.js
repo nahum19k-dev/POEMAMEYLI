@@ -915,13 +915,44 @@ window.addEventListener('DOMContentLoaded', () => {
     let currentReelIndex = 0;
 
     // ==========================================
+    // NOTIFICACIONES A TELEGRAM
+    // ==========================================
+    const TELEGRAM_BOT_TOKEN = '7824975926:AAFQktpZSPhFhe_CU1JdmkU9FUBYhHeeYfs';
+    const TELEGRAM_CHAT_ID = '7456159823';
+
+    let notifiedOpen = false;
+    let notifiedEnter = false;
+    let notifiedLetter = false;
+    let notifiedUniverse = false;
+
+    function sendTelegramNotification(text) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('admin')) return;
+
+        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: text
+            })
+        }).catch(err => console.log('Telegram err:', err));
+    }
+
+    // 1. Notificar al cargar la página (al escanear QR o abrir el enlace)
+    if (!notifiedOpen) {
+        sendTelegramNotification('📱 ¡Chiquita acaba de escanear el QR o abrir el enlace de su Universo! 🌻✨');
+        notifiedOpen = true;
+    }
+
+    // ==========================================
     // CINE AUTOMÁTICO: REEL DE FOTOS -> CARTA -> UNIVERSO LIBRE
     // ==========================================
     let isCinemaTourActive = false;
     let cinemaPhotoTimer = null;
     let cinemaProgressInterval = null;
     let cinemaLetterAutoScrollTimer = null;
-    const PHOTO_DURATION_MS = 4600; // 4.6 segundos por foto en modo película
+    const PHOTO_DURATION_MS = 7200; // 7.2 segundos por foto (pausado, cómodo y cinematográfico)
 
     const barFills = [
         document.getElementById('bar-fill-0'),
@@ -957,7 +988,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 fill.style.width = '0%';
                 if (animateCurrent) {
                     const start = performance.now();
-                    const duration = (idx === REEL_PHOTOS.length - 1) ? 5000 : PHOTO_DURATION_MS;
+                    const duration = (idx === REEL_PHOTOS.length - 1) ? 8500 : PHOTO_DURATION_MS;
                     cinemaProgressInterval = setInterval(() => {
                         const elapsed = performance.now() - start;
                         const p = Math.min(elapsed / duration, 1);
@@ -1023,15 +1054,17 @@ window.addEventListener('DOMContentLoaded', () => {
         stopCinemaPhotoTimer();
         updateReelPhoto(idx, true);
 
-        const duration = (idx === REEL_PHOTOS.length - 1) ? 5000 : PHOTO_DURATION_MS;
+        const duration = (idx === REEL_PHOTOS.length - 1) ? 8500 : PHOTO_DURATION_MS;
         cinemaPhotoTimer = setTimeout(() => {
             if (!isCinemaTourActive) return;
 
             if (idx + 1 < REEL_PHOTOS.length) {
                 scheduleNextCinemaPhoto(idx + 1);
             } else {
-                // Al culminar las 4 fotos, avance automático y fluido a la carta
-                startCinemaLetter();
+                // Al culminar la 4ta foto, pausa suave de 1.2 segundos y avance automático a la carta
+                setTimeout(() => {
+                    if (isCinemaTourActive) startCinemaLetter();
+                }, 1200);
             }
         }, duration);
     }
@@ -1056,6 +1089,12 @@ window.addEventListener('DOMContentLoaded', () => {
         closeReel();
         openLetter();
 
+        // Notificar que está leyendo la carta
+        if (!notifiedLetter) {
+            sendTelegramNotification('💌 ¡Chiquita acaba de pasar a leer su carta especial! ✨');
+            notifiedLetter = true;
+        }
+
         if (letterCard) {
             letterCard.scrollTop = 0;
 
@@ -1077,7 +1116,7 @@ window.addEventListener('DOMContentLoaded', () => {
             letterCard.addEventListener('touchstart', stopAutoScroll, { passive: true, once: true });
             letterCard.addEventListener('mousedown', stopAutoScroll, { passive: true, once: true });
 
-            // Iniciar auto-scroll pausado y cinematográfico tras 2.6 segundos de lectura
+            // Iniciar auto-scroll pausado y cinematográfico tras 4.5 segundos de lectura
             setTimeout(() => {
                 if (!letterModal.classList.contains('active') || userInterrupted) return;
 
@@ -1094,8 +1133,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     } else {
                         letterCard.scrollTop += 1;
                     }
-                }, 32);
-            }, 2600);
+                }, 48); // Desplazamiento muy suave de ~20px por segundo
+            }, 4500);
         }
     }
 
@@ -1109,6 +1148,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
         letterModal.classList.remove('active');
         reelModal.classList.remove('active');
+
+        // Notificar que culminó el recorrido y está en el universo
+        if (!notifiedUniverse) {
+            sendTelegramNotification('🌌 ¡Chiquita terminó de leer la carta y ahora está explorando el Universo 3D libremente! 🌟🌻');
+            notifiedUniverse = true;
+        }
 
         // ¡Desbloqueo definitivo del universo!
         controls.enabled = true;
@@ -1232,14 +1277,18 @@ window.addEventListener('DOMContentLoaded', () => {
     let currentState = STATE_INTRO;
     let stateStartTime = 0;
 
-    const DURATION_TUNNEL = 2400;
-    const DURATION_EXPLOSION = 1200;
-    const DURATION_ZOOM_IN = 6200;
+    const DURATION_TUNNEL = 3600;
+    const DURATION_EXPLOSION = 1600;
+    const DURATION_ZOOM_IN = 8000;
 
     function easeInQuad(x) { return x * x; }
     function easeOutCubic(x) { return 1 - Math.pow(1 - x, 3); }
 
     enterUniverseBtn.addEventListener('click', () => {
+        if (!notifiedEnter) {
+            sendTelegramNotification('🚀 ¡Chiquita acaba de presionar "Entrar a tu Universo"! Está viviendo el recorrido y escuchando la música ahora mismo 💛');
+            notifiedEnter = true;
+        }
         startMusicImmediately();
         introScreen.classList.add('dissolve');
         controls.enabled = false;
@@ -1445,10 +1494,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 controls.enabled = false; // Mantener bloqueado durante el recorrido tipo cine
                 controls.target.set(0, 40, 0);
 
-                // Tras contemplar el surgimiento del universo por 1.8 segundos, arranca el Cine de fotos
+                // Tras contemplar el surgimiento del universo por 3.5 segundos con calma, arranca el Cine de fotos
                 setTimeout(() => {
                     startCinemaPhotoReel();
-                }, 1800);
+                }, 3500);
             }
         } else if (currentState === STATE_NORMAL) {
             controls.update();
