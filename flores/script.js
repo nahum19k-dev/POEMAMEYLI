@@ -362,18 +362,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES (Doble hélice armónica y ordenada)
+    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES (Minimalista: 8 pares simétricos)
     // ==========================================
     const tunnelGroup = new THREE.Group();
     const tunnelElements = [];
     const TUNNEL_LENGTH = 1350;
-    const TUNNEL_COUNT = 40;
+    const TUNNEL_COUNT = 16;
 
     for (let i = 0; i < TUNNEL_COUNT; i++) {
-        const isSecondSpiral = (i % 2 === 1);
-        const isBouquet = (Math.floor(i / 2) % 2 === 1);
+        const pairIndex = Math.floor(i / 2);
+        const isRight = (i % 2 === 1);
+        const isBouquet = (pairIndex % 2 === 1);
         const tex = isBouquet ? bouquetTexture : sunflowerTexture;
-        const size = isBouquet ? 28 : 24;
+        const size = 26;
 
         const mat = new THREE.SpriteMaterial({
             map: tex,
@@ -383,13 +384,9 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         const sprite = new THREE.Sprite(mat);
 
-        const t = i / TUNNEL_COUNT;
-        const z = 1050 - t * TUNNEL_LENGTH;
-        // Doble hélice entrelazada y simétrica
-        const angle = t * (Math.PI * 6) + (isSecondSpiral ? Math.PI : 0);
-        const radius = 56; // Radio constante y limpio que enmarca el viaje sin tapar el centro
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
+        const z = 1050 - (pairIndex / 7) * TUNNEL_LENGTH;
+        const x = isRight ? 48 : -48;
+        const y = 0;
 
         sprite.position.set(x, y, z);
         sprite.scale.set(size, size, 1);
@@ -397,7 +394,7 @@ window.addEventListener('DOMContentLoaded', () => {
         tunnelGroup.add(sprite);
         tunnelElements.push({
             sprite,
-            rotSpeed: isSecondSpiral ? 0.015 : -0.015
+            rotSpeed: isRight ? 0.008 : -0.008
         });
     }
 
@@ -827,45 +824,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 8.B UNIVERSO DE FLORES AMARILLAS ARMONIOSO Y ORDENADO
+    // 8.B ANILLO CELESTIAL DE FLORES AMARILLAS (Minimalista y perfectamente ordenado: 8 flores)
     // ==========================================
-
-    // 1) CORONA CELESTIAL DEL CORAZÓN DORADO (10 Girasoles en halo simétrico alrededor del corazón)
-    const crownCount = 10;
-    for (let k = 0; k < crownCount; k++) {
-        const mat = new THREE.SpriteMaterial({
-            map: sunflowerTexture,
-            transparent: true,
-            depthTest: false,
-            opacity: 0.95
-        });
-        const sprite = new THREE.Sprite(mat);
-        const size = 15;
-        sprite.scale.set(size, size, 1);
-
-        const radius = 28;
-        const angle = (k * (Math.PI * 2)) / crownCount;
-        const baseHeight = 85;
-
-        sprite.userData = { isFlower: true, flowerIndex: k, baseSize: size };
-        clickableObjects.push(sprite);
-        galaxyMainGroup.add(sprite);
-
-        orbitElements.push({
-            mesh: sprite,
-            radius: radius,
-            angle: angle,
-            speed: 0.009,
-            floatOffset: k * 0.6,
-            baseHeight: baseHeight,
-            floatAmp: 1.8,
-            rotSpeed: 0.006
-        });
-    }
-
-    // 2) ANILLO FLORAL INTERIOR (12 Flores y Ramos armónicos entre el núcleo y las fotos)
-    const innerRingCount = 12;
-    for (let i = 0; i < innerRingCount; i++) {
+    const flowerRingCount = 8;
+    for (let i = 0; i < flowerRingCount; i++) {
         const isBouquet = (i % 2 === 1);
         const texture = isBouquet ? bouquetTexture : sunflowerTexture;
         const mat = new THREE.SpriteMaterial({
@@ -874,14 +836,16 @@ window.addEventListener('DOMContentLoaded', () => {
             depthTest: false
         });
         const sprite = new THREE.Sprite(mat);
-        const size = isBouquet ? 25 : 22;
+        const size = isBouquet ? 24 : 22;
         sprite.scale.set(size, size, 1);
 
-        const radius = 62; // Radio ordenado y limpio, antes de las polaroids
-        const angle = (i * (Math.PI * 2)) / innerRingCount;
-        const baseHeight = 12 + Math.sin(angle * 2) * 3;
+        // Radio limpio y despejado a 70, entre el núcleo y las fotos polaroid
+        const radius = 70;
+        // Separación exacta de 45 grados entre cada una
+        const angle = (i * (Math.PI * 2)) / flowerRingCount;
+        const baseHeight = 8;
 
-        sprite.userData = { isFlower: true, flowerIndex: i + 10, baseSize: size };
+        sprite.userData = { isFlower: true, flowerIndex: i, baseSize: size };
         galaxyMainGroup.add(sprite);
         clickableObjects.push(sprite);
 
@@ -889,78 +853,12 @@ window.addEventListener('DOMContentLoaded', () => {
             mesh: sprite,
             radius: radius,
             angle: angle,
-            speed: (0.42 / Math.sqrt(radius)) * 0.015,
-            floatOffset: i * 1.0,
+            // Misma velocidad exacta para todas: giran en perfecta sincronía sin desordenarse jamás
+            speed: 0.0035,
+            floatOffset: 0,
             baseHeight: baseHeight,
-            floatAmp: 2.2,
-            rotSpeed: isBouquet ? 0.005 : -0.005
-        });
-    }
-
-    // 3) ANILLO FLORAL EXTERIOR (12 Ramos y Girasoles que enmarcan el horizonte galáctico)
-    const outerRingCount = 12;
-    for (let j = 0; j < outerRingCount; j++) {
-        const isBouquet = (j % 2 === 0);
-        const texture = isBouquet ? bouquetTexture : sunflowerTexture;
-        const mat = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            depthTest: false,
-            opacity: 0.95
-        });
-        const sprite = new THREE.Sprite(mat);
-        const size = isBouquet ? 26 : 24;
-        sprite.scale.set(size, size, 1);
-
-        const radius = 150; // Radio amplio y equilibrado
-        const angle = (j * (Math.PI * 2)) / outerRingCount + (Math.PI / outerRingCount); // Desfasado simétricamente
-        const baseHeight = 16 + Math.cos(angle * 2) * 4;
-
-        sprite.userData = { isFlower: true, flowerIndex: j + 22, baseSize: size };
-        galaxyMainGroup.add(sprite);
-        clickableObjects.push(sprite);
-
-        orbitElements.push({
-            mesh: sprite,
-            radius: radius,
-            angle: angle,
-            speed: (0.42 / Math.sqrt(radius)) * 0.014,
-            floatOffset: j * 1.2,
-            baseHeight: baseHeight,
-            floatAmp: 2.5,
-            rotSpeed: isBouquet ? -0.005 : 0.005
-        });
-    }
-
-    // 4) PÉTALOS DORADOS FLOTANTES (Solo 12 pétalos sutiles para dar vida sin ensuciar)
-    const subtlePetalsCount = 12;
-    for (let p = 0; p < subtlePetalsCount; p++) {
-        const mat = new THREE.SpriteMaterial({
-            map: singlePetalTexture,
-            transparent: true,
-            depthTest: false,
-            blending: THREE.AdditiveBlending,
-            opacity: 0.65
-        });
-        const sprite = new THREE.Sprite(mat);
-        const size = 11;
-        sprite.scale.set(size, size * 1.3, 1);
-
-        const radius = 95 + (p % 3) * 15;
-        const angle = (p * (Math.PI * 2)) / subtlePetalsCount;
-        const baseHeight = 14 + ((p % 3) - 1) * 6;
-
-        galaxyMainGroup.add(sprite);
-
-        orbitElements.push({
-            mesh: sprite,
-            radius: radius,
-            angle: angle,
-            speed: (0.35 / Math.sqrt(radius)) * 0.012,
-            floatOffset: p * 1.5,
-            baseHeight: baseHeight,
-            floatAmp: 2.0,
-            rotSpeed: 0.01
+            floatAmp: 1.5,
+            rotSpeed: isBouquet ? 0.003 : -0.003
         });
     }
 
