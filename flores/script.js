@@ -362,26 +362,18 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES
+    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES (Doble hélice armónica y ordenada)
     // ==========================================
     const tunnelGroup = new THREE.Group();
     const tunnelElements = [];
     const TUNNEL_LENGTH = 1350;
-    const TUNNEL_COUNT = 125;
+    const TUNNEL_COUNT = 40;
 
     for (let i = 0; i < TUNNEL_COUNT; i++) {
-        const isBouquet = i % 3 === 0;
-        const isPetal = i % 2 === 0;
-        let tex = sunflowerTexture;
-        let size = 32;
-
-        if (isBouquet) {
-            tex = bouquetTexture;
-            size = 35;
-        } else if (isPetal) {
-            tex = singlePetalTexture;
-            size = 20;
-        }
+        const isSecondSpiral = (i % 2 === 1);
+        const isBouquet = (Math.floor(i / 2) % 2 === 1);
+        const tex = isBouquet ? bouquetTexture : sunflowerTexture;
+        const size = isBouquet ? 28 : 24;
 
         const mat = new THREE.SpriteMaterial({
             map: tex,
@@ -391,9 +383,11 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         const sprite = new THREE.Sprite(mat);
 
-        const z = 1050 - (i / TUNNEL_COUNT) * TUNNEL_LENGTH;
-        const radius = 45 + Math.random() * 65;
-        const angle = i * 0.55 + Math.random() * 0.2;
+        const t = i / TUNNEL_COUNT;
+        const z = 1050 - t * TUNNEL_LENGTH;
+        // Doble hélice entrelazada y simétrica
+        const angle = t * (Math.PI * 6) + (isSecondSpiral ? Math.PI : 0);
+        const radius = 56; // Radio constante y limpio que enmarca el viaje sin tapar el centro
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
 
@@ -403,7 +397,7 @@ window.addEventListener('DOMContentLoaded', () => {
         tunnelGroup.add(sprite);
         tunnelElements.push({
             sprite,
-            rotSpeed: (Math.random() - 0.5) * 0.05
+            rotSpeed: isSecondSpiral ? 0.015 : -0.015
         });
     }
 
@@ -833,93 +827,12 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 8.B UNIVERSO DE FLORES AMARILLAS EXTENDIDO
+    // 8.B UNIVERSO DE FLORES AMARILLAS ARMONIOSO Y ORDENADO
     // ==========================================
 
-    // 1) FLORES INTERACTIVAS PRINCIPALES (36 flores tocables con mensajes y giro)
-    const interactiveFlowerCount = 36;
-    for (let i = 0; i < interactiveFlowerCount; i++) {
-        const isBouquet = (i % 3 === 0);
-        const texture = isBouquet ? bouquetTexture : sunflowerTexture;
-        const mat = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            depthTest: false
-        });
-        const flowerSprite = new THREE.Sprite(mat);
-        const size = isBouquet ? (26 + (i % 3) * 4) : (22 + (i % 4) * 3);
-        flowerSprite.scale.set(size, size, 1);
-
-        // Distribuir en 3 niveles de radio: interior (38-78), medio (85-135), exterior (140-205)
-        const ring = i % 3;
-        let radius;
-        if (ring === 0) radius = 38 + (i % 12) * 3.5;
-        else if (ring === 1) radius = 85 + (i % 12) * 4.2;
-        else radius = 142 + (i % 12) * 5.2;
-
-        const angle = (i * (Math.PI * 2)) / 12 + (ring * 0.45);
-        const baseHeight = ((i % 5) - 2) * 7 + 6;
-
-        flowerSprite.userData = { isFlower: true, flowerIndex: i, baseSize: size };
-        galaxyMainGroup.add(flowerSprite);
-        clickableObjects.push(flowerSprite);
-
-        orbitElements.push({
-            mesh: flowerSprite,
-            radius: radius,
-            angle: angle,
-            speed: (0.42 / Math.sqrt(radius)) * 0.015,
-            floatOffset: i * 1.8,
-            baseHeight: baseHeight,
-            floatAmp: 3.5
-        });
-    }
-
-    // 2) CAMPO DE GIRASOLES Y RAMOS EN LOS BRAZOS DE LA GALAXIA (120 flores flotantes)
-    const ambientFlowersCount = 120;
-    for (let j = 0; j < ambientFlowersCount; j++) {
-        const isBouquet = (j % 4 === 0);
-        const texture = isBouquet ? bouquetTexture : sunflowerTexture;
-        const mat = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            depthTest: false,
-            opacity: 0.88 + Math.random() * 0.12
-        });
-        const sprite = new THREE.Sprite(mat);
-        const size = isBouquet ? (18 + Math.random() * 12) : (16 + Math.random() * 14);
-        sprite.scale.set(size, size, 1);
-
-        // Dispersión espiral a lo largo de los 3 brazos de la galaxia
-        const branchAngle = (j % 3) * ((2 * Math.PI) / 3);
-        const radius = 32 + Math.pow(Math.random(), 1.35) * 185;
-        const spinAngle = radius * 0.08;
-        const angle = branchAngle + spinAngle + (Math.random() - 0.5) * 0.55;
-        const baseHeight = (Math.random() - 0.5) * 26;
-
-        // Algunas flores adicionales también son clickeables
-        if (j % 3 === 0) {
-            sprite.userData = { isFlower: true, flowerIndex: j + 36, baseSize: size };
-            clickableObjects.push(sprite);
-        }
-
-        galaxyMainGroup.add(sprite);
-
-        orbitElements.push({
-            mesh: sprite,
-            radius: radius,
-            angle: angle,
-            speed: (0.46 / Math.sqrt(radius)) * (0.012 + Math.random() * 0.006),
-            floatOffset: j * 1.3,
-            baseHeight: baseHeight,
-            floatAmp: 2.8 + Math.random() * 2.2,
-            rotSpeed: (Math.random() - 0.5) * 0.008
-        });
-    }
-
-    // 3) CORONA FLORAL DEL CORAZÓN DORADO (18 Girasoles orbitando el corazón sagrado)
-    const heartCrownCount = 18;
-    for (let k = 0; k < heartCrownCount; k++) {
+    // 1) CORONA CELESTIAL DEL CORAZÓN DORADO (10 Girasoles en halo simétrico alrededor del corazón)
+    const crownCount = 10;
+    for (let k = 0; k < crownCount; k++) {
         const mat = new THREE.SpriteMaterial({
             map: sunflowerTexture,
             transparent: true,
@@ -927,14 +840,14 @@ window.addEventListener('DOMContentLoaded', () => {
             opacity: 0.95
         });
         const sprite = new THREE.Sprite(mat);
-        const size = 16 + (k % 3) * 3;
+        const size = 15;
         sprite.scale.set(size, size, 1);
 
-        const radius = 26 + (k % 2) * 7;
-        const angle = (k * (Math.PI * 2)) / heartCrownCount;
-        const baseHeight = 82 + ((k % 3) - 1) * 6;
+        const radius = 28;
+        const angle = (k * (Math.PI * 2)) / crownCount;
+        const baseHeight = 85;
 
-        sprite.userData = { isFlower: true, flowerIndex: k + 100, baseSize: size };
+        sprite.userData = { isFlower: true, flowerIndex: k, baseSize: size };
         clickableObjects.push(sprite);
         galaxyMainGroup.add(sprite);
 
@@ -942,31 +855,100 @@ window.addEventListener('DOMContentLoaded', () => {
             mesh: sprite,
             radius: radius,
             angle: angle,
-            speed: 0.011 + (k % 2) * 0.003,
-            floatOffset: k * 2.0,
+            speed: 0.009,
+            floatOffset: k * 0.6,
             baseHeight: baseHeight,
-            floatAmp: 3.8,
-            rotSpeed: 0.01
+            floatAmp: 1.8,
+            rotSpeed: 0.006
         });
     }
 
-    // 4) PÉTALOS DORADOS FLOTANTES EN EL COSMOS (60 pétalos de girasol)
-    const floatingPetalsCount = 60;
-    for (let p = 0; p < floatingPetalsCount; p++) {
+    // 2) ANILLO FLORAL INTERIOR (12 Flores y Ramos armónicos entre el núcleo y las fotos)
+    const innerRingCount = 12;
+    for (let i = 0; i < innerRingCount; i++) {
+        const isBouquet = (i % 2 === 1);
+        const texture = isBouquet ? bouquetTexture : sunflowerTexture;
+        const mat = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: false
+        });
+        const sprite = new THREE.Sprite(mat);
+        const size = isBouquet ? 25 : 22;
+        sprite.scale.set(size, size, 1);
+
+        const radius = 62; // Radio ordenado y limpio, antes de las polaroids
+        const angle = (i * (Math.PI * 2)) / innerRingCount;
+        const baseHeight = 12 + Math.sin(angle * 2) * 3;
+
+        sprite.userData = { isFlower: true, flowerIndex: i + 10, baseSize: size };
+        galaxyMainGroup.add(sprite);
+        clickableObjects.push(sprite);
+
+        orbitElements.push({
+            mesh: sprite,
+            radius: radius,
+            angle: angle,
+            speed: (0.42 / Math.sqrt(radius)) * 0.015,
+            floatOffset: i * 1.0,
+            baseHeight: baseHeight,
+            floatAmp: 2.2,
+            rotSpeed: isBouquet ? 0.005 : -0.005
+        });
+    }
+
+    // 3) ANILLO FLORAL EXTERIOR (12 Ramos y Girasoles que enmarcan el horizonte galáctico)
+    const outerRingCount = 12;
+    for (let j = 0; j < outerRingCount; j++) {
+        const isBouquet = (j % 2 === 0);
+        const texture = isBouquet ? bouquetTexture : sunflowerTexture;
+        const mat = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: false,
+            opacity: 0.95
+        });
+        const sprite = new THREE.Sprite(mat);
+        const size = isBouquet ? 26 : 24;
+        sprite.scale.set(size, size, 1);
+
+        const radius = 150; // Radio amplio y equilibrado
+        const angle = (j * (Math.PI * 2)) / outerRingCount + (Math.PI / outerRingCount); // Desfasado simétricamente
+        const baseHeight = 16 + Math.cos(angle * 2) * 4;
+
+        sprite.userData = { isFlower: true, flowerIndex: j + 22, baseSize: size };
+        galaxyMainGroup.add(sprite);
+        clickableObjects.push(sprite);
+
+        orbitElements.push({
+            mesh: sprite,
+            radius: radius,
+            angle: angle,
+            speed: (0.42 / Math.sqrt(radius)) * 0.014,
+            floatOffset: j * 1.2,
+            baseHeight: baseHeight,
+            floatAmp: 2.5,
+            rotSpeed: isBouquet ? -0.005 : 0.005
+        });
+    }
+
+    // 4) PÉTALOS DORADOS FLOTANTES (Solo 12 pétalos sutiles para dar vida sin ensuciar)
+    const subtlePetalsCount = 12;
+    for (let p = 0; p < subtlePetalsCount; p++) {
         const mat = new THREE.SpriteMaterial({
             map: singlePetalTexture,
             transparent: true,
             depthTest: false,
             blending: THREE.AdditiveBlending,
-            opacity: 0.75 + Math.random() * 0.25
+            opacity: 0.65
         });
         const sprite = new THREE.Sprite(mat);
-        const size = 12 + Math.random() * 10;
-        sprite.scale.set(size, size * 1.4, 1);
+        const size = 11;
+        sprite.scale.set(size, size * 1.3, 1);
 
-        const radius = 25 + Math.random() * 195;
-        const angle = Math.random() * Math.PI * 2;
-        const baseHeight = (Math.random() - 0.5) * 45 + 10;
+        const radius = 95 + (p % 3) * 15;
+        const angle = (p * (Math.PI * 2)) / subtlePetalsCount;
+        const baseHeight = 14 + ((p % 3) - 1) * 6;
 
         galaxyMainGroup.add(sprite);
 
@@ -974,11 +956,11 @@ window.addEventListener('DOMContentLoaded', () => {
             mesh: sprite,
             radius: radius,
             angle: angle,
-            speed: (0.35 / Math.sqrt(radius)) * (0.01 + Math.random() * 0.008),
-            floatOffset: p * 2.5,
+            speed: (0.35 / Math.sqrt(radius)) * 0.012,
+            floatOffset: p * 1.5,
             baseHeight: baseHeight,
-            floatAmp: 4.5,
-            rotSpeed: (Math.random() - 0.5) * 0.02
+            floatAmp: 2.0,
+            rotSpeed: 0.01
         });
     }
 
@@ -1495,8 +1477,13 @@ window.addEventListener('DOMContentLoaded', () => {
                 shootingStarSprite.visible = false;
                 openWish();
             } else if (hit.userData && hit.userData.isFlower) {
-                // Flor tocada: animación de giro y cumplido
-                hit.material.rotation += 0.5;
+                // Flor tocada: animación de giro, pulsación y cumplido
+                hit.material.rotation += 0.6;
+                const baseS = hit.userData.baseSize || 24;
+                hit.scale.set(baseS * 1.3, baseS * 1.3, 1);
+                setTimeout(() => {
+                    hit.scale.set(baseS, baseS, 1);
+                }, 350);
                 showFlowerCompliment(hit.userData.flowerIndex);
             }
         }
