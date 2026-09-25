@@ -362,19 +362,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES (Minimalista: 8 pares simétricos)
+    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES (Ultra minimalista: solo 4 pares)
     // ==========================================
     const tunnelGroup = new THREE.Group();
     const tunnelElements = [];
     const TUNNEL_LENGTH = 1350;
-    const TUNNEL_COUNT = 16;
+    const TUNNEL_COUNT = 8;
 
     for (let i = 0; i < TUNNEL_COUNT; i++) {
         const pairIndex = Math.floor(i / 2);
         const isRight = (i % 2 === 1);
         const isBouquet = (pairIndex % 2 === 1);
         const tex = isBouquet ? bouquetTexture : sunflowerTexture;
-        const size = 26;
+        const size = 24;
 
         const mat = new THREE.SpriteMaterial({
             map: tex,
@@ -384,8 +384,8 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         const sprite = new THREE.Sprite(mat);
 
-        const z = 1050 - (pairIndex / 7) * TUNNEL_LENGTH;
-        const x = isRight ? 48 : -48;
+        const z = 1050 - (pairIndex / 3) * TUNNEL_LENGTH;
+        const x = isRight ? 50 : -50;
         const y = 0;
 
         sprite.position.set(x, y, z);
@@ -466,7 +466,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const explosionPoints = new THREE.Points(explosionGeo, explosionMat);
     scene.add(explosionPoints);
 
-    const explosionPetalsCount = 50;
+    const explosionPetalsCount = 12;
     const explosionPetals = [];
     const explosionPetalsGroup = new THREE.Group();
 
@@ -824,9 +824,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 8.B ANILLO CELESTIAL DE FLORES AMARILLAS (Minimalista y perfectamente ordenado: 8 flores)
+    // 8.B CUATRO FLORES CELESTIALES (Ultra minimalista: 4 flores en puntos cardinales)
     // ==========================================
-    const flowerRingCount = 8;
+    const flowerRingCount = 4;
     for (let i = 0; i < flowerRingCount; i++) {
         const isBouquet = (i % 2 === 1);
         const texture = isBouquet ? bouquetTexture : sunflowerTexture;
@@ -836,13 +836,13 @@ window.addEventListener('DOMContentLoaded', () => {
             depthTest: false
         });
         const sprite = new THREE.Sprite(mat);
-        const size = isBouquet ? 24 : 22;
+        const size = isBouquet ? 22 : 20;
         sprite.scale.set(size, size, 1);
 
-        // Radio limpio y despejado a 70, entre el núcleo y las fotos polaroid
-        const radius = 70;
-        // Separación exacta de 45 grados entre cada una
-        const angle = (i * (Math.PI * 2)) / flowerRingCount;
+        // Radio limpio a 75, perfectamente despejado
+        const radius = 75;
+        // Separación exacta de 90 grados: Norte, Este, Sur, Oeste
+        const angle = (i * Math.PI) / 2;
         const baseHeight = 8;
 
         sprite.userData = { isFlower: true, flowerIndex: i, baseSize: size };
@@ -853,11 +853,10 @@ window.addEventListener('DOMContentLoaded', () => {
             mesh: sprite,
             radius: radius,
             angle: angle,
-            // Misma velocidad exacta para todas: giran en perfecta sincronía sin desordenarse jamás
-            speed: 0.0035,
+            speed: 0.0028,
             floatOffset: 0,
             baseHeight: baseHeight,
-            floatAmp: 1.5,
+            floatAmp: 1.2,
             rotSpeed: isBouquet ? 0.003 : -0.003
         });
     }
