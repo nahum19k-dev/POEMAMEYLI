@@ -362,19 +362,26 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES (Ultra minimalista: solo 4 pares)
+    // 3. TÚNEL CINEMATOGRÁFICO DE FLORES
     // ==========================================
     const tunnelGroup = new THREE.Group();
     const tunnelElements = [];
     const TUNNEL_LENGTH = 1350;
-    const TUNNEL_COUNT = 8;
+    const TUNNEL_COUNT = 85;
 
     for (let i = 0; i < TUNNEL_COUNT; i++) {
-        const pairIndex = Math.floor(i / 2);
-        const isRight = (i % 2 === 1);
-        const isBouquet = (pairIndex % 2 === 1);
-        const tex = isBouquet ? bouquetTexture : sunflowerTexture;
-        const size = 24;
+        const isBouquet = i % 3 === 0;
+        const isPetal = i % 2 === 0;
+        let tex = sunflowerTexture;
+        let size = 32;
+
+        if (isBouquet) {
+            tex = bouquetTexture;
+            size = 35;
+        } else if (isPetal) {
+            tex = singlePetalTexture;
+            size = 20;
+        }
 
         const mat = new THREE.SpriteMaterial({
             map: tex,
@@ -384,9 +391,11 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         const sprite = new THREE.Sprite(mat);
 
-        const z = 1050 - (pairIndex / 3) * TUNNEL_LENGTH;
-        const x = isRight ? 50 : -50;
-        const y = 0;
+        const z = 1050 - (i / TUNNEL_COUNT) * TUNNEL_LENGTH;
+        const radius = 45 + Math.random() * 65;
+        const angle = i * 0.55 + Math.random() * 0.2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
 
         sprite.position.set(x, y, z);
         sprite.scale.set(size, size, 1);
@@ -394,7 +403,7 @@ window.addEventListener('DOMContentLoaded', () => {
         tunnelGroup.add(sprite);
         tunnelElements.push({
             sprite,
-            rotSpeed: isRight ? 0.008 : -0.008
+            rotSpeed: (Math.random() - 0.5) * 0.05
         });
     }
 
@@ -466,7 +475,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const explosionPoints = new THREE.Points(explosionGeo, explosionMat);
     scene.add(explosionPoints);
 
-    const explosionPetalsCount = 12;
+    const explosionPetalsCount = 50;
     const explosionPetals = [];
     const explosionPetalsGroup = new THREE.Group();
 
@@ -739,15 +748,7 @@ window.addEventListener('DOMContentLoaded', () => {
         "Verdad indiscutible: Iluminas cualquier lugar al que vas ☀️",
         "Deseo para hoy: Que nunca dejes de ser tan alegre y espontánea 🌻",
         "Dato: Coincidir contigo ha sido una de las mejores cosas de este 2026 💛",
-        "Mensaje cósmico: Te mereces este universo de flores amarillas y más 💫",
-        "Confesión: Cada vez que me llega un mensaje tuyo me sacas una sonrisa 💬",
-        "Detalle: Tienes una vibra tan linda que hace que todo sea más ligero 🌟",
-        "Mirada: Tienes unos ojos que transmiten una paz increíble ✨",
-        "Por si lo olvidaste: Eres de esas personas que valen la pena de verdad 💛",
-        "Flores amarillas: Un girasol por cada recuerdo bonito que hemos compartido 🌻",
-        "Momento favorito: Nuestras charlas que se pasan volando sin darnos cuenta ⏳",
-        "Girasol cósmico: Eres el rayito de sol de este universo ☀️",
-        "Para ti, Chiquita: Gracias por existir y por ser tan auténtica 🌻✨"
+        "Mensaje cósmico: Te mereces este universo de flores amarillas y más 💫"
     ];
 
     // ==========================================
@@ -823,41 +824,34 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ==========================================
-    // 8.B CUATRO FLORES CELESTIALES (Ultra minimalista: 4 flores en puntos cardinales)
-    // ==========================================
-    const flowerRingCount = 4;
-    for (let i = 0; i < flowerRingCount; i++) {
-        const isBouquet = (i % 2 === 1);
+    // Flores Interactivas con Cumplidos
+    const flowerItemsCount = 12;
+    for (let i = 0; i < flowerItemsCount; i++) {
+        const isBouquet = i % 2 === 0;
         const texture = isBouquet ? bouquetTexture : sunflowerTexture;
         const mat = new THREE.SpriteMaterial({
             map: texture,
             transparent: true,
             depthTest: false
         });
-        const sprite = new THREE.Sprite(mat);
-        const size = isBouquet ? 22 : 20;
-        sprite.scale.set(size, size, 1);
+        const flowerSprite = new THREE.Sprite(mat);
+        const size = isBouquet ? 26 : 22;
+        flowerSprite.scale.set(size, size, 1);
 
-        // Radio limpio a 75, perfectamente despejado
-        const radius = 75;
-        // Separación exacta de 90 grados: Norte, Este, Sur, Oeste
-        const angle = (i * Math.PI) / 2;
-        const baseHeight = 8;
+        const radius = 42 + i * 13;
+        const angle = (i * (Math.PI * 2)) / flowerItemsCount + 0.6;
 
-        sprite.userData = { isFlower: true, flowerIndex: i, baseSize: size };
-        galaxyMainGroup.add(sprite);
-        clickableObjects.push(sprite);
+        flowerSprite.userData = { isFlower: true, flowerIndex: i, baseSize: size };
+        galaxyMainGroup.add(flowerSprite);
+        clickableObjects.push(flowerSprite);
 
         orbitElements.push({
-            mesh: sprite,
+            mesh: flowerSprite,
             radius: radius,
             angle: angle,
-            speed: 0.0028,
-            floatOffset: 0,
-            baseHeight: baseHeight,
-            floatAmp: 1.2,
-            rotSpeed: isBouquet ? 0.003 : -0.003
+            speed: (0.4 / Math.sqrt(radius)) * 0.015,
+            floatOffset: i * 2.2,
+            baseHeight: 8 + (i % 4) * 3
         });
     }
 
@@ -1374,13 +1368,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 shootingStarSprite.visible = false;
                 openWish();
             } else if (hit.userData && hit.userData.isFlower) {
-                // Flor tocada: animación de giro, pulsación y cumplido
-                hit.material.rotation += 0.6;
-                const baseS = hit.userData.baseSize || 24;
-                hit.scale.set(baseS * 1.3, baseS * 1.3, 1);
-                setTimeout(() => {
-                    hit.scale.set(baseS, baseS, 1);
-                }, 350);
+                // Flor tocada: animación de giro y cumplido
+                hit.material.rotation += 0.5;
                 showFlowerCompliment(hit.userData.flowerIndex);
             }
         }
@@ -1559,10 +1548,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 item.angle += item.speed;
                 item.mesh.position.x = Math.cos(item.angle) * item.radius;
                 item.mesh.position.z = Math.sin(item.angle) * item.radius;
-                item.mesh.position.y = item.baseHeight + Math.sin(elapsedTime * 2.4 + item.floatOffset) * (item.floatAmp || 3.2);
-                if (item.rotSpeed && item.mesh && item.mesh.material) {
-                    item.mesh.material.rotation += item.rotSpeed;
-                }
+                item.mesh.position.y = item.baseHeight + Math.sin(elapsedTime * 2.4 + item.floatOffset) * 3.2;
             });
         }
 
